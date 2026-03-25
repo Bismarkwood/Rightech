@@ -1,0 +1,31 @@
+
+> @figma/my-make-file@0.0.1 build
+> vite build
+
+[36mvite v6.3.5 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 1813 modules transformed.
+[31m✗[39m Build failed in 1.97s
+[31merror during build:
+[31m[vite:esbuild] Transform failed with 1 error:
+C:/Users/atoba/Downloads/Rightech/src/app/components/retailer/InventoryTab.tsx:100:39: ERROR: Syntax error "`"[31m
+file: [36mC:/Users/atoba/Downloads/Rightech/src/app/components/retailer/InventoryTab.tsx:100:39[31m
+[33m
+[33mSyntax error "`"[33m
+98 |                      <div 
+99 |                        className={`h-full rounded-full ${item.stock === 0 ? 'bg-[#EF4444]' : item.stock <= item.minStock ? 'bg-[#F59E0B]' : 'bg-[#10B981]'}`}
+100|                        style={{ width: \`\${Math.min(100, (item.stock / (item.minStock * 3)) * 100)}%\` }}
+   |                                         ^
+101|                      />
+102|                    </div>
+[31m
+    at failureErrorWithLog (C:\Users\atoba\Downloads\Rightech\node_modules\esbuild\lib\main.js:1467:15)
+    at C:\Users\atoba\Downloads\Rightech\node_modules\esbuild\lib\main.js:736:50
+    at responseCallbacks.<computed> (C:\Users\atoba\Downloads\Rightech\node_modules\esbuild\lib\main.js:603:9)
+    at handleIncomingPacket (C:\Users\atoba\Downloads\Rightech\node_modules\esbuild\lib\main.js:658:12)
+    at Socket.readFromStdout (C:\Users\atoba\Downloads\Rightech\node_modules\esbuild\lib\main.js:581:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m
