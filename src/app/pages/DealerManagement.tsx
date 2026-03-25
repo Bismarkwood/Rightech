@@ -279,28 +279,32 @@ export default function DealerManagement() {
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                     {/* Quick Stats Grid */}
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 rounded-[14px] bg-[#F7F7F8] border border-[#ECEDEF]">
-                         <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Credit Score</p>
-                         <div className="flex items-center gap-3">
-                           <p className="text-[22px] font-bold text-[#111111] tracking-tight">{selectedDealer.creditScore}</p>
-                           <div className="flex-1 h-1.5 rounded-full bg-[#E4E7EC] overflow-hidden">
-                             <div className="h-full rounded-full" style={{ width: `${(selectedDealer.creditScore/1000)*100}%`, background: getRiskColor(selectedDealer.creditScore) }} />
+                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #059669 0%, #064e3b 100%)', boxShadow: '0 4px 16px rgba(6,78,59,0.15)' }}>
+                         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #34d399, transparent 70%)' }} />
+                         <p className="relative text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Credit Score</p>
+                         <div className="relative flex items-center gap-3 mt-1">
+                           <p className="text-[22px] font-bold text-white tracking-tight">{selectedDealer.creditScore}</p>
+                           <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                             <div className="h-full rounded-full bg-white" style={{ width: `${(selectedDealer.creditScore/1000)*100}%` }} />
                            </div>
                          </div>
                       </div>
-                      <div className="p-4 rounded-[14px] bg-[#F7F7F8] border border-[#ECEDEF]">
-                         <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Outstanding</p>
-                         <p className="text-[22px] font-bold text-[#111111] tracking-tight">
+                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #120009 0%, #2e001a 100%)', boxShadow: '0 4px 16px rgba(46,0,26,0.15)' }}>
+                         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #D40073, transparent 70%)' }} />
+                         <p className="relative text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Total Orders</p>
+                         <p className="relative text-[22px] font-bold text-white tracking-tight mt-1">{selectedDealer.ordersCount}</p>
+                      </div>
+                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #ea580c 0%, #7c2d12 100%)', boxShadow: '0 4px 16px rgba(124,45,18,0.15)' }}>
+                         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #fdba74, transparent 70%)' }} />
+                         <p className="relative text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Outstanding</p>
+                         <p className="relative text-[22px] font-bold text-white tracking-tight mt-1">
                            {formatMoney(selectedDealer.outstanding)}
                          </p>
                       </div>
-                      <div className="p-4 rounded-[14px] bg-[#F7F7F8] border border-[#ECEDEF]">
-                         <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Total Orders</p>
-                         <p className="text-[22px] font-bold text-[#111111] tracking-tight">{selectedDealer.ordersCount}</p>
-                      </div>
-                      <div className="p-4 rounded-[14px] bg-[#F7F7F8] border border-[#ECEDEF]">
-                         <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Used Credit</p>
-                         <p className="text-[22px] font-bold text-[#111111] tracking-tight">
+                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)', boxShadow: '0 4px 16px rgba(49,46,129,0.15)' }}>
+                         <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #818cf8, transparent 70%)' }} />
+                         <p className="relative text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Used Credit</p>
+                         <p className="relative text-[22px] font-bold text-white tracking-tight mt-1">
                            {formatMoney((selectedDealer.outstanding / selectedDealer.creditLimit) * selectedDealer.creditLimit)}
                          </p>
                       </div>
