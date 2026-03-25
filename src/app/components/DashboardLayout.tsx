@@ -2,13 +2,15 @@ import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { Icon } from '@iconify/react';
 import { RightTechLogo } from '../pages/Auth';
+import { NotificationCenter } from './NotificationCenter';
 
 const NAVIGATION = [
   {
     group: 'General',
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: 'solar:widget-5-linear', path: '/dashboard' },
-      { id: 'business', label: 'Business Management', icon: 'solar:shop-2-linear', path: '/dashboard/business' },
+      // NOTE: Business Management navigation is temporarily disabled — uncomment to re-enable
+      // { id: 'business', label: 'Business Management', icon: 'solar:shop-2-linear', path: '/dashboard/business' },
       { id: 'supply', label: 'Supply', icon: 'solar:box-minimalistic-linear', path: '/dashboard/supply' },
       { id: 'retailer', label: 'Retailer', icon: 'solar:cart-large-2-linear', path: '/dashboard/retailer' },
       { id: 'dealer', label: 'Dealer', icon: 'solar:users-group-two-rounded-linear', path: '/dashboard/dealer' },
@@ -93,11 +95,7 @@ const Topbar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          
-          <button className="relative w-10 h-10 flex items-center justify-center text-[#525866] hover:text-[#111111] hover:bg-[#F3F4F6] rounded-full transition-colors">
-            <Icon icon="solar:bell-linear" className="text-[20px]" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#D40073] rounded-full border-2 border-white"></span>
-          </button>
+          <NotificationCenter />
         </div>
 
         <div className="h-8 w-[1px] bg-[#ECEDEF] mx-1"></div>
