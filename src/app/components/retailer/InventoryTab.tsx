@@ -3,21 +3,26 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '@iconify/react';
 import * as Dialog from '@radix-ui/react-dialog';
 
-const MOCK_INVENTORY = [
-  { id: 'INV-101', name: 'Portland Cement 50kg', category: 'Cement', stock: 450, minStock: 100, price: '85 GHS', status: 'In Stock', lastUpdated: 'Today' },
-  { id: 'INV-102', name: 'Iron Rods 16mm', category: 'Steel', stock: 12, minStock: 50, price: '120 GHS', status: 'Low Stock', lastUpdated: 'Yesterday' },
-  { id: 'INV-103', name: 'Roofing Sheets (Aluzinc)', category: 'Roofing', stock: 0, minStock: 20, price: '350 GHS', status: 'Out of Stock', lastUpdated: '2 days ago' },
-  { id: 'INV-104', name: 'Emulsion Paint 20L', category: 'Paint', stock: 85, minStock: 30, price: '450 GHS', status: 'In Stock', lastUpdated: 'Today' },
-  { id: 'INV-105', name: 'PVC Pipes 4"', category: 'Plumbing', stock: 120, minStock: 40, price: '65 GHS', status: 'In Stock', lastUpdated: '1 week ago' },
-];
+import { useRetailer, type InventoryItem } from './RetailerContext';
+
+const CATEGORIES = ['Building Materials', 'Steel', 'Cement', 'Roofing', 'Paint', 'Plumbing', 'Electrical', 'Other'];
 
 export function InventoryTab() {
+  const { inventory, addInventoryItem, updateInventoryItem, deleteInventoryItem } = useRetailer();
   const [searchTerm, setSearchTerm] = useState('');
-  const [inventory, setInventory] = useState(MOCK_INVENTORY);
-  const [selectedItem, setSelectedItem] = useState<typeof MOCK_INVENTORY[0] | null>(null);
+  
+  // Modal states
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdateStockOpen, setIsUpdateStockOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+  // Form states
+  const [itemForm, setItemForm] = useState<Partial<InventoryItem>>({});
+  const [stockDelta, setStockDelta] = useState<number>(0);
 
   const filteredInventory = inventory.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -26,15 +31,89 @@ export function InventoryTab() {
 
   const handleDelete = () => {
     if (itemToDelete) {
-      setInventory(prev => prev.filter(i => i.id !== itemToDelete));
+      deleteInventoryItem(itemToDelete);
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
     }
   };
 
-  const openViewModal = (item: typeof MOCK_INVENTORY[0]) => {
+  const openViewModal = (item: InventoryItem) => {
     setSelectedItem(item);
     setIsViewModalOpen(true);
+  };
+
+  const openCreateModal = () => {
+    setItemForm({
+      name: '',
+      category: CATEGORIES[0],
+      stock: 0,
+      minStock: 10,
+      price: '0 GHS',
+      image: '',
+      description: '',
+    });
+    setIsCreateModalOpen(true);
+  };
+
+  const openEditModal = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setItemForm({ ...item });
+    setIsViewModalOpen(false);
+    setIsEditModalOpen(true);
+  };
+
+  const openUpdateStockModal = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setStockDelta(0);
+    setIsViewModalOpen(false);
+    setIsUpdateStockOpen(true);
+  };
+
+  const handleCreate = () => {
+    const newId = `INV-${Math.floor(100 + Math.random() * 900)}`;
+    const stock = Number(itemForm.stock) || 0;
+    const minStock = Number(itemForm.minStock) || 0;
+    
+    let status: 'In Stock' | 'Low Stock' | 'Out of Stock' = 'In Stock';
+    if (stock <= 0) status = 'Out of Stock';
+    else if (stock <= minStock) status = 'Low Stock';
+
+    const newItem: InventoryItem = {
+      ...itemForm as InventoryItem,
+      id: newId,
+      stock,
+      minStock,
+      lastUpdated: 'Just now',
+      status
+    };
+    addInventoryItem(newItem);
+    setIsCreateModalOpen(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setItemForm(prev => ({ ...prev, image: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpdate = () => {
+    if (selectedItem) {
+      updateInventoryItem(selectedItem.id, itemForm);
+      setIsEditModalOpen(false);
+    }
+  };
+
+  const handleStockUpdate = () => {
+    if (selectedItem) {
+      const newStock = Math.max(0, selectedItem.stock + stockDelta);
+      updateInventoryItem(selectedItem.id, { stock: newStock });
+      setIsUpdateStockOpen(false);
+    }
   };
 
   const openDeleteModal = (id: string, e: React.MouseEvent) => {
@@ -57,8 +136,11 @@ export function InventoryTab() {
             className="w-full h-10 pl-10 pr-4 bg-[#F7F7F8] border border-transparent rounded-[8px] text-[13px] text-[#111111] placeholder:text-[#8B93A7] focus:outline-none focus:bg-white focus:border-[#D40073] focus:ring-[3px] focus:ring-[rgba(212,0,115,0.1)] transition-all font-medium"
           />
         </div>
-        <button className="h-[40px] px-4 flex items-center gap-2 bg-[#111111] hover:bg-[#333333] text-white rounded-[10px] text-[13px] font-semibold transition-colors">
-          <Icon icon="solar:add-circle-linear" className="text-[18px]" />
+        <button 
+          onClick={openCreateModal}
+          className="h-[40px] px-4 flex items-center gap-2 bg-[#111111] hover:bg-[#D40073] text-white rounded-[10px] text-[13px] font-semibold transition-all shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-95"
+        >
+          <Icon icon="solar:add-circle-bold" className="text-[18px]" />
           Add Item
         </button>
       </div>
@@ -84,8 +166,21 @@ export function InventoryTab() {
                 className="border-b border-[#ECEDEF] last:border-0 hover:bg-[#FBFBFC] transition-colors cursor-pointer group"
               >
                 <td className="py-4 px-5">
-                  <div className="font-bold text-[#111111]">{item.name}</div>
-                  <div className="text-[12px] text-[#8B93A7] font-medium">{item.id}</div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-[8px] overflow-hidden bg-[#F3F4F6] flex-shrink-0 border border-[#ECEDEF]">
+                      {item.image ? (
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#8B93A7]">
+                          <Icon icon="solar:box-linear" className="text-[20px]" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-bold text-[#111111] line-clamp-1">{item.name}</div>
+                      <div className="text-[12px] text-[#8B93A7] font-medium">{item.id}</div>
+                    </div>
+                  </div>
                 </td>
                 <td className="py-4 px-5 font-semibold text-[#525866]">{item.category}</td>
                 <td className="py-4 px-5">
@@ -117,6 +212,7 @@ export function InventoryTab() {
                 <td className="py-4 px-5 text-right">
                   <div className="flex items-center justify-end gap-2">
                     <button 
+                      onClick={() => openViewModal(item)}
                       className="w-8 h-8 flex items-center justify-center text-[#8B93A7] hover:text-[#111111] hover:bg-[#F3F4F6] rounded-[8px] transition-colors"
                       title="View Details"
                     >
@@ -161,9 +257,20 @@ export function InventoryTab() {
                   className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-[24px] p-6 z-50 shadow-2xl focus:outline-none"
                 >
                   <div className="flex items-start justify-between mb-6">
-                    <div>
-                      <h2 className="text-[20px] font-bold text-[#111111] tracking-tight">{selectedItem.name}</h2>
-                      <p className="text-[13px] text-[#525866] font-medium mt-1">ID: {selectedItem.id} • {selectedItem.category}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-[12px] overflow-hidden bg-[#F7F7F8] border border-[#ECEDEF] flex-shrink-0">
+                        {selectedItem.image ? (
+                          <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#8B93A7]">
+                            <Icon icon="solar:box-linear" className="text-[28px]" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <h2 className="text-[20px] font-bold text-[#111111] tracking-tight">{selectedItem.name}</h2>
+                        <p className="text-[13px] text-[#525866] font-medium mt-1">ID: {selectedItem.id} • {selectedItem.category}</p>
+                      </div>
                     </div>
                     <Dialog.Close asChild>
                       <button className="w-8 h-8 flex items-center justify-center text-[#8B93A7] hover:bg-[#F3F4F6] rounded-full transition-colors">
@@ -172,40 +279,290 @@ export function InventoryTab() {
                     </Dialog.Close>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-[#F7F7F8] rounded-[12px]">
-                      <span className="text-[13px] text-[#525866] font-medium">Current Stock</span>
-                      <span className="text-[14px] font-bold text-[#111111]">{selectedItem.stock} units</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3.5 bg-[#F7F7F8] rounded-[14px]">
+                      <span className="text-[13px] text-[#525866] font-semibold">Current Stock</span>
+                      <span className="text-[14px] font-extrabold text-[#111111]">{selectedItem.stock} units</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-[#F7F7F8] rounded-[12px]">
-                      <span className="text-[13px] text-[#525866] font-medium">Minimum Threshold</span>
-                      <span className="text-[14px] font-bold text-[#111111]">{selectedItem.minStock} units</span>
+                    <div className="flex items-center justify-between p-3.5 bg-[#F7F7F8] rounded-[14px]">
+                      <span className="text-[13px] text-[#525866] font-semibold">Minimum Threshold</span>
+                      <span className="text-[14px] font-extrabold text-[#111111]">{selectedItem.minStock} units</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-[#F7F7F8] rounded-[12px]">
-                      <span className="text-[13px] text-[#525866] font-medium">Unit Price</span>
-                      <span className="text-[14px] font-bold text-[#111111]">{selectedItem.price}</span>
+                    <div className="flex items-center justify-between p-3.5 bg-[#F7F7F8] rounded-[14px]">
+                      <span className="text-[13px] text-[#525866] font-semibold">Unit Price</span>
+                      <span className="text-[14px] font-extrabold text-[#111111]">{selectedItem.price}</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-[#F7F7F8] rounded-[12px]">
-                      <span className="text-[13px] text-[#525866] font-medium">Status</span>
-                      <span className={`text-[13px] font-bold ${
-                        selectedItem.status === 'In Stock' ? 'text-[#16A34A]' :
-                        selectedItem.status === 'Low Stock' ? 'text-[#D97706]' :
-                        'text-[#DC2626]'
+                    <div className="flex items-center justify-between p-3.5 bg-[#F7F7F8] rounded-[14px]">
+                      <span className="text-[13px] text-[#525866] font-semibold">Status</span>
+                      <span className={`text-[13px] font-bold px-2 py-0.5 rounded-full ${
+                        selectedItem.status === 'In Stock' ? 'bg-[#ECFDF3] text-[#16A34A]' :
+                        selectedItem.status === 'Low Stock' ? 'bg-[#FFF7ED] text-[#D97706]' :
+                        'bg-[#FEF2F2] text-[#DC2626]'
                       }`}>
                         {selectedItem.status}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-[#F7F7F8] rounded-[12px]">
-                      <span className="text-[13px] text-[#525866] font-medium">Last Updated</span>
-                      <span className="text-[14px] font-bold text-[#111111]">{selectedItem.lastUpdated}</span>
+                  </div>
+
+                  <div className="mt-8 grid grid-cols-2 gap-3">
+                    <button 
+                      onClick={() => openEditModal(selectedItem)}
+                      className="h-11 bg-[#F3F4F6] hover:bg-[#E4E7EC] text-[#111111] rounded-[12px] font-bold text-[14px] transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      <Icon icon="solar:pen-bold" />
+                      Edit Details
+                    </button>
+                    <button 
+                      onClick={() => openUpdateStockModal(selectedItem)}
+                      className="h-11 bg-[#111111] hover:bg-[#333333] text-white rounded-[12px] font-bold text-[14px] transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      <Icon icon="solar:box-bold" />
+                      Update Stock
+                    </button>
+                  </div>
+                </motion.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      </Dialog.Root>
+
+      {/* Create / Edit Modal */}
+      <Dialog.Root open={isCreateModalOpen || isEditModalOpen} onOpenChange={(v) => !v && (setIsCreateModalOpen(false), setIsEditModalOpen(false))}>
+        <AnimatePresence>
+          {(isCreateModalOpen || isEditModalOpen) && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild>
+                <motion.div 
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+                />
+              </Dialog.Overlay>
+              <Dialog.Content asChild>
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-[28px] overflow-hidden z-50 shadow-2xl focus:outline-none flex flex-col max-h-[90vh]"
+                >
+                  <div className="p-6 border-b border-[#ECEDEF] flex items-center justify-between bg-white shrink-0">
+                    <div>
+                      <h2 className="text-[20px] font-bold text-[#111111] tracking-tight">{isCreateModalOpen ? 'Add New Item' : 'Edit Item Details'}</h2>
+                      <p className="text-[13px] text-[#525866] font-medium mt-0.5">{isCreateModalOpen ? 'Register a new product to your inventory' : `Modify ${selectedItem?.id}`}</p>
+                    </div>
+                    <Dialog.Close asChild>
+                      <button className="w-10 h-10 flex items-center justify-center text-[#8B93A7] hover:bg-[#F3F4F6] rounded-full transition-colors">
+                        <Icon icon="solar:close-circle-linear" className="text-[22px]" />
+                      </button>
+                    </Dialog.Close>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-[#FBFBFC]">
+                    <div className="space-y-1.5">
+                      <label className="text-[12px] font-bold text-[#525866] uppercase tracking-wider">Item Name</label>
+                      <input 
+                        type="text" 
+                        value={itemForm.name}
+                        onChange={e => setItemForm({...itemForm, name: e.target.value})}
+                        placeholder="e.g. Portland Cement" 
+                        className="w-full h-11 px-4 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] focus:outline-none focus:border-[#D40073] focus:ring-[3px] focus:ring-[#D40073]/5 transition-all"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[12px] font-bold text-[#525866] uppercase tracking-wider">Category</label>
+                        <select 
+                          value={itemForm.category}
+                          onChange={e => setItemForm({...itemForm, category: e.target.value})}
+                          className="w-full h-11 px-4 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] focus:outline-none focus:border-[#D40073] transition-all appearance-none cursor-pointer"
+                        >
+                          {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[12px] font-bold text-[#525866] uppercase tracking-wider">Unit Price</label>
+                        <input 
+                          type="text" 
+                          value={itemForm.price}
+                          onChange={e => setItemForm({...itemForm, price: e.target.value})}
+                          placeholder="e.g. 85 GHS" 
+                          className="w-full h-11 px-4 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] focus:outline-none focus:border-[#D40073] transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[12px] font-bold text-[#525866] uppercase tracking-wider">Stock Level</label>
+                        <input 
+                          type="number" 
+                          value={itemForm.stock}
+                          onChange={e => setItemForm({...itemForm, stock: Number(e.target.value)})}
+                          className="w-full h-11 px-4 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] focus:outline-none focus:border-[#D40073] transition-all"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[12px] font-bold text-[#525866] uppercase tracking-wider">Min Threshold</label>
+                        <input 
+                          type="number" 
+                          value={itemForm.minStock}
+                          onChange={e => setItemForm({...itemForm, minStock: Number(e.target.value)})}
+                          className="w-full h-11 px-4 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] focus:outline-none focus:border-[#D40073] transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="space-y-1.5">
+                        <label className="text-[12px] font-bold text-[#525866] uppercase tracking-wider">Product Image</label>
+                        <div 
+                          onClick={() => document.getElementById('inventory-image-upload')?.click()}
+                          className="relative group cursor-pointer"
+                        >
+                          <div className="w-full h-24 border-2 border-dashed border-[#E4E7EC] hover:border-[#D40073] hover:bg-[#D40073]/5 rounded-[16px] transition-all flex flex-col items-center justify-center gap-1 text-[#8B93A7] hover:text-[#D40073]">
+                            <Icon icon="solar:camera-add-bold" className="text-[24px]" />
+                            <span className="text-[12px] font-bold">Click to Upload Image</span>
+                          </div>
+                          <input 
+                            id="inventory-image-upload"
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="hidden"
+                          />
+                        </div>
+                      </div>
+
+                      <AnimatePresence>
+                        {itemForm.image && (
+                          <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, height: 0 }}
+                            animate={{ opacity: 1, scale: 1, height: 'auto' }}
+                            exit={{ opacity: 0, scale: 0.9, height: 0 }}
+                            className="relative group mt-2"
+                          >
+                            <div className="relative aspect-video rounded-[16px] overflow-hidden bg-[#F7F7F8] border border-[#ECEDEF]">
+                              <img 
+                                src={itemForm.image} 
+                                alt="Preview" 
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    document.getElementById('inventory-image-upload')?.click();
+                                  }}
+                                  className="w-10 h-10 rounded-full bg-white text-[#111111] flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                                >
+                                  <Icon icon="solar:pen-bold" />
+                                </button>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setItemForm(prev => ({ ...prev, image: '' }));
+                                  }}
+                                  className="w-10 h-10 rounded-full bg-white text-[#EF4444] flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                                >
+                                  <Icon icon="solar:trash-bin-trash-bold" />
+                                </button>
+                              </div>
+                            </div>
+                            <div className="absolute top-3 right-3 px-2.5 py-1 bg-[#111111]/80 backdrop-blur-md rounded-full text-[10px] text-white font-black tracking-widest">
+                              READY FOR UPLOAD
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
 
-                  <div className="mt-8 flex gap-3">
-                    <button className="flex-1 h-11 bg-[#F3F4F6] hover:bg-[#E4E7EC] text-[#111111] rounded-[12px] font-bold text-[14px] transition-colors">
-                      Edit Details
+                  <div className="p-6 border-t border-[#ECEDEF] bg-white flex gap-3 shrink-0">
+                    <button 
+                      onClick={() => isCreateModalOpen ? setIsCreateModalOpen(false) : setIsEditModalOpen(false)}
+                      className="flex-1 h-11 bg-[#F3F4F6] hover:bg-[#E4E7EC] text-[#111111] rounded-[12px] font-bold text-[14px] transition-all"
+                    >
+                      Cancel
                     </button>
-                    <button className="flex-1 h-11 bg-[#111111] hover:bg-[#333333] text-white rounded-[12px] font-bold text-[14px] transition-colors">
+                    <button 
+                      onClick={isCreateModalOpen ? handleCreate : handleUpdate}
+                      className="flex-1 h-11 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[12px] font-bold text-[14px] transition-all shadow-lg active:scale-[0.98]"
+                    >
+                      {isCreateModalOpen ? 'Create Item' : 'Save Changes'}
+                    </button>
+                  </div>
+                </motion.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      </Dialog.Root>
+
+      {/* Update Stock Modal */}
+      <Dialog.Root open={isUpdateStockOpen} onOpenChange={setIsUpdateStockOpen}>
+        <AnimatePresence>
+          {isUpdateStockOpen && selectedItem && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild>
+                <motion.div 
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+                />
+              </Dialog.Overlay>
+              <Dialog.Content asChild>
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-[28px] p-6 z-50 shadow-2xl focus:outline-none text-center"
+                >
+                  <div className="w-16 h-16 rounded-full bg-[#D40073]/10 flex items-center justify-center mx-auto mb-4 text-[#D40073]">
+                    <Icon icon="solar:box-bold" className="text-[32px]" />
+                  </div>
+                  <h2 className="text-[20px] font-bold text-[#111111] mb-1">Update Stock Levels</h2>
+                  <p className="text-[13px] text-[#525866] mb-8 font-medium">{selectedItem.name}</p>
+                  
+                  <div className="flex items-center justify-center gap-6 mb-8">
+                    <button 
+                      onClick={() => setStockDelta(d => d - 1)}
+                      className="w-12 h-12 rounded-full border-2 border-[#E4E7EC] flex items-center justify-center text-[#111111] hover:bg-[#F3F4F6] transition-all active:scale-90"
+                    >
+                      <Icon icon="solar:minus-circle-bold" className="text-[24px]" />
+                    </button>
+                    <div className="flex flex-col items-center min-w-[80px]">
+                      <span className={`text-[32px] font-black ${stockDelta > 0 ? 'text-[#16A34A]' : stockDelta < 0 ? 'text-[#DC2626]' : 'text-[#111111]'}`}>
+                        {stockDelta > 0 ? `+${stockDelta}` : stockDelta}
+                      </span>
+                      <span className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-widest mt-1">Change</span>
+                    </div>
+                    <button 
+                      onClick={() => setStockDelta(d => d + 1)}
+                      className="w-12 h-12 rounded-full border-2 border-[#E4E7EC] flex items-center justify-center text-[#111111] hover:bg-[#F3F4F6] transition-all active:scale-90"
+                    >
+                      <Icon icon="solar:add-circle-bold" className="text-[24px]" />
+                    </button>
+                  </div>
+
+                  <div className="bg-[#F7F7F8] rounded-[16px] p-4 mb-8 flex items-center justify-between border border-[#ECEDEF]">
+                    <div className="text-left">
+                      <div className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">New Total</div>
+                      <div className="text-[18px] font-bold text-[#111111]">{Math.max(0, selectedItem.stock + stockDelta)} units</div>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-[11px] font-bold ${
+                      Math.max(0, selectedItem.stock + stockDelta) <= selectedItem.minStock ? 'bg-[#FFF7ED] text-[#D97706]' : 'bg-[#ECFDF3] text-[#16A34A]'
+                    }`}>
+                      {Math.max(0, selectedItem.stock + stockDelta) <= selectedItem.minStock ? 'Low Stock alert' : 'Healthy Level'}
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => setIsUpdateStockOpen(false)}
+                      className="flex-1 h-11 bg-[#F3F4F6] hover:bg-[#E4E7EC] text-[#111111] rounded-[14px] font-bold text-[14px] transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={handleStockUpdate}
+                      className="flex-1 h-11 bg-[#111111] hover:bg-[#333333] text-white rounded-[14px] font-bold text-[14px] transition-all shadow-lg active:scale-[0.98]"
+                    >
                       Update Stock
                     </button>
                   </div>

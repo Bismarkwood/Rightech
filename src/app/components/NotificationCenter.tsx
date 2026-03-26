@@ -98,7 +98,7 @@ export function NotificationCenter() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.97 }}
               transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
-              className="absolute right-0 top-[calc(100%+10px)] w-[380px] z-[60] rounded-[20px] overflow-hidden"
+              className="absolute right-0 top-[calc(100%+10px)] w-[380px] z-[999] rounded-[20px] overflow-hidden"
               style={{
                 background: 'rgba(255,255,255,0.82)',
                 backdropFilter: 'blur(24px)',
@@ -180,7 +180,7 @@ export function NotificationCenter() {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setPanelOpen(false)}
-              className="fixed inset-0 z-[70]"
+              className="fixed inset-0 z-[1000]"
               style={{ background: 'rgba(10,0,6,0.65)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}
             />
 
@@ -190,7 +190,7 @@ export function NotificationCenter() {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 60, scale: 0.97 }}
               transition={{ type: 'spring', duration: 0.45, bounce: 0.14 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-[520px] z-[80] flex flex-col"
+              className="fixed top-0 right-0 bottom-0 w-full max-w-[520px] z-[1001] flex flex-col"
               style={{
                 background: 'rgba(255,255,255,0.88)',
                 backdropFilter: 'blur(32px)',
@@ -352,12 +352,12 @@ export function NotificationCenter() {
           <motion.div
             key={toast.id}
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -16, scale: 0.96 }}
-            transition={{ type: 'spring', duration: 0.45, bounce: 0.2 }}
-            className="fixed top-5 left-1/2 -translate-x-1/2 z-[90] w-full max-w-[400px] flex items-start gap-3 px-4 py-4 rounded-[18px] cursor-pointer"
-            style={{
-              background: 'rgba(255,255,255,0.95)',
+             animate={{ opacity: 1, y: 0, scale: 1 }}
+             exit={{ opacity: 0, y: -16, scale: 0.96 }}
+             transition={{ type: 'spring', duration: 0.45, bounce: 0.2 }}
+             className="fixed top-5 left-1/2 -translate-x-1/2 z-[2000] w-full max-w-[400px] flex items-start gap-3 px-4 py-4 rounded-[18px] cursor-pointer"
+             style={{
+               background: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
               border: '1px solid rgba(0,0,0,0.08)',

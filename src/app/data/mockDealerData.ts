@@ -48,11 +48,64 @@ export const MOCK_DEALERS: Dealer[] = [
   }
 ];
 
+export interface OrderItem {
+  name: string;
+  qty: number;
+  price: number;
+}
+
 export const MOCK_DEALER_ORDERS = [
-  { id: 'ORD-9912', date: 'Oct 24, 2026', items: 45, total: 12500, status: 'Delivered', payment: 'Paid' },
-  { id: 'ORD-9908', date: 'Oct 18, 2026', items: 12, total: 3400, status: 'Delivered', payment: 'Credit' },
-  { id: 'ORD-9884', date: 'Oct 02, 2026', items: 120, total: 28000, status: 'Delivered', payment: 'Paid' },
-  { id: 'ORD-9850', date: 'Sep 15, 2026', items: 8, total: 1800, status: 'Delivered', payment: 'Paid' },
+  { 
+    id: 'ORD-9912', 
+    date: 'Oct 24, 2026', 
+    items: 45, 
+    total: 12500, 
+    status: 'Delivered', 
+    payment: 'Paid',
+    fulfillment: 'Direct Dispatch',
+    lines: [
+      { name: 'Samsung Galaxy A54', qty: 20, price: 2500 },
+      { name: 'JBL Flip 6', qty: 25, price: 1280 }
+    ]
+  },
+  { 
+    id: 'ORD-9908', 
+    date: 'Oct 18, 2026', 
+    items: 12, 
+    total: 3400, 
+    status: 'Delivered', 
+    payment: 'Credit',
+    fulfillment: 'In-Store Pickup',
+    lines: [
+      { name: 'Sony WH-1000XM5', qty: 1, price: 3400 }
+    ]
+  },
+  { 
+    id: 'ORD-9884', 
+    date: 'Oct 02, 2026', 
+    items: 120, 
+    total: 28000, 
+    status: 'Delivered', 
+    payment: 'Paid',
+    fulfillment: 'Direct Dispatch',
+    lines: [
+      { name: 'LG 55" UHD TV', qty: 2, price: 9000 },
+      { name: 'Apple Watch Series 9', qty: 2, price: 4200 },
+      { name: 'Samsung Galaxy A54', qty: 1, price: 1600 }
+    ]
+  },
+  { 
+    id: 'ORD-9850', 
+    date: 'Sep 15, 2026', 
+    items: 8, 
+    total: 1800, 
+    status: 'Delivered', 
+    payment: 'Paid',
+    fulfillment: 'In-Store Pickup',
+    lines: [
+      { name: 'JBL Flip 6', qty: 1, price: 1800 }
+    ]
+  },
 ];
 
 export const MOCK_DEALER_PAYMENTS = [

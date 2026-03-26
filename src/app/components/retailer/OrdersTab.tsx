@@ -3,17 +3,26 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '@iconify/react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useNavigate } from 'react-router';
-import { MOCK_RETAILER_ORDERS } from '../../data/mockRetailerOrders';
+import { useRetailer } from './RetailerContext';
 
 const FILTERS = ['All Orders', 'New', 'Pending Payment', 'Ready for Dispatch', 'In Transit', 'Completed', 'Credit Orders'];
 
 /* ─── Catalog data ──────────────────────────────────────── */
 const CATALOG = [
-  { label: 'Portland Cement 50kg', price: 85 },
-  { label: 'Iron Rods 16mm', price: 120 },
-  { label: 'Emulsion Paint 20L', price: 450 },
-  { label: 'Sand (1 Tipper)', price: 600 },
-  { label: 'Gravel (1 Tipper)', price: 750 },
+  { label: 'Portland Cement 50kg', price: 85, image: 'https://images.unsplash.com/photo-1518709367011-8278783e7869?auto=format&fit=crop&q=80&w=200' },
+  { label: 'Iron Rods 16mm', price: 120, image: 'https://images.unsplash.com/photo-1621905252507-b35242f8969d?auto=format&fit=crop&q=80&w=200' },
+  { label: 'Emulsion Paint 20L', price: 450, image: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&q=80&w=200' },
+  { label: 'Sand (1 Tipper)', price: 600, image: 'https://images.unsplash.com/photo-1534067783941-51c9c23eccfd?auto=format&fit=crop&q=80&w=200' },
+  { label: 'Gravel (1 Tipper)', price: 750, image: 'https://images.unsplash.com/photo-1517482713221-343fd7215655?auto=format&fit=crop&q=80&w=200' },
+];
+
+const GH_ADDRESSES = [
+  { code: 'GA-183-4927', area: 'East Legon, Accra' },
+  { code: 'GA-200-1122', area: 'Madina, Accra' },
+  { code: 'GA-050-9988', area: 'Airport Residential, Accra' },
+  { code: 'GS-012-3456', area: 'Adum, Kumasi' },
+  { code: 'GT-101-2020', area: 'Community 1, Tema' },
+  { code: 'GK-044-5566', area: 'Kotei, Kumasi' },
 ];
 
 /* ─── Helper sub-components ─────────────────────────────── */
@@ -62,7 +71,16 @@ function OrderItemRow({ onRemove, showRemove }: { onRemove: () => void; showRemo
   const lineTotal = (item.price * qty).toFixed(2);
 
   return (
-    <div className="flex items-stretch gap-2 bg-[#F7F7F8] rounded-[12px] p-3 border border-[#ECEDEF]">
+    <div className="flex items-center gap-2 bg-[#F7F7F8] rounded-[12px] p-2 pr-3 border border-[#ECEDEF]">
+      {/* Product Image */}
+      <div className="w-10 h-10 rounded-[8px] bg-white border border-[#E4E7EC] overflow-hidden shrink-0 flex items-center justify-center">
+        {item.image ? (
+          <img src={item.image} alt={item.label} className="w-full h-full object-cover" />
+        ) : (
+          <Icon icon="solar:box-linear" className="text-[18px] text-[#8B93A7]" />
+        )}
+      </div>
+
       {/* Product select */}
       <div className="relative flex-1 min-w-0">
         <select
@@ -120,50 +138,111 @@ function OrderItemRow({ onRemove, showRemove }: { onRemove: () => void; showRemo
 /* ─── Main export ────────────────────────────────────────── */
 
 export function OrdersTab() {
+  const { orders, addOrder, isNewOrderModalOpen, setNewOrderModalOpen } = useRetailer();
   const [activeFilter, setActiveFilter] = useState('All Orders');
-  const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
-  const [itemRows, setItemRows] = useState([0]); // array of unique keys
+  const [itemRows, setItemRows] = useState([Date.now()]);
+  const [customerName, setCustomerName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [digitalAddress, setDigitalAddress] = useState('');
+  const [deliveryMethod, setDeliveryMethod] = useState('Delivery / Dispatch');
+  const [payStatus, setPayStatus] = useState('Pending Payment');
+  
+  const MOCK_AGENTS = [
+    { name: 'John Doe', phone: '+233 24 123 4567', avatar: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=100', vehicle: 'Motorbike — GT-2931-22' },
+    { name: 'Sarah Mensah', phone: '+233 20 987 6543', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100', vehicle: 'Van — GE-1029-21' },
+    { name: 'Isaac Tetteh', phone: '+233 55 444 3333', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=100', vehicle: 'Motorbike — GT-8821-23' },
+  ];
+  const [selectedAgent, setSelectedAgent] = useState(MOCK_AGENTS[0]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  const suggestions = digitalAddress.length > 1 
+    ? GH_ADDRESSES.filter(a => a.code.startsWith(digitalAddress) || a.area.toLowerCase().includes(digitalAddress.toLowerCase()))
+    : [];
+  
   const navigate = useNavigate();
 
   const addRow = () => setItemRows(r => [...r, Date.now()]);
   const removeRow = (key: number) => setItemRows(r => r.filter(k => k !== key));
+
+  const handleCreateOrder = () => {
+    const newId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const isDelivery = deliveryMethod === 'Delivery / Dispatch';
+    
+    addOrder({
+      id: newId,
+      customer: customerName || 'Guest Customer',
+      type: 'Retail',
+      amount: '0.00 GHS', // Recalc logic would go here
+      payStatus: payStatus === 'Pending Payment' ? 'Pending' : 'Paid',
+      paymentMethod: payStatus.includes('Cash') ? 'Cash' : 'Bank Transfer',
+      delStatus: isDelivery ? 'Ready' : 'In-Store Pickup',
+      credStatus: 'N/A',
+      date: 'Just now',
+      deliveryAddress: address,
+      digitalAddress: digitalAddress,
+      orderNotes: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      items: [],
+      agent: isDelivery ? selectedAgent : undefined,
+    });
+    
+    setNewOrderModalOpen(false);
+    // Reset form
+    setCustomerName('');
+    setPhoneNumber('');
+    setAddress('');
+    setDigitalAddress('');
+  };
+
+  const filteredOrders = orders.filter(o => {
+    if (activeFilter === 'All Orders') return true;
+    if (activeFilter === 'Ready for Dispatch') return o.delStatus === 'Ready';
+    if (activeFilter === 'In Transit') return o.delStatus === 'In Transit';
+    if (activeFilter === 'Completed') return o.delStatus === 'Delivered';
+    return true;
+  });
 
   return (
     <div className="bg-white rounded-[16px] border border-[#ECEDEF] flex flex-col min-h-[600px]">
       {/* Header and Filters */}
       <div className="p-4 border-b border-[#ECEDEF] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row gap-4 w-full">
-          <div className="relative group w-full sm:w-[320px] shrink-0">
-            <Icon icon="solar:magnifer-linear" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors text-[16px]" />
+          <motion.div 
+            initial={false}
+            animate={{ width: 320 }}
+            className="relative group shrink-0"
+          >
+            <Icon 
+              icon="solar:magnifer-linear" 
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] group-focus-within:scale-110 transition-all text-[18px]" 
+            />
             <input
               type="text"
-              placeholder="Search orders..."
-              className="w-full h-10 pl-10 pr-4 bg-[#F7F7F8] border border-transparent rounded-[8px] text-[13px] text-[#111111] placeholder:text-[#8B93A7] focus:outline-none focus:bg-white focus:border-[#D40073] transition-all"
+              placeholder="Search orders, customers, or items..."
+              className="w-full h-11 pl-11 pr-4 bg-[#F7F7F8] border-2 border-transparent rounded-[12px] text-[14px] text-[#111111] placeholder:text-[#8B93A7] focus:outline-none focus:bg-white focus:border-[#D40073]/20 focus:ring-4 focus:ring-[#D40073]/5 transition-all"
             />
-          </div>
+          </motion.div>
 
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0 flex-1">
             {FILTERS.map(f => (
-              <button
+              <motion.button
                 key={f}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setActiveFilter(f)}
-                className={`whitespace-nowrap h-8 px-3 rounded-[6px] text-[13px] font-semibold transition-colors ${
-                  activeFilter === f ? 'bg-[#111111] text-white' : 'bg-[#F7F7F8] text-[#525866] hover:bg-[#ECEDEF]'
+                className={`whitespace-nowrap h-9 px-4 rounded-[10px] text-[13px] font-bold transition-all ${
+                  activeFilter === f 
+                    ? 'bg-[#111111] text-white shadow-[0_4px_12px_rgba(0,0,0,0.12)]' 
+                    : 'bg-white border border-[#E4E7EC] text-[#525866] hover:border-[#D40073] hover:text-[#D40073]'
                 }`}
               >
                 {f}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
-
-        <button
-          onClick={() => setIsNewOrderModalOpen(true)}
-          className="h-10 px-4 shrink-0 flex items-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] text-[13px] font-semibold transition-colors"
-        >
-          <Icon icon="solar:add-circle-linear" className="text-[18px]" />
-          Issue New Order
-        </button>
       </div>
 
       {/* Orders Table */}
@@ -181,7 +260,7 @@ export function OrdersTab() {
             </tr>
           </thead>
           <tbody className="text-[13px]">
-            {MOCK_RETAILER_ORDERS.map((order) => (
+            {filteredOrders.map((order) => (
               <tr
                 key={order.id}
                 onClick={() => navigate(`/dashboard/retailer/orders/${order.id}`)}
@@ -229,13 +308,13 @@ export function OrdersTab() {
       </div>
 
       <div className="p-4 border-t border-[#ECEDEF] flex items-center justify-between text-[13px] font-medium text-[#525866] bg-[#F7F7F8]">
-        <span>Showing {MOCK_RETAILER_ORDERS.length} of {MOCK_RETAILER_ORDERS.length} orders</span>
+        <span>Showing {filteredOrders.length} of {orders.length} orders</span>
       </div>
 
       {/* ════════════════════════════════════════════
           Issue New Order Modal — Premium Design
       ════════════════════════════════════════════ */}
-      <Dialog.Root open={isNewOrderModalOpen} onOpenChange={setIsNewOrderModalOpen}>
+      <Dialog.Root open={isNewOrderModalOpen} onOpenChange={setNewOrderModalOpen}>
         <AnimatePresence>
           {isNewOrderModalOpen && (
             <Dialog.Portal forceMount>
@@ -329,13 +408,13 @@ export function OrdersTab() {
                       <NewOrderSection icon="solar:user-rounded-bold" label="Customer Information" color="#2563EB" bgColor="#EFF6FF">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <FieldGroup label="Customer Name" icon="solar:user-linear">
-                            <input type="text" placeholder="e.g. Kwame Mensah" className="modal-input" />
+                            <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="e.g. Kwame Mensah" className="modal-input" />
                           </FieldGroup>
                           <FieldGroup label="Phone Number" icon="solar:phone-linear">
-                            <input type="tel" placeholder="e.g. 024 XXX XXXX" className="modal-input" />
+                            <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="e.g. 024 XXX XXXX" className="modal-input" />
                           </FieldGroup>
                           <FieldGroup label="Location / Area" icon="solar:map-point-linear" className="sm:col-span-2">
-                            <input type="text" placeholder="e.g. Accra, East Legon" className="modal-input" />
+                            <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. Accra, East Legon" className="modal-input" />
                           </FieldGroup>
                         </div>
                       </NewOrderSection>
@@ -366,16 +445,61 @@ export function OrdersTab() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <FieldGroup label="Delivery Method" icon="solar:delivery-linear">
                             <div className="relative">
-                              <select className="modal-input appearance-none pr-9 cursor-pointer">
+                              <select 
+                                value={deliveryMethod} 
+                                onChange={e => setDeliveryMethod(e.target.value)} 
+                                className="modal-input appearance-none pr-9 cursor-pointer"
+                              >
                                 <option>Delivery / Dispatch</option>
                                 <option>In-Store Pickup</option>
                               </select>
                               <Icon icon="solar:alt-arrow-down-linear" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B93A7] text-[15px] pointer-events-none" />
                             </div>
                           </FieldGroup>
+                          
+                          <AnimatePresence>
+                            {deliveryMethod === 'Delivery / Dispatch' && (
+                              <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                className="sm:col-span-2"
+                              >
+                                <FieldGroup label="Assign Delivery Agent" icon="solar:user-speak-linear">
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    {MOCK_AGENTS.map((agent) => (
+                                      <button
+                                        key={agent.name}
+                                        type="button"
+                                        onClick={() => setSelectedAgent(agent)}
+                                        className={`p-3 rounded-[16px] border-2 transition-all flex items-center gap-3 text-left ${
+                                          selectedAgent.name === agent.name 
+                                            ? 'border-[#D40073] bg-[#D40073]/5 ring-4 ring-[#D40073]/10' 
+                                            : 'border-[#ECEDEF] bg-white hover:border-[#D40073]/30'
+                                        }`}
+                                      >
+                                        <img src={agent.avatar} alt={agent.name} className="w-10 h-10 rounded-full border border-white shadow-sm" />
+                                        <div className="min-w-0">
+                                          <div className="text-[13px] font-bold text-[#111111] truncate">{agent.name}</div>
+                                          <div className="text-[10px] font-medium text-[#8B93A7] truncate">{agent.vehicle.split(' — ')[1]}</div>
+                                        </div>
+                                        {selectedAgent.name === agent.name && (
+                                          <Icon icon="solar:check-circle-bold" className="ml-auto text-[#D40073] text-[18px]" />
+                                        )}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </FieldGroup>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                           <FieldGroup label="Payment Status" icon="solar:card-linear">
                             <div className="relative">
-                              <select className="modal-input appearance-none pr-9 cursor-pointer">
+                              <select 
+                                value={payStatus} 
+                                onChange={e => setPayStatus(e.target.value)}
+                                className="modal-input appearance-none pr-9 cursor-pointer"
+                              >
                                 <option>Pending Payment</option>
                                 <option>Paid (Cash)</option>
                                 <option>Paid (Mobile Money)</option>
@@ -385,6 +509,64 @@ export function OrdersTab() {
                             </div>
                           </FieldGroup>
                         </div>
+                        
+                        {/* GHANA DIGITAL ADDRESS SYSTEM */}
+                        <div className="mt-4 p-4 rounded-[12px] bg-[#2563EB]/5 border border-[#2563EB]/10">
+                          <div className="flex items-center justify-between mb-3">
+                            <label className="text-[12px] font-bold text-[#2563EB] uppercase tracking-wider flex items-center gap-2">
+                              <Icon icon="emojione:flag-for-ghana" className="text-[16px]" />
+                              Ghana Digital Address (GPS)
+                            </label>
+                            <button className="text-[10px] font-bold text-[#2563EB] hover:underline">Lookup Address</button>
+                          </div>
+                          <div className="relative">
+                            <Icon icon="solar:map-point-wave-bold" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2563EB] text-[18px]" />
+                            <input 
+                              type="text" 
+                              value={digitalAddress}
+                              onChange={e => {
+                                setDigitalAddress(e.target.value.toUpperCase());
+                                setShowSuggestions(true);
+                              }}
+                              onFocus={() => setShowSuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                              placeholder="e.g. GA-183-4927" 
+                              className="w-full h-11 pl-11 pr-4 bg-white border border-[#2563EB]/20 rounded-[10px] text-[14px] font-bold text-[#111111] placeholder:text-[#2563EB]/30 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 transition-all uppercase tracking-widest" 
+                            />
+                            
+                            <AnimatePresence>
+                              {showSuggestions && suggestions.length > 0 && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                                  className="absolute left-0 right-0 top-full mt-2 bg-white rounded-[12px] border border-[#2563EB]/20 shadow-[0_12px_30px_rgba(37,99,235,0.15)] overflow-hidden z-[60]"
+                                >
+                                  {suggestions.map((s, i) => (
+                                    <button
+                                      key={i}
+                                      type="button"
+                                      onClick={() => {
+                                        setDigitalAddress(s.code);
+                                        setAddress(s.area);
+                                        setShowSuggestions(false);
+                                      }}
+                                      className="w-full px-4 py-3 flex flex-col items-start gap-1 hover:bg-[#2563EB]/5 transition-colors border-b border-[#2563EB]/5 last:border-0"
+                                    >
+                                      <span className="text-[14px] font-bold text-[#111111] tracking-widest">{s.code}</span>
+                                      <span className="text-[12px] font-medium text-[#2563EB]">{s.area}</span>
+                                    </button>
+                                  ))}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+
+                            <div className="mt-1.5 text-[10px] text-[#2563EB]/60 font-medium italic">
+                              * Precise delivery tracking using the GhanaPostGPS system
+                            </div>
+                          </div>
+                        </div>
+
                         <FieldGroup label="Delivery Notes (optional)" icon="solar:document-text-linear" className="mt-4">
                           <textarea rows={2} placeholder="Any special delivery instructions..." className="modal-input resize-none py-3 leading-relaxed" />
                         </FieldGroup>
@@ -404,13 +586,14 @@ export function OrdersTab() {
                     <div className="flex gap-3 w-full sm:w-auto">
                       <button
                         type="button"
-                        onClick={() => setIsNewOrderModalOpen(false)}
+                        onClick={() => setNewOrderModalOpen(false)}
                         className="flex-1 sm:flex-none h-11 px-5 rounded-[12px] bg-[#F3F4F6] hover:bg-[#E4E7EC] text-[#525866] font-bold text-[14px] transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         type="button"
+                        onClick={handleCreateOrder}
                         className="flex-1 sm:flex-none h-11 px-7 rounded-[12px] font-bold text-[14px] text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                         style={{
                           background: 'linear-gradient(135deg, #D40073 0%, #a0005a 100%)',

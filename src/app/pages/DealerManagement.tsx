@@ -20,7 +20,26 @@ export default function DealerManagement() {
   const [selectedDealer, setSelectedDealer] = useState<Dealer | null>(null);
   const [activeTab, setActiveTab] = useState('Overview');
   const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [isAllOrdersModalOpen, setIsAllOrdersModalOpen] = useState(false);
+  const [orderSearch, setOrderSearch] = useState('');
+  const [statusFilterModal, setStatusFilterModal] = useState('All Status');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [regionFilter, setRegionFilter] = useState('All');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [isReplenishModalOpen, setIsReplenishModalOpen] = useState(false);
   const [itemRows, setItemRows] = useState([0]);
+
+  const filteredDealers = MOCK_DEALERS.filter(d => {
+    const matchSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = statusFilter === 'All' || d.status === statusFilter;
+    const matchRegion = regionFilter === 'All' || d.region === regionFilter;
+    return matchSearch && matchStatus && matchRegion;
+  });
+
+  const regions = Array.from(new Set(MOCK_DEALERS.map(d => d.region)));
 
   const addRow = () => setItemRows(r => [...r, Date.now()]);
   const removeRow = (key: number) => setItemRows(r => r.filter(k => k !== key));
@@ -117,19 +136,89 @@ export default function DealerManagement() {
           <div className="bg-white rounded-[16px] border border-[#ECEDEF] overflow-hidden">
             
             {/* Table Toolbar */}
-            <div className="p-4 border-b border-[#ECEDEF] flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#F7F7F8]">
+            <div className="p-4 border-b border-[#ECEDEF] flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#F7F7F8] relative">
               <div className="relative max-w-md w-full group">
                 <Icon icon="solar:magnifer-linear" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors text-[18px]" />
                 <input 
                   type="text" 
                   placeholder="Search dealers by name or ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 h-10 bg-white border border-[#E4E7EC] rounded-[10px] text-[13px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.1)] focus:border-[#D40073] transition-all"
                 />
               </div>
-              <button className="h-10 px-4 flex items-center justify-center gap-2 bg-white border border-[#E4E7EC] rounded-[10px] text-[13px] font-bold text-[#111111] hover:bg-[#F3F4F6] transition-colors">
-                <Icon icon="solar:filter-linear" className="text-[18px]" />
-                Filters
-              </button>
+              
+              <div className="relative">
+                <button 
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className={`h-10 px-4 flex items-center justify-center gap-2 border rounded-[10px] text-[13px] font-bold transition-all ${
+                    statusFilter !== 'All' || regionFilter !== 'All' 
+                    ? 'bg-[#111111] text-white border-[#111111]' 
+                    : 'bg-white border-[#E4E7EC] text-[#111111] hover:bg-[#F3F4F6]'
+                  }`}
+                >
+                  <Icon icon="solar:filter-linear" className="text-[18px]" />
+                  Filters
+                  {(statusFilter !== 'All' || regionFilter !== 'All') && (
+                    <span className="w-2 h-2 rounded-full bg-[#D40073] ml-1" />
+                  )}
+                </button>
+
+                {isFilterOpen && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setIsFilterOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-[280px] bg-white border border-[#E4E7EC] shadow-xl rounded-[16px] p-5 z-40 transform origin-top-right transition-all">
+                       <h3 className="text-[14px] font-bold text-[#111111] mb-4">Filter Table</h3>
+                       
+                       <div className="space-y-4">
+                         <div>
+                           <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-2 block">Status</label>
+                           <div className="flex flex-wrap gap-2">
+                             {['All', 'Active', 'Warning', 'Inactive'].map(s => (
+                               <button 
+                                 key={s} 
+                                 onClick={() => setStatusFilter(s)}
+                                 className={`px-3 py-1.5 rounded-[8px] text-[12px] font-bold border transition-all ${
+                                   statusFilter === s ? 'bg-[#111111] text-white border-[#111111]' : 'bg-white border-[#ECEDEF] text-[#525866] hover:border-[#111111]'
+                                 }`}
+                               >
+                                 {s}
+                               </button>
+                             ))}
+                           </div>
+                         </div>
+
+                         <div>
+                           <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-2 block">Region</label>
+                           <select 
+                             value={regionFilter}
+                             onChange={(e) => setRegionFilter(e.target.value)}
+                             className="w-full h-10 px-3 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[10px] text-[13px] font-medium focus:outline-none focus:border-[#D40073]"
+                           >
+                             <option value="All">All Regions</option>
+                             {regions.map(r => <option key={r} value={r}>{r}</option>)}
+                           </select>
+                         </div>
+
+                         <div className="pt-4 border-t border-[#ECEDEF] flex gap-2">
+                           <button 
+                             onClick={() => { setStatusFilter('All'); setRegionFilter('All'); setIsFilterOpen(false); }}
+                             className="flex-1 h-9 bg-[#F3F4F6] text-[#111111] rounded-[8px] text-[12px] font-bold hover:bg-[#E4E7EC]"
+                           >
+                             Reset
+                           </button>
+                           <button 
+                             onClick={() => setIsFilterOpen(false)}
+                             className="flex-1 h-9 bg-[#111111] text-white rounded-[8px] text-[12px] font-bold hover:bg-[#333333]"
+                           >
+                             Apply
+                           </button>
+                         </div>
+                       </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Table */}
@@ -146,7 +235,7 @@ export default function DealerManagement() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#ECEDEF]">
-                  {MOCK_DEALERS.map((dealer) => (
+                  {filteredDealers.map((dealer) => (
                     <tr 
                       key={dealer.id} 
                       className="hover:bg-[#FBFBFC] transition-colors group cursor-pointer"
@@ -205,9 +294,26 @@ export default function DealerManagement() {
                 </tbody>
               </table>
             </div>
+            {/* Empty State */}
+            {filteredDealers.length === 0 && (
+              <div className="py-20 flex flex-col items-center justify-center text-center">
+                <div className="w-16 h-16 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#8B93A7] mb-4">
+                  <Icon icon="solar:magnifer-broken" className="text-[32px]" />
+                </div>
+                <h3 className="text-[18px] font-bold text-[#111111]">No dealers found</h3>
+                <p className="text-[14px] text-[#525866] max-w-[280px] mt-1">Try adjusting your search or filters to find what you're looking for.</p>
+                <button 
+                  onClick={() => { setSearchQuery(''); setStatusFilter('All'); setRegionFilter('All'); }}
+                  className="mt-6 h-10 px-6 bg-[#111111] text-white rounded-[10px] text-[13px] font-bold hover:bg-[#333333] transition-all"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+
             {/* Pagination footer */}
             <div className="p-4 border-t border-[#ECEDEF] flex items-center justify-between text-[13px] font-medium text-[#525866] bg-[#F7F7F8]">
-              <span>Showing {MOCK_DEALERS.length} of {MOCK_DEALERS.length} dealers</span>
+              <span>Showing {filteredDealers.length} of {MOCK_DEALERS.length} dealers</span>
             </div>
           </div>
         </div>
@@ -343,7 +449,39 @@ export default function DealerManagement() {
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+ 
+                     {/* Performance Scorecard */}
+                     <div>
+                       <div className="flex items-center justify-between mb-3">
+                         <h3 className="text-[14px] font-bold text-[#111111]">Performance Scorecard</h3>
+                         <span className="text-[11px] font-bold text-[#D40073] bg-[#D40073]/5 px-2 py-0.5 rounded-full uppercase">Live KPI</span>
+                       </div>
+                       <div className="grid grid-cols-3 gap-3">
+                         <div className="p-3 bg-white border border-[#ECEDEF] rounded-[14px]">
+                           <p className="text-[10px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Sales Rank</p>
+                           <p className="text-[16px] font-bold text-[#111111]">#12 <span className="text-[10px] text-[#16A34A] tracking-normal">↑4</span></p>
+                         </div>
+                         <div className="p-3 bg-white border border-[#ECEDEF] rounded-[14px]">
+                           <p className="text-[10px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Return Rate</p>
+                           <p className="text-[16px] font-bold text-[#111111]">1.2% <span className="text-[10px] text-[#16A34A]">Good</span></p>
+                         </div>
+                         <div className="p-3 bg-white border border-[#ECEDEF] rounded-[14px]">
+                           <p className="text-[10px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Payout Day</p>
+                           <p className="text-[16px] font-bold text-[#111111]">18 <span className="text-[10px] text-[#8B93A7]">Avg</span></p>
+                         </div>
+                       </div>
+                       <div className="mt-3 p-4 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[16px]">
+                         <div className="flex items-center justify-between mb-2">
+                           <p className="text-[12px] font-bold text-[#111111]">Inventory Health</p>
+                           <p className="text-[12px] font-bold text-[#16A34A]">94%</p>
+                         </div>
+                         <div className="w-full h-2 bg-[#ECEDEF] rounded-full overflow-hidden">
+                           <div className="h-full bg-[#16A34A] rounded-full" style={{ width: '94%' }} />
+                         </div>
+                         <p className="text-[11px] text-[#8B93A7] mt-2 font-medium italic">"Consistent stock rotation and zero aging inventory."</p>
+                       </div>
+                     </div>
+                   </motion.div>
                 )}
 
                 {/* ── TAB: ORDERS ── */}
@@ -351,11 +489,20 @@ export default function DealerManagement() {
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                      <div className="flex items-center justify-between">
                        <h3 className="text-[15px] font-bold text-[#111111]">Recent Orders</h3>
-                       <button className="text-[13px] font-bold text-[#D40073] hover:underline">View All</button>
+                       <button 
+                         onClick={() => setIsAllOrdersModalOpen(true)}
+                         className="text-[13px] font-bold text-[#D40073] hover:underline"
+                       >
+                         View All
+                       </button>
                      </div>
                      <div className="space-y-3">
                        {MOCK_DEALER_ORDERS.map(o => (
-                         <div key={o.id} className="p-4 bg-white border border-[#ECEDEF] rounded-[14px] flex items-center justify-between hover:border-[#D40073] transition-colors cursor-pointer group">
+                         <div 
+                           key={o.id} 
+                           onClick={() => setSelectedOrder(o)}
+                           className="p-4 bg-white border border-[#ECEDEF] rounded-[14px] flex items-center justify-between hover:border-[#D40073] transition-colors cursor-pointer group"
+                         >
                             <div>
                               <p className="text-[14px] font-bold text-[#111111] group-hover:text-[#D40073] transition-colors">{o.id}</p>
                               <p className="text-[13px] font-medium text-[#525866] mt-0.5">{o.date} · {o.items} items</p>
@@ -441,6 +588,135 @@ export default function DealerManagement() {
                      </div>
                   </motion.div>
                 )}
+
+                {/* ── TAB: CONSIGNMENT (Enhanced) ── */}
+                 {activeTab === 'Consignment' && (
+                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-[15px] font-bold text-[#111111]">On-Shelf Inventory</h3>
+                        <div className="flex gap-2">
+                           <button 
+                             onClick={() => setIsReturnModalOpen(true)}
+                             className="h-8 px-3 rounded-[8px] border border-[#ECEDEF] text-[11px] font-bold text-[#DC2626] hover:bg-[#FEF2F2] transition-all flex items-center gap-1.5"
+                           >
+                             <Icon icon="solar:backspace-bold-duotone" className="text-[14px]" />
+                             Process Return
+                           </button>
+                           <button 
+                             onClick={() => setIsReplenishModalOpen(true)}
+                             className="h-8 px-3 rounded-[8px] bg-[#111111] text-white text-[11px] font-bold flex items-center gap-1.5 hover:bg-black transition-all shadow-md shadow-black/10"
+                           >
+                             <Icon icon="solar:box-bold-duotone" className="text-[14px]" />
+                             Replenish
+                           </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        {[
+                          { name: 'Ultra-Bond Cement', sku: 'CEM-001', qty: 45, value: 5400, health: 'Optimal' },
+                          { name: 'Steel Rods 12mm', sku: 'STL-012', qty: 8, value: 12800, health: 'Low Stock' },
+                          { name: 'Gyp-Rock Plaster', sku: 'PLT-009', qty: 120, value: 3600, health: 'Excessive' },
+                        ].map((item, i) => (
+                          <div key={i} className="p-4 bg-white border border-[#ECEDEF] rounded-[16px] hover:border-[#D40073] transition-all group">
+                             <div className="flex justify-between items-start mb-3">
+                               <div>
+                                 <p className="text-[14px] font-bold text-[#111111]">{item.name}</p>
+                                 <p className="text-[11px] font-bold text-[#8B93A7] tracking-wider uppercase">{item.sku}</p>
+                               </div>
+                               <span className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider ${
+                                 item.health === 'Optimal' ? 'bg-[#ECFDF3] text-[#16A34A]' : 
+                                 item.health === 'Low Stock' ? 'bg-[#FFF7ED] text-[#EA580C]' : 'bg-[#EFF6FF] text-[#2563EB]'
+                               }`}>
+                                 {item.health}
+                               </span>
+                             </div>
+                             <div className="flex items-center justify-between pt-3 border-t border-[#ECEDEF] border-dashed">
+                               <div>
+                                 <p className="text-[11px] font-bold text-[#8B93A7] uppercase mb-0.5">Quantity</p>
+                                 <p className="text-[14px] font-bold text-[#111111]">{item.qty} units</p>
+                               </div>
+                               <div className="text-right">
+                                 <p className="text-[11px] font-bold text-[#8B93A7] uppercase mb-0.5">Asset Value</p>
+                                 <p className="text-[14px] font-bold text-[#111111]">{formatMoney(item.value)}</p>
+                               </div>
+                             </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="p-4 bg-[#111111] rounded-[20px] text-white">
+                        <div className="flex items-center gap-3 mb-4">
+                           <div className="w-10 h-10 rounded-[12px] bg-white/10 flex items-center justify-center">
+                              <Icon icon="solar:chart-square-bold-duotone" className="text-[20px] text-white" />
+                           </div>
+                           <div>
+                             <p className="text-[12px] font-bold opacity-60">Total Consignment Value</p>
+                             <p className="text-[18px] font-bold">GHS 21,800.00</p>
+                           </div>
+                        </div>
+                        <button className="w-full h-10 bg-white/10 hover:bg-white/20 text-white rounded-[12px] text-[12px] font-bold transition-all border border-white/10">
+                           Download Inventory Report
+                        </button>
+                      </div>
+                   </motion.div>
+                 )}
+ 
+                 {/* ── TAB: LEDGER (Previously Credit) ── */}
+                 {activeTab === 'Credit' && (
+                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-[15px] font-bold text-[#111111]">Financial Ledger</h3>
+                        <button className="text-[12px] font-bold text-[#D40073] hover:underline flex items-center gap-1">
+                          <Icon icon="solar:printer-linear" className="text-[16px]" />
+                          Print Statement
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {[
+                          { date: '25 Mar, 2024', type: 'Payment', ref: 'TX-9021', amount: 5000, method: 'Bank Transfer' },
+                          { date: '20 Mar, 2024', type: 'Purchase', ref: 'ORD-5521', amount: -12500, method: 'Credit Order' },
+                          { date: '15 Mar, 2024', type: 'Credit Note', ref: 'RMA-442', amount: 800, method: 'Inventory Return' },
+                          { date: '10 Mar, 2024', type: 'Payment', ref: 'TX-8834', amount: 2500, method: 'Momo Pay' },
+                        ].map((tx, i) => (
+                          <div key={i} className="flex items-center gap-4 p-3 bg-white border border-[#ECEDEF] rounded-[14px]">
+                             <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 ${
+                               tx.amount > 0 ? 'bg-[#ECFDF3] text-[#16A34A]' : 'bg-[#FFF1F2] text-[#E11D48]'
+                             }`}>
+                               <Icon icon={tx.amount > 0 ? 'solar:arrow-down-left-linear' : 'solar:arrow-up-right-linear'} className="text-[20px]" />
+                             </div>
+                             <div className="flex-1">
+                               <p className="text-[13px] font-bold text-[#111111]">{tx.type} • {tx.ref}</p>
+                               <p className="text-[11px] font-medium text-[#8B93A7]">{tx.date} via {tx.method}</p>
+                             </div>
+                             <div className="text-right">
+                               <p className={`text-[14px] font-bold ${tx.amount > 0 ? 'text-[#16A34A]' : 'text-[#E11D48]'}`}>
+                                 {tx.amount > 0 ? '+' : ''}{formatMoney(tx.amount)}
+                               </p>
+                             </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="p-5 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[20px]">
+                        <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-3">Credit Utilization</p>
+                        <div className="flex justify-between items-end mb-2">
+                           <div>
+                              <p className="text-[20px] font-bold text-[#111111]">{formatMoney(selectedDealer.outstanding)}</p>
+                              <p className="text-[12px] text-[#525866] font-medium">Current Balance</p>
+                           </div>
+                           <div className="text-right">
+                              <p className="text-[14px] font-bold text-[#111111]">{formatMoney(selectedDealer.creditLimit)}</p>
+                              <p className="text-[12px] text-[#525866] font-medium">Approved Limit</p>
+                           </div>
+                        </div>
+                        <div className="w-full h-2.5 bg-[#ECEDEF] rounded-full overflow-hidden">
+                           <div className="h-full bg-[#D40073] rounded-full" style={{ width: `${(selectedDealer.outstanding/selectedDealer.creditLimit)*100}%` }} />
+                        </div>
+                      </div>
+                   </motion.div>
+                 )}
 
                 {/* ── TAB: CREDIT ── */}
                 {activeTab === 'Credit' && (
@@ -623,6 +899,501 @@ export default function DealerManagement() {
                         <Icon icon="solar:check-circle-bold" className="text-[18px]" /> Complete Order
                       </button>
                     </div>
+                  </div>
+                </motion.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      </Dialog.Root>
+
+      {/* ── Order Details Modal ── */}
+      <Dialog.Root open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+        <AnimatePresence>
+          {selectedOrder && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/55 backdrop-blur-[6px] z-[80]" />
+              </Dialog.Overlay>
+              <Dialog.Content asChild>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[90] bg-white rounded-[24px] overflow-hidden shadow-2xl border border-[#ECEDEF] font-sans"
+                >
+                  <div className="p-6 border-b border-[#ECEDEF] flex justify-between items-center bg-[#F7F7F8]">
+                    <div>
+                      <h2 className="text-[18px] font-bold text-[#111111]">{selectedOrder.id}</h2>
+                      <p className="text-[13px] text-[#8B93A7] font-medium">{selectedOrder.date}</p>
+                    </div>
+                    <Dialog.Close asChild>
+                      <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[rgba(0,0,0,0.05)] text-[#8B93A7]">
+                        <Icon icon="solar:close-square-linear" className="text-[22px]" />
+                      </button>
+                    </Dialog.Close>
+                  </div>
+                  <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 rounded-[12px] bg-[#F7F7F8] border border-[#ECEDEF]">
+                        <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Status</p>
+                        <span className="px-2 py-0.5 rounded-[4px] bg-[#ECFDF3] text-[#16A34A] text-[12px] font-bold">{selectedOrder.status}</span>
+                      </div>
+                      <div className="p-3 rounded-[12px] bg-[#F7F7F8] border border-[#ECEDEF]">
+                        <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1">Payment</p>
+                        <span className="px-2 py-0.5 rounded-[4px] bg-[#EFF6FF] text-[#2563EB] text-[12px] font-bold">{selectedOrder.payment}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-[14px] font-bold text-[#111111] mb-3">Order Items</h3>
+                      <div className="space-y-2">
+                        {selectedOrder.lines?.map((line: any, i: number) => (
+                          <div key={i} className="flex justify-between items-center p-3 rounded-[12px] border border-[#ECEDEF]">
+                             <div>
+                               <p className="text-[13px] font-bold text-[#111111]">{line.name}</p>
+                               <p className="text-[12px] text-[#8B93A7]">Qty: {line.qty} × {formatMoney(line.price)}</p>
+                             </div>
+                             <p className="text-[14px] font-bold text-[#111111]">{formatMoney(line.qty * line.price)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-[16px] bg-[#111111] text-white">
+                      <div className="flex justify-between items-center mb-1 opacity-60 text-[13px]">
+                        <span>Subtotal</span>
+                        <span>{formatMoney(selectedOrder.total)}</span>
+                      </div>
+                      <div className="flex justify-between items-center mb-3 opacity-60 text-[13px]">
+                        <span>Delivery Fee</span>
+                        <span>GHS 0.00</span>
+                      </div>
+                      <div className="flex justify-between items-center pt-3 border-t border-white/10">
+                        <span className="font-bold">Total Amount</span>
+                        <span className="text-[18px] font-bold">{formatMoney(selectedOrder.total)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 border-t border-[#ECEDEF] flex gap-3">
+                    <button className="flex-1 h-11 bg-[#F3F4F6] text-[#111111] font-bold rounded-[12px] text-[14px]">Update Status</button>
+                    <button className="flex-1 h-11 bg-[#D40073] text-white font-bold rounded-[12px] text-[14px]">Print Invoice</button>
+                  </div>
+                </motion.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      </Dialog.Root>
+
+      {/* ── All Orders Modal (Enhanced with Filters & Big Table) ── */}
+      <Dialog.Root open={isAllOrdersModalOpen} onOpenChange={setIsAllOrdersModalOpen}>
+        <AnimatePresence>
+          {isAllOrdersModalOpen && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-[8px] z-[60]" />
+              </Dialog.Overlay>
+              <Dialog.Content asChild>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 15 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1024px] z-[70] bg-white rounded-[28px] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.25)] border border-[#ECEDEF] font-sans flex flex-col max-h-[90vh]"
+                >
+                  {/* Header */}
+                  <div className="p-8 border-b border-[#ECEDEF] flex justify-between items-center bg-[#F7F7F8]">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-[14px] bg-[#111111] flex items-center justify-center text-white shadow-lg">
+                        <Icon icon="solar:clipboard-list-bold-duotone" className="text-[24px]" />
+                      </div>
+                      <div>
+                        <h2 className="text-[22px] font-bold text-[#111111] tracking-tight">Full Order History</h2>
+                        <p className="text-[14px] text-[#525866] font-medium flex items-center gap-1.5 mt-0.5">
+                          Tracking transactions for <span className="text-[#111111] font-bold">{selectedDealer?.name}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <Dialog.Close asChild>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[rgba(0,0,0,0.05)] text-[#8B93A7] transition-all">
+                        <Icon icon="solar:close-square-linear" className="text-[26px]" />
+                      </button>
+                    </Dialog.Close>
+                  </div>
+
+                  {/* Filter Bar */}
+                  <div className="px-8 py-5 border-b border-[#ECEDEF] flex flex-wrap items-center justify-between gap-4 bg-white sticky top-0 z-10">
+                    <div className="flex items-center gap-3 flex-1 min-w-[300px]">
+                      <div className="relative flex-1 group">
+                        <Icon icon="solar:magnifer-linear" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors" />
+                        <input 
+                          type="text" 
+                          placeholder="Search order ID or items..."
+                          value={orderSearch}
+                          onChange={(e) => setOrderSearch(e.target.value)}
+                          className="w-full h-11 pl-11 pr-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[12px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all"
+                        />
+                      </div>
+                      <div className="relative">
+                        <select 
+                          value={statusFilter}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                          className="h-11 pl-4 pr-10 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[12px] text-[14px] font-bold text-[#111111] cursor-pointer appearance-none hover:bg-[#F3F4F6] transition-colors min-w-[140px]"
+                        >
+                          <option>All Status</option>
+                          <option>Delivered</option>
+                          <option>Pending</option>
+                          <option>Canceled</option>
+                        </select>
+                        <Icon icon="solar:alt-arrow-down-linear" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7] pointer-events-none" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button className="h-11 px-4 rounded-[12px] bg-white border border-[#E4E7EC] text-[13px] font-bold text-[#525866] hover:bg-[#F7F7F8] flex items-center gap-2 transition-all">
+                        <Icon icon="solar:calendar-linear" className="text-[18px]" />
+                        Date Range
+                      </button>
+                      <button className="h-11 px-6 bg-[#111111] text-white rounded-[12px] text-[13px] font-bold hover:bg-[#333333] transition-all shadow-md shadow-black/10">
+                        Export List
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Table Body */}
+                  <div className="flex-1 overflow-y-auto min-h-0 bg-white">
+                    <table className="w-full text-left border-separate border-spacing-0">
+                      <thead>
+                        <tr className="bg-[#F7F7F8]/50 border-b border-[#ECEDEF] sticky top-0 z-20">
+                          <th className="py-4 px-8 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF]">Order Detail</th>
+                          <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF]">Fulfillment</th>
+                          <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF]">Payment</th>
+                          <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF]">Amount</th>
+                          <th className="py-4 px-8 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF] text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#ECEDEF]">
+                        {[...MOCK_DEALER_ORDERS, ...MOCK_DEALER_ORDERS, ...MOCK_DEALER_ORDERS].map((o, i) => (
+                          <tr key={o.id + i} className="group hover:bg-[#FBFBFC] transition-colors">
+                            <td className="py-5 px-8">
+                              <div className="flex flex-col">
+                                <span className="text-[15px] font-bold text-[#111111] group-hover:text-[#D40073] transition-colors">{o.id}</span>
+                                <span className="text-[13px] text-[#8B93A7] font-medium mt-0.5">{o.date} • {o.items} units</span>
+                              </div>
+                            </td>
+                            <td className="py-5 px-6">
+                               <div className="flex flex-col gap-1.5">
+                                 <div className="flex items-center gap-1.5">
+                                   <div className={`w-2 h-2 rounded-full ${o.status === 'Delivered' ? 'bg-[#16A34A]' : 'bg-[#D97706]'}`} />
+                                   <span className="text-[13px] font-bold text-[#111111]">{o.status}</span>
+                                 </div>
+                                 <span className="text-[11px] font-medium text-[#8B93A7]">{o.fulfillment}</span>
+                               </div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[12px] font-bold ${
+                                o.payment === 'Paid' ? 'bg-[#ECFDF3] text-[#16A34A]' : 'bg-[#EFF6FF] text-[#2563EB]'
+                              }`}>
+                                {o.payment}
+                              </span>
+                            </td>
+                            <td className="py-5 px-6">
+                               <span className="text-[16px] font-bold text-[#111111] tracking-tight">{formatMoney(o.total)}</span>
+                            </td>
+                            <td className="py-5 px-8 text-right">
+                               <button 
+                                 onClick={() => setSelectedOrder(o)}
+                                 className="h-10 px-4 rounded-[10px] bg-white border border-[#E4E7EC] text-[13px] font-bold text-[#111111] hover:border-[#D40073] hover:text-[#D40073] hover:bg-[rgba(212,0,115,0.02)] transition-all flex items-center gap-2 ml-auto"
+                               >
+                                 <Icon icon="solar:eye-linear" className="text-[18px]" />
+                                 View Details
+                               </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-8 py-5 border-t border-[#ECEDEF] bg-[#F7F7F8] flex items-center justify-between shrink-0">
+                    <p className="text-[13px] text-[#525866] font-medium">Showing <span className="text-[#111111] font-bold">12</span> of 12 orders found</p>
+                    <Dialog.Close asChild>
+                      <button className="h-11 px-8 bg-[#111111] text-white font-bold rounded-[14px] text-[14px] hover:bg-black transition-all">Close History</button>
+                    </Dialog.Close>
+                  </div>
+                </motion.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      </Dialog.Root>
+
+      {/* ── Create Dealer Modal (Production Ready) ── */}
+      <Dialog.Root open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <AnimatePresence>
+          {isCreateModalOpen && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-[8px] z-[120]" />
+              </Dialog.Overlay>
+              <Dialog.Content asChild>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[700px] z-[130] bg-white rounded-[32px] overflow-hidden shadow-[0_32px_80px_-15px_rgba(0,0,0,0.3)] border border-[#ECEDEF] font-sans flex flex-col max-h-[90vh]"
+                >
+                  {/* Modal Header */}
+                  <div className="p-8 border-b border-[#ECEDEF] bg-[#F7F7F8] relative">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-[18px] bg-[#111111] flex items-center justify-center text-white shadow-xl shadow-black/10">
+                          <Icon icon="solar:user-plus-bold-duotone" className="text-[28px]" />
+                        </div>
+                        <div>
+                          <h2 className="text-[24px] font-bold text-[#111111] tracking-tight">Register New Dealer</h2>
+                          <p className="text-[14px] text-[#525866] font-medium mt-0.5">Enter business and contact details to onboard a new partner.</p>
+                        </div>
+                      </div>
+                      <Dialog.Close asChild>
+                        <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[rgba(0,0,0,0.05)] text-[#8B93A7] transition-all">
+                          <Icon icon="solar:close-square-linear" className="text-[26px]" />
+                        </button>
+                      </Dialog.Close>
+                    </div>
+                  </div>
+
+                  {/* Form Content */}
+                  <div className="p-8 overflow-y-auto space-y-8">
+                    {/* Section: Basic Information */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-5">
+                        <div className="w-1.5 h-4 bg-[#D40073] rounded-full" />
+                        <h3 className="text-[15px] font-bold text-[#111111] uppercase tracking-[0.05em]">General Information</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-5">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">Dealer Full Name</label>
+                          <input type="text" placeholder="e.g. John Doe" className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all" />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">Business Name</label>
+                          <input type="text" placeholder="e.g. JD Enterprises" className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all" />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">Business Type</label>
+                          <select className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:border-[#D40073] cursor-pointer appearance-none">
+                            <option>Retailer</option>
+                            <option>Wholesaler</option>
+                            <option>Distributor</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">Tax ID (Optional)</label>
+                          <input type="text" placeholder="TIN-000-000-000" className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section: Contact & Location */}
+                    <div className="pt-2">
+                      <div className="flex items-center gap-2 mb-5">
+                        <div className="w-1.5 h-4 bg-[#D40073] rounded-full" />
+                        <h3 className="text-[15px] font-bold text-[#111111] uppercase tracking-[0.05em]">Contact & Location</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-5">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">Phone Number</label>
+                          <input type="tel" placeholder="+233 00 000 0000" className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all" />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">Email Address</label>
+                          <input type="email" placeholder="dealer@example.com" className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all" />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">Region</label>
+                          <select className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:border-[#D40073] cursor-pointer appearance-none">
+                            <option>Greater Accra</option>
+                            <option>Ashanti Region</option>
+                            <option>Central Region</option>
+                            <option>Western Region</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">City</label>
+                          <input type="text" placeholder="e.g. Accra" className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all" />
+                        </div>
+                        <div className="col-span-2 flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#525866] ml-1">GPS Digital Address</label>
+                          <input type="text" placeholder="GA-123-4567" className="h-12 px-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[14px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section: Credit & Terms */}
+                    <div className="pt-2">
+                      <div className="flex items-center gap-2 mb-5">
+                        <div className="w-1.5 h-4 bg-[#D40073] rounded-full" />
+                        <h3 className="text-[15px] font-bold text-[#111111] uppercase tracking-[0.05em]">Credit & Payments</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-5 p-5 bg-[#D40073]/[0.03] border border-[#D40073]/10 rounded-[20px]">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#D40073] ml-1">Initial Credit Limit</label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-bold text-[#D40073]">GHS</span>
+                            <input type="number" placeholder="5,000" className="w-full h-12 pl-14 pr-4 bg-white border border-[#D40073]/20 rounded-[14px] text-[14px] font-bold text-[#111111] focus:outline-none focus:border-[#D40073] focus:ring-[3px] focus:ring-[rgba(212,0,115,0.1)] transition-all" />
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[12px] font-bold text-[#D40073] ml-1">Payment Terms</label>
+                          <select className="h-12 px-4 bg-white border border-[#D40073]/20 rounded-[14px] text-[14px] font-bold text-[#111111] focus:outline-none focus:border-[#D40073] cursor-pointer appearance-none">
+                            <option>Cash Basis</option>
+                            <option>Net 15 Days</option>
+                            <option>Net 30 Days</option>
+                            <option>Consignment</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="p-8 border-t border-[#ECEDEF] bg-[#F7F7F8] flex items-center justify-end gap-3 shrink-0">
+                    <Dialog.Close asChild>
+                      <button className="h-12 px-6 bg-[#F3F4F6] text-[#111111] font-bold rounded-[14px] text-[14px] hover:bg-[#E4E7EC] transition-all">Cancel</button>
+                    </Dialog.Close>
+                    <button className="h-12 px-8 bg-[#111111] text-white font-bold rounded-[14px] text-[14px] flex items-center gap-2 hover:bg-black transition-all shadow-lg shadow-black/10">
+                      <Icon icon="solar:diskette-bold-duotone" className="text-[20px]" />
+                      Complete Registration
+                    </button>
+                  </div>
+                </motion.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      </Dialog.Root>
+
+      {/* ── Returns (RMA) Modal ── */}
+      <Dialog.Root open={isReturnModalOpen} onOpenChange={setIsReturnModalOpen}>
+        <AnimatePresence>
+          {isReturnModalOpen && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-[8px] z-[150]" />
+              </Dialog.Overlay>
+              <Dialog.Content asChild>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[160] bg-white rounded-[28px] overflow-hidden shadow-2xl border border-[#ECEDEF] font-sans"
+                >
+                  <div className="p-6 border-b border-[#ECEDEF] bg-[#F7F7F8] flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-[12px] bg-[#DC2626] text-white flex items-center justify-center">
+                         <Icon icon="solar:backspace-bold" className="text-[20px]" />
+                       </div>
+                       <h2 className="text-[18px] font-bold text-[#111111]">Process Inventory Return</h2>
+                    </div>
+                    <Dialog.Close asChild>
+                      <button className="w-8 h-8 rounded-full hover:bg-[rgba(0,0,0,0.05)] text-[#8B93A7] flex items-center justify-center">
+                        <Icon icon="solar:close-square-linear" className="text-[22px]" />
+                      </button>
+                    </Dialog.Close>
+                  </div>
+                  <div className="p-6 space-y-5">
+                    <div className="flex flex-col gap-2">
+                       <label className="text-[12px] font-bold text-[#525866]">Select Product to Return</label>
+                       <select className="h-11 px-4 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[12px] text-[13px] font-medium outline-none focus:border-[#D40073]">
+                         <option>Ultra-Bond Cement</option>
+                         <option>Steel Rods 12mm</option>
+                         <option>Gyp-Rock Plaster</option>
+                       </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <div className="flex flex-col gap-2">
+                         <label className="text-[12px] font-bold text-[#525866]">Quantity</label>
+                         <input type="number" placeholder="0" className="h-11 px-4 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[12px] text-[13px] font-medium outline-none focus:border-[#D40073]" />
+                       </div>
+                       <div className="flex flex-col gap-2">
+                         <label className="text-[12px] font-bold text-[#525866]">Reason</label>
+                         <select className="h-11 px-4 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[12px] text-[13px] font-medium outline-none focus:border-[#D40073]">
+                           <option>Damaged</option>
+                           <option>Expired</option>
+                           <option>Exchange</option>
+                         </select>
+                       </div>
+                    </div>
+                    <div className="p-4 rounded-[16px] bg-[#FEF2F2] border border-[#FEE2E2]">
+                       <p className="text-[12px] font-medium text-[#991B1B] leading-relaxed">
+                         <strong>Note:</strong> Processing this return will automatically generate a Credit Note for {selectedDealer?.name} and update the main inventory.
+                       </p>
+                    </div>
+                  </div>
+                  <div className="p-6 bg-[#F7F7F8] border-t border-[#ECEDEF] flex gap-3">
+                    <Dialog.Close asChild>
+                      <button className="flex-1 h-11 bg-white border border-[#ECEDEF] text-[#111111] font-bold rounded-[12px] text-[13px]">Cancel</button>
+                    </Dialog.Close>
+                    <button className="flex-1 h-11 bg-[#DC2626] text-white font-bold rounded-[12px] text-[13px] shadow-lg shadow-red-500/20">Process & Credit</button>
+                  </div>
+                </motion.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      </Dialog.Root>
+
+      {/* ── Replenish Stock Modal ── */}
+      <Dialog.Root open={isReplenishModalOpen} onOpenChange={setIsReplenishModalOpen}>
+        <AnimatePresence>
+          {isReplenishModalOpen && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 backdrop-blur-[8px] z-[150]" />
+              </Dialog.Overlay>
+              <Dialog.Content asChild>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[160] bg-white rounded-[28px] overflow-hidden shadow-2xl border border-[#ECEDEF] font-sans"
+                >
+                  <div className="p-6 border-b border-[#ECEDEF] bg-[#F7F7F8] flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-[12px] bg-[#111111] text-white flex items-center justify-center">
+                         <Icon icon="solar:box-bold" className="text-[20px]" />
+                       </div>
+                       <h2 className="text-[18px] font-bold text-[#111111]">Replenish Consignment</h2>
+                    </div>
+                    <Dialog.Close asChild>
+                      <button className="w-8 h-8 rounded-full hover:bg-[rgba(0,0,0,0.05)] text-[#8B93A7] flex items-center justify-center">
+                        <Icon icon="solar:close-square-linear" className="text-[22px]" />
+                      </button>
+                    </Dialog.Close>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <p className="text-[13px] text-[#525866] font-medium">Quickly reload high-velocity items for {selectedDealer?.name}.</p>
+                    <div className="space-y-3">
+                       {[
+                         { name: 'Ultra-Bond Cement', autoQty: 100, current: 45 },
+                         { name: 'Steel Rods 12mm', autoQty: 25, current: 8 },
+                       ].map((item, i) => (
+                         <div key={i} className="flex flex-col p-4 bg-[#F7F7F8] rounded-[16px] border border-[#ECEDEF]">
+                            <div className="flex justify-between items-center mb-2">
+                               <p className="text-[14px] font-bold text-[#111111]">{item.name}</p>
+                               <span className="text-[11px] font-bold text-[#D40073]">Auto-Suggest</span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                               <div className="flex-1">
+                                 <p className="text-[11px] text-[#8B93A7] uppercase font-bold">New Delivery Qty</p>
+                                 <input type="number" defaultValue={item.autoQty} className="w-full h-10 bg-white border border-[#ECEDEF] rounded-[8px] px-3 mt-1 text-[13px] font-bold" />
+                               </div>
+                               <div className="w-px h-8 bg-[#ECEDEF]" />
+                               <div>
+                                 <p className="text-[11px] text-[#8B93A7] uppercase font-bold">Current</p>
+                                 <p className="text-[15px] font-bold text-[#111111] mt-1">{item.current}</p>
+                               </div>
+                            </div>
+                         </div>
+                       ))}
+                    </div>
+                  </div>
+                  <div className="p-6 bg-[#F7F7F8] border-t border-[#ECEDEF] flex gap-3">
+                    <Dialog.Close asChild>
+                      <button className="flex-1 h-11 bg-white border border-[#ECEDEF] text-[#111111] font-bold rounded-[12px] text-[13px]">Cancel</button>
+                    </Dialog.Close>
+                    <button className="flex-1 h-11 bg-[#111111] text-white font-bold rounded-[12px] text-[13px] shadow-lg shadow-black/10">Confirm Dispatch</button>
                   </div>
                 </motion.div>
               </Dialog.Content>
