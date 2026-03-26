@@ -80,7 +80,6 @@
     "typescript": "^6.0.2",
     "vite": "6.3.5"
   },
-  },
   "peerDependenciesMeta": {
     "react": {
       "optional": true
