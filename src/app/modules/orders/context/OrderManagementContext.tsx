@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useProducts } from '../../products/context/ProductContext';
 import { usePayments } from '../../payments/context/PaymentContext';
 import { useNotifications } from '../../../core/context/NotificationContext';
+import { useDelivery } from '../../delivery/context/DeliveryContext';
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Processing' | 'Dispached' | 'Delivered' | 'Cancelled';
 
@@ -42,6 +43,7 @@ export function OrderManagementProvider({ children }: { children: ReactNode }) {
   const { reserveStock, commitStock, releaseStock } = useProducts();
   const { addTransaction } = usePayments();
   const { notify } = useNotifications();
+  const { createDelivery } = useDelivery();
 
   const createOrder = (orderData: Omit<Order, 'id' | 'status' | 'createdAt'>) => {
     const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -59,6 +61,12 @@ export function OrderManagementProvider({ children }: { children: ReactNode }) {
 
     setOrders(prev => [newOrder, ...prev]);
     notify('Order Created', `Order ${orderId} has been successfully created.`, 'Success');
+
+    // --- AUTOMATION: Instant Confirm for Mobile Money / Paid upfront ---
+    if (orderData.paymentStatus === 'Paid') {
+      setTimeout(() => confirmOrder(orderId), 500); // Small delay for UX/stability
+    }
+
     return orderId;
   };
 
@@ -88,6 +96,12 @@ export function OrderManagementProvider({ children }: { children: ReactNode }) {
     });
 
     updateOrderStatus(orderId, 'Confirmed');
+    
+    // --- AUTOMATION: Create Delivery Record on Confirmation ---
+    if (order.deliveryMethod === 'Dispatch') {
+      createDelivery(order);
+    }
+
     notify('Order Confirmed', `Order ${orderId} is now confirmed and ready for fulfillment.`, 'Success');
   };
 

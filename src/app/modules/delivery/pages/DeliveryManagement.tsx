@@ -9,35 +9,19 @@ import { NewAgentModal } from '../components/NewAgentModal';
 import { AgentProfileModal } from '../components/AgentProfileModal';
 import { useConsignment } from '../../consignment/context/ConsignmentContext';
 
+import { useDelivery } from '../context/DeliveryContext';
+import { useOrderManagement } from '../../orders/context/OrderManagementContext';
+import { useNotifications } from '../../../core/context/NotificationContext';
+
 const SUB_TABS = ['Overview', 'Assigned', 'Active', 'Completed', 'Agents', 'Notifications'];
-
-// Mock Data
-const MOCK_DELIVERIES = [
-  { id: 'DL-4920', status: 'pending', customer: 'Kwame Asante', phone: '+233 54 123 4567', pickup: 'Accra Central Warehouse', dropoff: 'East Legon, Boundary Rd', distance: '5.2 km', time: '10 mins ago', priority: 'High', progress: -1, isConsignment: false },
-  { id: 'DL-4921', status: 'pending', customer: 'Ama Serwaa', phone: '+233 20 987 6543', pickup: 'Spintex Branch', dropoff: 'Tema, Comm 4', distance: '12.4 km', time: '25 mins ago', priority: 'Normal', progress: -1, isConsignment: false },
-  { id: 'DL-4918', status: 'active', customer: 'John Mensah', phone: '+233 24 555 7777', pickup: 'Accra Central Warehouse', dropoff: 'Osu, Oxford St', distance: '3.1 km', time: '1 hr ago', priority: 'High', progress: 1, isConsignment: false }, // 0: pickup, 1: transit, 2: delivered
-  { id: 'DL-4919', status: 'active', customer: 'Kofi Osei', phone: '+233 27 111 2222', pickup: 'Spintex Branch', dropoff: 'Madina Market', distance: '8.5 km', time: '1.5 hrs ago', priority: 'Normal', progress: 0, isConsignment: false },
-  { id: 'DL-4910', status: 'completed', customer: 'Yaw Yeboah', phone: '+233 55 444 3333', pickup: 'Tema Branch', dropoff: 'Ashaiman', distance: '15.0 km', time: 'Today, 09:30 AM', priority: 'Normal', progress: 2, isConsignment: false },
-];
-
-const MOCK_AGENTS = [
-  { id: 'AG-1021', name: 'James Osei', phone: '+233 24 111 2222', vehicleType: 'van', licensePlate: 'GW-4910-22', status: 'active', rating: '4.8', deliveries: 1240 },
-  { id: 'AG-1054', name: 'Sandra Appiah', phone: '+233 55 444 3333', vehicleType: 'bike', licensePlate: 'M-GR-201-23', status: 'active', rating: '4.9', deliveries: 856 },
-  { id: 'AG-1011', name: 'Emmanuel Tetteh', phone: '+233 20 987 6543', vehicleType: 'truck', licensePlate: 'GT-8812-19', status: 'inactive', rating: '4.5', deliveries: 412 },
-];
-
-const NOTIFICATIONS = [
-  { id: 1, type: 'assignment', text: 'New delivery #DL-4922 assigned to you.', time: '2 mins ago' },
-  { id: 2, type: 'completed', text: 'Order #DL-4910 successfully delivered.', time: '4 hrs ago' },
-  { id: 3, type: 'alert', text: 'Traffic delay reported on route to Madina Market.', time: '5 hrs ago' },
-  { id: 4, type: 'update', text: 'Customer updated dropoff pin for #DL-4918.', time: '6 hrs ago' },
-];
 
 export function DeliveryManagement() {
   const { inboundConsignments, outboundConsignments } = useConsignment();
-  const [activeTab, setActiveTab] = useState('Agents');
-  const [deliveries, setDeliveries] = useState(MOCK_DELIVERIES);
-  const [agents, setAgents] = useState(MOCK_AGENTS);
+  const { deliveries, agents, updateDeliveryProgress, assignAgentToDelivery, addAgent, deleteAgent, updateAgent } = useDelivery();
+  const { updateOrderStatus } = useOrderManagement();
+  const { notifications } = useNotifications();
+
+  const [activeTab, setActiveTab] = useState('Overview');
   const [isRejectModalOpen, setIsRejectModalOpen] = useState<string | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [isNewAgentOpen, setIsNewAgentOpen] = useState(false);
@@ -64,25 +48,26 @@ export function DeliveryManagement() {
   const allActiveDeliveries = [...deliveries, ...transitConsignments];
 
   // Actions
-  const handleAccept = (id: string) => {
-    setDeliveries(prev => prev.map(d => d.id === id ? { ...d, status: 'active', progress: 0 } : d));
+  const handleAccept = (id: string, agentId: string) => {
+    assignAgentToDelivery(id, agentId);
   };
 
   const handleReject = (id: string) => {
-    setDeliveries(prev => prev.filter(d => d.id !== id));
+    // Logic for rejection
     setIsRejectModalOpen(null);
   };
 
   const handleProgress = (id: string) => {
-    // If it's a consignment mapped dynamically, we skip local state update for now
-    // In a real app, we would update the consignment context to 'Settled' or 'Delivered'
-    setDeliveries(prev => prev.map(d => {
-      if (d.id === id) {
-        if (d.progress === 0) return { ...d, progress: 1 };
-        if (d.progress === 1) return { ...d, status: 'completed', time: 'Just now' };
-      }
-      return d;
-    }));
+    const delivery = deliveries.find(d => d.id === id);
+    if (!delivery) return;
+
+    // Trigger update in context
+    updateDeliveryProgress(id);
+
+    // --- AUTOMATION: Sync back to Order if completed ---
+    if (delivery.progress === 1) { // Will become 2 (Completed)
+      updateOrderStatus(delivery.orderId, 'Delivered');
+    }
   };
 
   // Filtered Lists
@@ -290,7 +275,10 @@ export function DeliveryManagement() {
                               Reject
                             </button>
                             <button 
-                              onClick={() => handleAccept(delivery.id)}
+                              onClick={() => {
+                                const available = agents.find(a => a.status === 'Available');
+                                if (available) handleAccept(delivery.id, available.id);
+                              }}
                               className="h-[40px] bg-[#D40073] hover:bg-[#B80063] text-white font-semibold text-[14px] rounded-[12px] transition-colors"
                             >
                               Accept Task
@@ -492,7 +480,7 @@ export function DeliveryManagement() {
                               <div className="w-12 h-12 rounded-full bg-[#F3F4F6] flex items-center justify-center border border-[#ECEDEF]">
                                 <User size={20} className="text-[#8B93A7]" />
                               </div>
-                              <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 border-2 border-white rounded-full ${agent.status === 'active' ? 'bg-[#16A34A]' : 'bg-[#8B93A7]'}`} />
+                              <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 border-2 border-white rounded-full ${agent.status !== 'Offline' ? 'bg-[#16A34A]' : 'bg-[#8B93A7]'}`} />
                             </div>
                             <div>
                               <h3 className="text-[16px] font-bold text-[#111111]">{agent.name}</h3>
@@ -552,7 +540,7 @@ export function DeliveryManagement() {
                   <h3 className="text-[16px] font-bold text-[#111111]">Recent Alerts</h3>
                 </div>
                 <div className="flex flex-col">
-                  {NOTIFICATIONS.map(note => {
+                  {notifications.map((note: any) => {
                     let dotColor = 'bg-[#8B93A7]';
                     let icon = <Navigation size={14} className="text-[#8B93A7]" />;
                     
@@ -635,7 +623,7 @@ export function DeliveryManagement() {
       <NewAgentModal 
         isOpen={isNewAgentOpen}
         onClose={() => setIsNewAgentOpen(false)}
-        onAdd={(newAgent) => setAgents([...agents, newAgent])}
+        onAdd={(newAgent) => addAgent(newAgent)}
       />
 
       <AgentProfileModal
@@ -643,11 +631,11 @@ export function DeliveryManagement() {
         onClose={() => setSelectedAgent(null)}
         agent={selectedAgent}
         onDelete={(id) => {
-          setAgents(agents.filter(a => a.id !== id));
+          deleteAgent(id);
           setSelectedAgent(null);
         }}
         onUpdate={(updatedAgent) => {
-          setAgents(agents.map(a => a.id === updatedAgent.id ? updatedAgent : a));
+          updateAgent(updatedAgent);
           setSelectedAgent(updatedAgent);
         }}
       />
