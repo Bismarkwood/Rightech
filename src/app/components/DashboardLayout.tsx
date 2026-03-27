@@ -1,17 +1,22 @@
-import React from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate, Outlet } from 'react-router';
 import { Icon } from '@iconify/react';
+import { motion } from 'motion/react';
 import { RightTechLogo } from '../pages/Auth';
 import { NotificationCenter } from './NotificationCenter';
+import { RetailerProvider } from './retailer/RetailerContext';
+import { ConsignmentProvider } from '../context/ConsignmentContext';
+import { OrderWorkflowProvider } from './orders/OrderWorkflowContext';
+import { AddSupplierModal } from './retailer/AddSupplierModal';
+import { NewOrderModal } from './retailer/NewOrderModal';
 
 const NAVIGATION = [
   {
     group: 'General',
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: 'solar:widget-5-linear', path: '/dashboard' },
-      // NOTE: Business Management navigation is temporarily disabled — uncomment to re-enable
-      // { id: 'business', label: 'Business Management', icon: 'solar:shop-2-linear', path: '/dashboard/business' },
+      { id: 'storefront', label: 'Storefront', icon: 'solar:shop-2-linear', path: '/dashboard/storefront' },
       { id: 'supply', label: 'Supply', icon: 'solar:box-minimalistic-linear', path: '/dashboard/supply' },
+      { id: 'consignment', label: 'Consignments', icon: 'solar:box-bold-duotone', path: '/dashboard/consignment' },
       { id: 'retailer', label: 'Retailer', icon: 'solar:cart-large-2-linear', path: '/dashboard/retailer' },
       { id: 'dealer', label: 'Dealer', icon: 'solar:users-group-two-rounded-linear', path: '/dashboard/dealer' },
       { id: 'delivery', label: 'Delivery Agent', icon: 'solar:delivery-linear', path: '/dashboard/delivery' },
@@ -117,14 +122,25 @@ const Topbar = () => {
 
 export default function DashboardLayout() {
   return (
-    <div className="flex h-screen w-full bg-[#F7F7F8] selection:bg-[rgba(212,0,115,0.2)] selection:text-[#D40073] font-sans">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Topbar />
-        <main className="flex-1 overflow-hidden flex flex-col">
-          <Outlet />
-        </main>
-      </div>
-    </div>
+    <RetailerProvider>
+      <ConsignmentProvider>
+        <OrderWorkflowProvider>
+          <div className="flex h-screen w-full bg-[#F7F7F8] font-sans overflow-hidden">
+            <Sidebar />
+            <div className="flex-1 flex flex-col min-w-0 h-full relative">
+              <Topbar />
+              <main className="flex-1 overflow-hidden">
+                <Outlet />
+              </main>
+              
+              {/* Global Modals */}
+              <AddSupplierModal />
+              {/* We can safely remove NewOrderModal soon since CreateOrderModal handles it now, but leaving for legacy safety */}
+              <NewOrderModal />
+            </div>
+          </div>
+        </OrderWorkflowProvider>
+      </ConsignmentProvider>
+    </RetailerProvider>
   );
 }

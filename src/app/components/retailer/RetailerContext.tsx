@@ -87,8 +87,11 @@ interface RetailerContextType {
   addOrder: (order: RetailerOrder) => void;
   updateOrder: (orderId: string, patch: Partial<RetailerOrder>) => void;
   assignAgent: (orderId: string, agentId: string) => void;
+  // Modals
   isNewOrderModalOpen: boolean;
   setNewOrderModalOpen: (open: boolean) => void;
+  isAddSupplierModalOpen: boolean;
+  setAddSupplierModalOpen: (open: boolean) => void;
   // Inventory
   inventory: InventoryItem[];
   addInventoryItem: (item: InventoryItem) => void;
@@ -124,6 +127,7 @@ export function RetailerProvider({ children }: { children: ReactNode }) {
   };
 
   const [isNewOrderModalOpen, setNewOrderModalOpen] = useState(false);
+  const [isAddSupplierModalOpen, setAddSupplierModalOpen] = useState(false);
 
   // Inventory logic
   const addInventoryItem = (item: InventoryItem) => {
@@ -165,7 +169,9 @@ export function RetailerProvider({ children }: { children: ReactNode }) {
 
   return (
     <RetailerContext.Provider value={{ 
-      orders, addOrder, updateOrder, assignAgent, isNewOrderModalOpen, setNewOrderModalOpen,
+      orders, addOrder, updateOrder, assignAgent, 
+      isNewOrderModalOpen, setNewOrderModalOpen,
+      isAddSupplierModalOpen, setAddSupplierModalOpen,
       inventory, addInventoryItem, updateInventoryItem, deleteInventoryItem,
       suppliers, addSupplier, updateSupplier, deleteSupplier
     }}>

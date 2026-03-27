@@ -69,8 +69,8 @@ const KPICard = ({ title, value, trend, trendValue, icon: Icon, gradientClass }:
   </Card>
 );
 
-const QuickAction = ({ icon: Icon, title, desc, gradientClass }: any) => (
-  <button className="flex flex-col items-start p-[20px] bg-white rounded-[18px] border border-[#ECEDEF] hover:border-[#D40073]/40 transition-all group text-left relative overflow-hidden">
+const QuickAction = ({ icon: Icon, title, desc, gradientClass, onClick }: any) => (
+  <button onClick={onClick} className="flex flex-col items-start p-[20px] bg-white rounded-[18px] border border-[#ECEDEF] hover:border-[#D40073]/40 transition-all group text-left relative overflow-hidden">
     <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
       <ArrowRight size={18} className="text-[#D40073]" />
     </div>
@@ -101,7 +101,11 @@ const ActivityItem = ({ icon: Icon, title, time, status, colorClass, iconColorCl
   </div>
 );
 
+import { useOrderWorkflow } from '../components/orders/OrderWorkflowContext';
+
 export default function DashboardHome() {
+  const { openCreateOrder } = useOrderWorkflow();
+
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="p-6 md:p-8 max-w-[1600px] mx-auto space-y-6">
@@ -170,7 +174,7 @@ export default function DashboardHome() {
 
       {/* Row 3: Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-        <QuickAction icon={ShoppingCart} title="Add Order" desc="Create new retail order" gradientClass="bg-gradient-to-br from-[#5B8CFF] to-[#7C3AED]" />
+        <QuickAction onClick={() => openCreateOrder()} icon={ShoppingCart} title="Add Order" desc="Create new retail order" gradientClass="bg-gradient-to-br from-[#5B8CFF] to-[#7C3AED]" />
         <QuickAction icon={UserPlus} title="Add Dealer" desc="Register business partner" gradientClass="bg-gradient-to-br from-[#9333EA] to-[#D40073]" />
         <QuickAction icon={Box} title="Add Retail Sale" desc="Quick POS transaction" gradientClass="bg-gradient-to-br from-[#EC4899] to-[#D40073]" />
         <QuickAction icon={Truck} title="Assign Delivery" desc="Dispatch agent tasks" gradientClass="bg-gradient-to-br from-[#F97316] to-[#FB923C]" />

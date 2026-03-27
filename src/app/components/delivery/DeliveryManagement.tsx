@@ -7,16 +7,17 @@ import {
 import { LiveMapModal } from './LiveMapModal';
 import { NewAgentModal } from './NewAgentModal';
 import { AgentProfileDrawer } from './AgentProfileDrawer';
+import { useConsignment } from '../../context/ConsignmentContext';
 
 const SUB_TABS = ['Overview', 'Assigned', 'Active', 'Completed', 'Agents', 'Notifications'];
 
 // Mock Data
 const MOCK_DELIVERIES = [
-  { id: 'DL-4920', status: 'pending', customer: 'Kwame Asante', phone: '+233 54 123 4567', pickup: 'Accra Central Warehouse', dropoff: 'East Legon, Boundary Rd', distance: '5.2 km', time: '10 mins ago', priority: 'High' },
-  { id: 'DL-4921', status: 'pending', customer: 'Ama Serwaa', phone: '+233 20 987 6543', pickup: 'Spintex Branch', dropoff: 'Tema, Comm 4', distance: '12.4 km', time: '25 mins ago', priority: 'Normal' },
-  { id: 'DL-4918', status: 'active', customer: 'John Mensah', phone: '+233 24 555 7777', pickup: 'Accra Central Warehouse', dropoff: 'Osu, Oxford St', distance: '3.1 km', time: '1 hr ago', priority: 'High', progress: 1 }, // 0: pickup, 1: transit, 2: delivered
-  { id: 'DL-4919', status: 'active', customer: 'Kofi Osei', phone: '+233 27 111 2222', pickup: 'Spintex Branch', dropoff: 'Madina Market', distance: '8.5 km', time: '1.5 hrs ago', priority: 'Normal', progress: 0 },
-  { id: 'DL-4910', status: 'completed', customer: 'Yaw Yeboah', phone: '+233 55 444 3333', pickup: 'Tema Branch', dropoff: 'Ashaiman', distance: '15.0 km', time: 'Today, 09:30 AM', priority: 'Normal' },
+  { id: 'DL-4920', status: 'pending', customer: 'Kwame Asante', phone: '+233 54 123 4567', pickup: 'Accra Central Warehouse', dropoff: 'East Legon, Boundary Rd', distance: '5.2 km', time: '10 mins ago', priority: 'High', progress: -1, isConsignment: false },
+  { id: 'DL-4921', status: 'pending', customer: 'Ama Serwaa', phone: '+233 20 987 6543', pickup: 'Spintex Branch', dropoff: 'Tema, Comm 4', distance: '12.4 km', time: '25 mins ago', priority: 'Normal', progress: -1, isConsignment: false },
+  { id: 'DL-4918', status: 'active', customer: 'John Mensah', phone: '+233 24 555 7777', pickup: 'Accra Central Warehouse', dropoff: 'Osu, Oxford St', distance: '3.1 km', time: '1 hr ago', priority: 'High', progress: 1, isConsignment: false }, // 0: pickup, 1: transit, 2: delivered
+  { id: 'DL-4919', status: 'active', customer: 'Kofi Osei', phone: '+233 27 111 2222', pickup: 'Spintex Branch', dropoff: 'Madina Market', distance: '8.5 km', time: '1.5 hrs ago', priority: 'Normal', progress: 0, isConsignment: false },
+  { id: 'DL-4910', status: 'completed', customer: 'Yaw Yeboah', phone: '+233 55 444 3333', pickup: 'Tema Branch', dropoff: 'Ashaiman', distance: '15.0 km', time: 'Today, 09:30 AM', priority: 'Normal', progress: 2, isConsignment: false },
 ];
 
 const MOCK_AGENTS = [
@@ -33,6 +34,7 @@ const NOTIFICATIONS = [
 ];
 
 export function DeliveryManagement() {
+  const { inboundConsignments, outboundConsignments } = useConsignment();
   const [activeTab, setActiveTab] = useState('Agents');
   const [deliveries, setDeliveries] = useState(MOCK_DELIVERIES);
   const [agents, setAgents] = useState(MOCK_AGENTS);
@@ -41,6 +43,25 @@ export function DeliveryManagement() {
   const [isNewAgentOpen, setIsNewAgentOpen] = useState(false);
   const [selectedMapDelivery, setSelectedMapDelivery] = useState<any>(null);
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
+
+  // Map Consignments to Deliveries dynamically
+  const transitConsignments = [...inboundConsignments, ...outboundConsignments]
+    .filter(c => c.status === 'In Transit')
+    .map(c => ({
+      id: c.id,
+      status: 'active',
+      customer: `[Consignment] ${c.partnerName}`,
+      phone: 'N/A',
+      pickup: c.type === 'Inbound' ? (c.location || 'Partner Hub') : 'Main Warehouse',
+      dropoff: c.type === 'Outbound' ? (c.location || 'Partner Hub') : 'Main Warehouse',
+      distance: 'Pending GPS',
+      time: c.date,
+      priority: 'High',
+      progress: 1,
+      isConsignment: true
+    }));
+
+  const allActiveDeliveries = [...deliveries, ...transitConsignments];
 
   // Actions
   const handleAccept = (id: string) => {
@@ -53,6 +74,8 @@ export function DeliveryManagement() {
   };
 
   const handleProgress = (id: string) => {
+    // If it's a consignment mapped dynamically, we skip local state update for now
+    // In a real app, we would update the consignment context to 'Settled' or 'Delivered'
     setDeliveries(prev => prev.map(d => {
       if (d.id === id) {
         if (d.progress === 0) return { ...d, progress: 1 };
@@ -63,9 +86,9 @@ export function DeliveryManagement() {
   };
 
   // Filtered Lists
-  const assignedList = deliveries.filter(d => d.status === 'pending');
-  const activeList = deliveries.filter(d => d.status === 'active');
-  const completedList = deliveries.filter(d => d.status === 'completed');
+  const assignedList = allActiveDeliveries.filter(d => d.status === 'pending');
+  const activeList = allActiveDeliveries.filter(d => d.status === 'active');
+  const completedList = allActiveDeliveries.filter(d => d.status === 'completed');
 
   // Helpers
   const Card = ({ children, className = "" }: any) => (

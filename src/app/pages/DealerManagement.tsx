@@ -6,7 +6,7 @@ import {
   MOCK_DEALERS, MOCK_DEALER_ORDERS, MOCK_DEALER_PAYMENTS, MOCK_DEALER_CONSIGNMENTS, Dealer
 } from '../data/mockDealerData';
 
-const TABS = ['Overview', 'Orders', 'Payments', 'Consignment', 'Credit'];
+const TABS = ['Overview', 'Orders', 'Payments', 'Credit'];
 const CATALOG = [
   { label: 'Samsung Galaxy A54', price: 2500 },
   { label: 'LG 55" UHD TV', price: 9000 },
@@ -554,113 +554,6 @@ export default function DealerManagement() {
                   </motion.div>
                 )}
 
-                {/* ── TAB: CONSIGNMENT ── */}
-                {activeTab === 'Consignment' && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                    <div className="flex items-center justify-between">
-                       <h3 className="text-[15px] font-bold text-[#111111]">Consignment Tracking</h3>
-                     </div>
-                     <div className="space-y-4">
-                       {MOCK_DEALER_CONSIGNMENTS.map(c => {
-                         const pct = Math.round((c.sold / c.supplied) * 100);
-                         return (
-                           <div key={c.id} className="p-4 bg-white border border-[#ECEDEF] rounded-[14px]">
-                             <div className="flex items-start justify-between mb-3">
-                               <div>
-                                 <p className="text-[14px] font-bold text-[#111111]">{c.product}</p>
-                                 <p className="text-[12px] font-medium text-[#8B93A7]">Supplied on {c.date} · Ref: {c.id}</p>
-                               </div>
-                               <span className="text-[14px] font-bold text-[#111111]">{formatMoney(c.value)}</span>
-                             </div>
-                             
-                             <div className="bg-[#F7F7F8] p-3 rounded-[10px]">
-                               <div className="flex items-center justify-between text-[12px] font-bold mb-2">
-                                 <span className="text-[#16A34A]">{c.sold} Sold</span>
-                                 <span className="text-[#8B93A7]">{c.supplied} Supplied</span>
-                               </div>
-                               <div className="h-2 w-full bg-[#E4E7EC] rounded-full overflow-hidden">
-                                 <div className="h-full bg-[#16A34A] rounded-full" style={{ width: `${pct}%` }} />
-                               </div>
-                             </div>
-                           </div>
-                         );
-                       })}
-                     </div>
-                  </motion.div>
-                )}
-
-                {/* ── TAB: CONSIGNMENT (Enhanced) ── */}
-                 {activeTab === 'Consignment' && (
-                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-[15px] font-bold text-[#111111]">On-Shelf Inventory</h3>
-                        <div className="flex gap-2">
-                           <button 
-                             onClick={() => setIsReturnModalOpen(true)}
-                             className="h-8 px-3 rounded-[8px] border border-[#ECEDEF] text-[11px] font-bold text-[#DC2626] hover:bg-[#FEF2F2] transition-all flex items-center gap-1.5"
-                           >
-                             <Icon icon="solar:backspace-bold-duotone" className="text-[14px]" />
-                             Process Return
-                           </button>
-                           <button 
-                             onClick={() => setIsReplenishModalOpen(true)}
-                             className="h-8 px-3 rounded-[8px] bg-[#111111] text-white text-[11px] font-bold flex items-center gap-1.5 hover:bg-black transition-all shadow-md shadow-black/10"
-                           >
-                             <Icon icon="solar:box-bold-duotone" className="text-[14px]" />
-                             Replenish
-                           </button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        {[
-                          { name: 'Ultra-Bond Cement', sku: 'CEM-001', qty: 45, value: 5400, health: 'Optimal' },
-                          { name: 'Steel Rods 12mm', sku: 'STL-012', qty: 8, value: 12800, health: 'Low Stock' },
-                          { name: 'Gyp-Rock Plaster', sku: 'PLT-009', qty: 120, value: 3600, health: 'Excessive' },
-                        ].map((item, i) => (
-                          <div key={i} className="p-4 bg-white border border-[#ECEDEF] rounded-[16px] hover:border-[#D40073] transition-all group">
-                             <div className="flex justify-between items-start mb-3">
-                               <div>
-                                 <p className="text-[14px] font-bold text-[#111111]">{item.name}</p>
-                                 <p className="text-[11px] font-bold text-[#8B93A7] tracking-wider uppercase">{item.sku}</p>
-                               </div>
-                               <span className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider ${
-                                 item.health === 'Optimal' ? 'bg-[#ECFDF3] text-[#16A34A]' : 
-                                 item.health === 'Low Stock' ? 'bg-[#FFF7ED] text-[#EA580C]' : 'bg-[#EFF6FF] text-[#2563EB]'
-                               }`}>
-                                 {item.health}
-                               </span>
-                             </div>
-                             <div className="flex items-center justify-between pt-3 border-t border-[#ECEDEF] border-dashed">
-                               <div>
-                                 <p className="text-[11px] font-bold text-[#8B93A7] uppercase mb-0.5">Quantity</p>
-                                 <p className="text-[14px] font-bold text-[#111111]">{item.qty} units</p>
-                               </div>
-                               <div className="text-right">
-                                 <p className="text-[11px] font-bold text-[#8B93A7] uppercase mb-0.5">Asset Value</p>
-                                 <p className="text-[14px] font-bold text-[#111111]">{formatMoney(item.value)}</p>
-                               </div>
-                             </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="p-4 bg-[#111111] rounded-[20px] text-white">
-                        <div className="flex items-center gap-3 mb-4">
-                           <div className="w-10 h-10 rounded-[12px] bg-white/10 flex items-center justify-center">
-                              <Icon icon="solar:chart-square-bold-duotone" className="text-[20px] text-white" />
-                           </div>
-                           <div>
-                             <p className="text-[12px] font-bold opacity-60">Total Consignment Value</p>
-                             <p className="text-[18px] font-bold">GHS 21,800.00</p>
-                           </div>
-                        </div>
-                        <button className="w-full h-10 bg-white/10 hover:bg-white/20 text-white rounded-[12px] text-[12px] font-bold transition-all border border-white/10">
-                           Download Inventory Report
-                        </button>
-                      </div>
-                   </motion.div>
-                 )}
  
                  {/* ── TAB: LEDGER (Previously Credit) ── */}
                  {activeTab === 'Credit' && (
