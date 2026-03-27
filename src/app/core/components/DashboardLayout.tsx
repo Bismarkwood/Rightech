@@ -138,29 +138,29 @@ export default function DashboardLayout() {
               <CreditProvider>
                 <PaymentProvider>
                   <ShipmentProvider>
+                  <DeliveryProvider>
                     <OrderManagementProvider>
                       <DealerWorkflowProvider>
                         <RetailerProvider>
                           <OrderWorkflowProvider>
-                            <DeliveryProvider>
-                              <div className="flex h-screen w-full bg-[#F7F7F8] font-sans overflow-hidden">
-                                <Sidebar />
-                                <div className="flex-1 flex flex-col min-w-0 h-full relative">
-                                  <Topbar />
-                                  <main className="flex-1 h-full flex flex-col overflow-hidden">
-                                    <Outlet />
-                                  </main>
-                                  
-                                  {/* Global Modals */}
-                                  <AddSupplierModal />
-                                  <NewOrderModal />
-                                </div>
+                            <div className="flex h-screen w-full bg-[#F7F7F8] font-sans overflow-hidden">
+                              <Sidebar />
+                              <div className="flex-1 flex flex-col min-w-0 h-full relative">
+                                <Topbar />
+                                <main className="flex-1 h-full flex flex-col overflow-hidden">
+                                  <Outlet />
+                                </main>
+                                
+                                {/* Global Modals */}
+                                <AddSupplierModal />
+                                <NewOrderModal />
                               </div>
-                            </DeliveryProvider>
+                            </div>
                           </OrderWorkflowProvider>
                         </RetailerProvider>
                       </DealerWorkflowProvider>
                     </OrderManagementProvider>
+                  </DeliveryProvider>
                   </ShipmentProvider>
                 </PaymentProvider>
               </CreditProvider>
