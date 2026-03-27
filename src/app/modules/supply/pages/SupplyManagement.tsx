@@ -61,7 +61,7 @@ export default function SupplyManagement() {
 
         {/* Tab Nav */}
         <div className="flex items-center gap-8 overflow-x-auto no-scrollbar">
-          {['Suppliers', 'Catalog'].map((tab) => (
+          {['Suppliers'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -154,7 +154,7 @@ export default function SupplyManagement() {
                           </p>
                         </td>
                         <td className="py-4 px-6">
-                          <p className="text-[14px] font-bold text-[#111111]">GHS {supplier.rating * 1000}</p>
+                          <p className="text-[14px] font-black text-[#111111]">GHS {supplier.rating * 1000}</p>
                         </td>
                         <td className="py-4 px-6 text-[13px] text-[#525866]">
                           Recently
@@ -174,36 +174,6 @@ export default function SupplyManagement() {
                   </tbody>
                 </table>
               </div>
-            </div>
-          )}
-
-          {activeTab === 'Catalog' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {useProducts().products.map(product => {
-                const supplier = useSuppliers().suppliers.find(s => s.id === product.supplierId);
-                return (
-                  <div key={product.id} className="bg-white rounded-[22px] border border-[#ECEDEF] p-4 group hover:border-[#D40073] transition-all">
-                    <div className="aspect-square rounded-[14px] bg-[#F7F7F8] mb-4 overflow-hidden relative">
-                      {product.image ? (
-                        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#8B93A7]">
-                          <Box size={32} />
-                        </div>
-                      )}
-                      <div className="absolute top-2 right-2 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-[6px] text-[10px] font-bold border border-[#ECEDEF]">
-                        {product.status}
-                      </div>
-                    </div>
-                    <h3 className="text-[14px] font-bold text-[#111111] mb-1 truncate">{product.name}</h3>
-                    <p className="text-[12px] text-[#525866] mb-3">{supplier?.name || 'Unknown Supplier'}</p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-[14px] font-black text-[#D40073]">GHS {product.price}</p>
-                      <p className="text-[12px] font-bold text-[#111111]">{product.stock} in stock</p>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           )}
           {activeTab === 'Payments' && (
