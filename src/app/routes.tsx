@@ -1,21 +1,21 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Outlet, Navigate } from "react-router";
-import Auth from "./pages/Auth";
-import DashboardLayout from "./components/DashboardLayout";
-import DashboardHome from "./pages/DashboardHome";
-import BusinessManagement from "./pages/BusinessManagement";
-import DealerManagement from "./pages/DealerManagement";
-import SupplyManagement from "./pages/SupplyManagement";
-import RetailerManagement from "./pages/RetailerManagement";
-import ConsignmentManagement from "./pages/ConsignmentManagement";
-import StorefrontManagement from "./pages/StorefrontManagement";
-import PaymentManagement from "./pages/PaymentManagement";
-import { DeliveryManagement } from "./components/delivery/DeliveryManagement";
+import Auth from './modules/auth/pages/Auth';
+import DashboardLayout from './core/components/DashboardLayout';
+import DashboardHome from './modules/retailer/pages/DashboardHome';
+import BusinessManagement from './modules/business/pages/BusinessManagement';
+import DealerManagement from './modules/dealer/pages/DealerManagement';
+import SupplyManagement from './modules/supply/pages/SupplyManagement';
+import RetailerManagement from './modules/retailer/pages/RetailerManagement';
+import ConsignmentManagement from './modules/consignment/pages/ConsignmentManagement';
+import StorefrontManagement from './modules/storefront/pages/StorefrontManagement';
+import PaymentManagement from './modules/payments/pages/PaymentManagement';
+import { DeliveryManagement } from './modules/delivery/components/DeliveryManagement';
 
-const Shipments = lazy(() => import('./pages/ShipmentManagement'));
-const CreditManagement = lazy(() => import('./pages/CreditManagement'));
-const Finance = lazy(() => import('./pages/Finance'));
-const ProductManagement = lazy(() => import('./pages/ProductManagement'));
+const Shipments = lazy(() => import('./modules/shipment/pages/ShipmentManagement'));
+const CreditManagement = lazy(() => import('./modules/credit/pages/CreditManagement'));
+const Finance = lazy(() => import('./modules/finance/pages/Finance'));
+const ProductManagement = lazy(() => import('./modules/products/pages/ProductManagement'));
 
 export const router = createBrowserRouter([
   {

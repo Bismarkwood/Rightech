@@ -1,0 +1,16 @@
+﻿src/app/modules/auth/pages/Auth.tsx(131,11): error TS2322: Type '(el: HTMLInputElement | null) => HTMLInputElement | null' is not assignable to type 'Ref<HTMLInputElement> | undefined'.
+  Type '(el: HTMLInputElement | null) => HTMLInputElement | null' is not assignable to type '(instance: HTMLInputElement | null) => void | (() => VoidOrUndefinedOnly)'.
+    Type 'HTMLInputElement | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+      Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+src/app/modules/delivery/components/LiveMapModal.tsx(6,8): error TS2882: Cannot find module or type declarations for side-effect import of 'leaflet/dist/leaflet.css'.
+src/app/modules/payments/components/RecordPayoutModal.tsx(27,11): error TS2741: Property 'partyId' is missing in type '{ id: string; type: "Supplier Payout"; direction: "out"; party: string; partyType: "Supplier"; amount: number; method: "Cash" | "Bank Transfer" | "Store Credit" | "MTN Mobile Money" | "Telecel Cash" | "AirtelTigo Money"; ... 5 more ...; notes: string; }' but required in type 'Transaction'.
+src/app/modules/products/components/ProductFormModal.tsx(105,18): error TS2345: Argument of type '{ name: string; sku: string; category: string; description: string; price: number; costPrice: number | undefined; unit: ProductUnit; stock: number; lowStockThreshold: number; supplier: string | undefined; tags: string[]; image: string | undefined; }' is not assignable to parameter of type 'Omit<Product, "id" | "status" | "createdAt" | "updatedAt" | "stockMovements" | "reservedStock" | "isArchived">'.
+  Types of property 'costPrice' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+src/app/modules/retailer/components/RetailerOrderDetailsDrawer.tsx(137,16): error TS2345: Argument of type '{ name: string; qty: number; unitPrice: string; lineTotal: string; image: string; }' is not assignable to parameter of type 'RetailerOrderItem'.
+  Property 'productId' is missing in type '{ name: string; qty: number; unitPrice: string; lineTotal: string; image: string; }' but required in type 'RetailerOrderItem'.
+src/app/modules/shipment/components/ShipmentDetailDrawer.tsx(14,8): error TS2882: Cannot find module or type declarations for side-effect import of 'leaflet/dist/leaflet.css'.
+src/app/modules/storefront/components/StorefrontSettings.tsx(2,50): error TS2305: Module '"lucide-react"' has no exported member 'Paintclip'.
+src/app/routes.tsx(7,8): error TS2613: Module '"C:/Users/atoba/Downloads/Rightech/src/app/modules/dealer/components/DealerManagement"' has no default export. Did you mean to use 'import { DealerManagement } from "C:/Users/atoba/Downloads/Rightech/src/app/modules/dealer/components/DealerManagement"' instead?
+src/main.tsx(4,10): error TS2882: Cannot find module or type declarations for side-effect import of './styles/index.css'.
