@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router';
 import { useRetailer } from './RetailerContext';
 import { NewOrderModal } from './NewOrderModal';
+import { RetailerOrder } from '../../data/mockRetailerOrders';
 
 const FILTERS = ['All Orders', 'New', 'Pending Payment', 'Ready for Dispatch', 'In Transit', 'Completed', 'Credit Orders'];
 
@@ -12,7 +13,7 @@ export function OrdersTab() {
   const [activeFilter, setActiveFilter] = useState('All Orders');
   const navigate = useNavigate();
 
-  const filteredOrders = orders.filter(o => {
+  const filteredOrders = orders.filter((o: RetailerOrder) => {
     if (activeFilter === 'All Orders') return true;
     if (activeFilter === 'Ready for Dispatch') return o.delStatus === 'Ready';
     if (activeFilter === 'In Transit') return o.delStatus === 'In Transit';
@@ -50,7 +51,7 @@ export function OrdersTab() {
                 onClick={() => setActiveFilter(f)}
                 className={`whitespace-nowrap h-9 px-4 rounded-[10px] text-[13px] font-bold transition-all ${
                   activeFilter === f 
-                    ? 'bg-[#111111] text-white shadow-[0_4px_12px_rgba(0,0,0,0.12)]' 
+                    ? 'bg-[#111111] text-white' 
                     : 'bg-white border border-[#E4E7EC] text-[#525866] hover:border-[#D40073] hover:text-[#D40073]'
                 }`}
               >
@@ -76,7 +77,7 @@ export function OrdersTab() {
             </tr>
           </thead>
           <tbody className="text-[13px]">
-            {filteredOrders.map((order) => (
+            {filteredOrders.map((order: RetailerOrder) => (
               <tr
                 key={order.id}
                 onClick={() => navigate(`/dashboard/retailer/orders/${order.id}`)}

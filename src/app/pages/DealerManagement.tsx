@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useMemo } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router';
 import { Icon } from '@iconify/react';
+import { motion, AnimatePresence } from 'motion/react';
+import { useCredit } from '../context/CreditContext';
 import * as Dialog from '@radix-ui/react-dialog';
 import { 
   MOCK_DEALERS, MOCK_DEALER_ORDERS, MOCK_DEALER_PAYMENTS, MOCK_DEALER_CONSIGNMENTS, Dealer
@@ -17,8 +19,28 @@ const CATALOG = [
 
 export default function DealerManagement() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedDealer, setSelectedDealer] = useState<Dealer | null>(null);
+  const { accounts, getAccountByDealerId } = useCredit();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Overview');
+  const [selectedDealer, setSelectedDealer] = useState<any>(null);
+
+  // Sync selectedDealer credit data with CreditContext
+  const creditAccount = useMemo(() => {
+    if (!selectedDealer) return null;
+    return getAccountByDealerId(selectedDealer.id);
+  }, [selectedDealer, accounts, getAccountByDealerId]);
+
+  const dealerWithLiveCredit = useMemo(() => {
+    if (!selectedDealer || !creditAccount) return selectedDealer;
+    return {
+      ...selectedDealer,
+      creditLimit: creditAccount.creditLimit,
+      outstanding: creditAccount.usedAmount,
+      creditScore: creditAccount.band,
+      scoreValue: creditAccount.score
+    };
+  }, [selectedDealer, creditAccount]);
   const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [isAllOrdersModalOpen, setIsAllOrdersModalOpen] = useState(false);
@@ -537,115 +559,72 @@ export default function DealerManagement() {
                              <th className="py-3 px-4 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Method</th>
                            </tr>
                          </thead>
-                         <tbody className="divide-y divide-[#ECEDEF]">
-                           {MOCK_DEALER_PAYMENTS.map(p => (
-                             <tr key={p.id}>
-                               <td className="py-3 px-4">
-                                 <p className="text-[13px] font-bold text-[#111111]">{p.id}</p>
-                                 <p className="text-[12px] font-medium text-[#525866]">{p.date}</p>
-                               </td>
-                               <td className="py-3 px-4 text-[13px] font-bold text-[#111111]">{formatMoney(p.amount)}</td>
-                               <td className="py-3 px-4 text-[13px] font-medium text-[#525866]">{p.method}</td>
-                             </tr>
-                           ))}
-                         </tbody>
-                       </table>
-                     </div>
-                  </motion.div>
-                )}
-
- 
-                 {/* ── TAB: LEDGER (Previously Credit) ── */}
-                 {activeTab === 'Credit' && (
-                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-[15px] font-bold text-[#111111]">Financial Ledger</h3>
-                        <button className="text-[12px] font-bold text-[#D40073] hover:underline flex items-center gap-1">
-                          <Icon icon="solar:printer-linear" className="text-[16px]" />
-                          Print Statement
-                        </button>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        {[
-                          { date: '25 Mar, 2024', type: 'Payment', ref: 'TX-9021', amount: 5000, method: 'Bank Transfer' },
-                          { date: '20 Mar, 2024', type: 'Purchase', ref: 'ORD-5521', amount: -12500, method: 'Credit Order' },
-                          { date: '15 Mar, 2024', type: 'Credit Note', ref: 'RMA-442', amount: 800, method: 'Inventory Return' },
-                          { date: '10 Mar, 2024', type: 'Payment', ref: 'TX-8834', amount: 2500, method: 'Momo Pay' },
-                        ].map((tx, i) => (
-                          <div key={i} className="flex items-center gap-4 p-3 bg-white border border-[#ECEDEF] rounded-[14px]">
-                             <div className={`w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 ${
-                               tx.amount > 0 ? 'bg-[#ECFDF3] text-[#16A34A]' : 'bg-[#FFF1F2] text-[#E11D48]'
-                             }`}>
-                               <Icon icon={tx.amount > 0 ? 'solar:arrow-down-left-linear' : 'solar:arrow-up-right-linear'} className="text-[20px]" />
-                             </div>
-                             <div className="flex-1">
-                               <p className="text-[13px] font-bold text-[#111111]">{tx.type} • {tx.ref}</p>
-                               <p className="text-[11px] font-medium text-[#8B93A7]">{tx.date} via {tx.method}</p>
-                             </div>
-                             <div className="text-right">
-                               <p className={`text-[14px] font-bold ${tx.amount > 0 ? 'text-[#16A34A]' : 'text-[#E11D48]'}`}>
-                                 {tx.amount > 0 ? '+' : ''}{formatMoney(tx.amount)}
-                               </p>
-                             </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="p-5 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[20px]">
-                        <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-3">Credit Utilization</p>
-                        <div className="flex justify-between items-end mb-2">
-                           <div>
-                              <p className="text-[20px] font-bold text-[#111111]">{formatMoney(selectedDealer.outstanding)}</p>
-                              <p className="text-[12px] text-[#525866] font-medium">Current Balance</p>
-                           </div>
-                           <div className="text-right">
-                              <p className="text-[14px] font-bold text-[#111111]">{formatMoney(selectedDealer.creditLimit)}</p>
-                              <p className="text-[12px] text-[#525866] font-medium">Approved Limit</p>
-                           </div>
-                        </div>
-                        <div className="w-full h-2.5 bg-[#ECEDEF] rounded-full overflow-hidden">
-                           <div className="h-full bg-[#D40073] rounded-full" style={{ width: `${(selectedDealer.outstanding/selectedDealer.creditLimit)*100}%` }} />
-                        </div>
+                          <tbody className="divide-y divide-[#ECEDEF]">
+                            {MOCK_DEALER_PAYMENTS.map(p => (
+                              <tr key={p.id}>
+                                <td className="py-3 px-4">
+                                  <p className="text-[13px] font-bold text-[#111111]">{p.id}</p>
+                                  <p className="text-[12px] font-medium text-[#525866]">{p.date}</p>
+                                </td>
+                                <td className="py-3 px-4 text-[13px] font-bold text-[#111111]">{formatMoney(p.amount)}</td>
+                                <td className="py-3 px-4 text-[13px] font-medium text-[#525866]">{p.method}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                    </motion.div>
                  )}
 
-                {/* ── TAB: CREDIT ── */}
-                {activeTab === 'Credit' && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                     <div className="p-6 bg-white border border-[#E4E7EC] rounded-[16px] text-center">
-                        <div className="inline-flex w-20 h-20 rounded-full bg-[#F3F4F6] items-center justify-center mb-3">
-                          <Icon icon="solar:wallet-bold" className="text-[36px]" style={{ color: getRiskColor(selectedDealer.creditScore) }} />
-                        </div>
-                        <h2 className="text-[32px] font-bold text-[#111111] tracking-tight">{selectedDealer.creditScore} <span className="text-[16px] text-[#8B93A7] font-medium">/ 1000</span></h2>
-                        <p className="text-[14px] font-bold mt-1 uppercase tracking-wider" style={{ color: getRiskColor(selectedDealer.creditScore) }}>
-                          {selectedDealer.creditScore >= 800 ? 'Low Risk' : selectedDealer.creditScore >= 600 ? 'Medium Risk' : 'High Risk'}
-                        </p>
-                     </div>
+                  {/* ── TAB: CREDIT (Centralized) ── */}
+                  {activeTab === 'Credit' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                       <div className="p-8 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[24px] text-center">
+                          <div className="w-16 h-16 rounded-full bg-[#111111] text-white flex items-center justify-center mx-auto mb-4">
+                            <Icon icon="solar:chart-square-bold-duotone" className="text-[32px]" />
+                          </div>
+                          <h3 className="text-[18px] font-black text-[#111111]">Centralized Credit Management</h3>
+                          <p className="text-[14px] font-medium text-[#525866] mt-2 max-w-sm mx-auto">
+                            Detailed credit accounts, repayment history, and automated scoring have moved to the new Credit module.
+                          </p>
+                          
+                          <div className="mt-8 grid grid-cols-2 gap-4 text-left">
+                            <div className="p-4 bg-white border border-[#ECEDEF] rounded-[18px]">
+                               <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-wider">Credit Score</p>
+                               <p className="text-[20px] font-black text-[#111111] mt-1">{dealerWithLiveCredit.creditScore}</p>
+                            </div>
+                            <div className="p-4 bg-white border border-[#ECEDEF] rounded-[18px]">
+                               <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-wider">Available</p>
+                               <p className="text-[20px] font-black text-[#111111] mt-1">{formatMoney(dealerWithLiveCredit.creditLimit - dealerWithLiveCredit.outstanding)}</p>
+                            </div>
+                          </div>
 
-                     <div className="space-y-2">
-                       <h3 className="text-[14px] font-bold text-[#111111] mb-1">Credit Usage</h3>
-                       <div className="flex items-center justify-between text-[13px] font-bold text-[#525866] mb-1">
-                         <span>Used: {formatMoney(selectedDealer.outstanding)}</span>
-                         <span>Limit: {formatMoney(selectedDealer.creditLimit)}</span>
+                          <Link 
+                            to="/dashboard/credit"
+                            className="mt-6 w-full h-12 bg-[#111111] text-white rounded-[16px] text-[14px] font-black flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg shadow-black/10"
+                          >
+                            Manage in Credit Module
+                            <Icon icon="solar:arrow-right-up-linear" className="text-[18px]" />
+                          </Link>
                        </div>
-                       <div className="h-3 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
-                         <div 
-                           className="h-full rounded-full transition-all" 
-                           style={{ 
-                             width: `${Math.min(100, (selectedDealer.outstanding / selectedDealer.creditLimit) * 100)}%`,
-                             background: '#D40073'
-                           }} 
-                         />
-                       </div>
-                       <p className="text-[12px] font-medium text-[#8B93A7] mt-2 text-right">
-                         {formatMoney(selectedDealer.creditLimit - selectedDealer.outstanding)} available
-                       </p>
-                     </div>
-                  </motion.div>
-                )}
 
+                       <div className="space-y-4">
+                          <h4 className="text-[13px] font-black text-[#111111] uppercase tracking-widest">Recent Activity</h4>
+                          {[
+                            { label: 'Repayment Received', date: '25 Mar, 2024', amount: '+ GHS 5,000', color: 'text-[#16A34A]' },
+                            { label: 'Credit Order #5521', date: '20 Mar, 2024', amount: '- GHS 12,500', color: 'text-[#EF4444]' },
+                          ].map((act, i) => (
+                             <div key={i} className="flex items-center justify-between p-4 bg-white border border-[#ECEDEF] rounded-[18px]">
+                                <div>
+                                   <p className="text-[14px] font-black text-[#111111]">{act.label}</p>
+                                   <p className="text-[12px] font-bold text-[#8B93A7]">{act.date}</p>
+                                </div>
+                                <p className={`text-[14px] font-black ${act.color}`}>{act.amount}</p>
+                             </div>
+                          ))}
+                       </div>
+                    </motion.div>
+                  )}
               </div>
 
               {/* Drawer Footer (Global Add Order) */}

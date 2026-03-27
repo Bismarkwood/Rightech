@@ -2,6 +2,7 @@ export type ConsignmentStatus = 'On Shelf' | 'Settled' | 'Returned' | 'In Transi
 
 export interface ConsignmentProduct {
   id: string;
+  productId: string; // Link to Product Catalogue
   productName: string;
   sku: string;
   suppliedQty: number;
@@ -37,6 +38,7 @@ export const MOCK_SUPPLIER_CONSIGNMENTS: ConsignmentItem[] = [
     items: [
       {
         id: 'P-1',
+        productId: 'PRD-001',
         productName: 'Portland Cement 50kg',
         sku: 'CEM-001',
         suppliedQty: 500,
@@ -59,6 +61,7 @@ export const MOCK_SUPPLIER_CONSIGNMENTS: ConsignmentItem[] = [
     items: [
       {
         id: 'P-2',
+        productId: 'PRD-002',
         productName: 'Iron Rods 16mm',
         sku: 'STL-016',
         suppliedQty: 100,
@@ -84,7 +87,8 @@ export const MOCK_DEALER_CONSIGNMENTS: ConsignmentItem[] = [
     items: [
       {
         id: 'P-3',
-        productName: 'Samsung Galaxy A54',
+        productId: 'PRD-006',
+        productName: 'Porcelain Floor Tiles (60x60)',
         sku: 'SAM-A54',
         suppliedQty: 50,
         soldQty: 12,

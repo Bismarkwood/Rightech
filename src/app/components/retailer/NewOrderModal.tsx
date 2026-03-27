@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '@iconify/react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useRetailer } from './RetailerContext';
+import { useProducts } from '../../context/ProductContext';
+import { toast } from 'sonner';
 
-/* ─── Catalog data ──────────────────────────────────────── */
-const CATALOG = [
-  { label: 'Portland Cement 50kg', price: 85, image: 'https://images.unsplash.com/photo-1518709367011-8278783e7869?auto=format&fit=crop&q=80&w=200' },
-  { label: 'Iron Rods 16mm', price: 120, image: 'https://images.unsplash.com/photo-1621905252507-b35242f8969d?auto=format&fit=crop&q=80&w=200' },
-  { label: 'Emulsion Paint 20L', price: 450, image: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&q=80&w=200' },
-  { label: 'Sand (1 Tipper)', price: 600, image: 'https://images.unsplash.com/photo-1534067783941-51c9c23eccfd?auto=format&fit=crop&q=80&w=200' },
-  { label: 'Gravel (1 Tipper)', price: 750, image: 'https://images.unsplash.com/photo-1517482713221-343fd7215655?auto=format&fit=crop&q=80&w=200' },
-];
-
+/* ─── Ghana Address Suggestions ─────────────────────────── */
 const GH_ADDRESSES = [
   { code: 'GA-183-4927', area: 'East Legon, Accra' },
   { code: 'GA-200-1122', area: 'Madina, Accra' },
@@ -67,18 +61,34 @@ function FieldGroup({
   );
 }
 
-function OrderItemRow({ onRemove, showRemove }: { onRemove: () => void; showRemove: boolean }) {
-  const [selectedIdx, setSelectedIdx] = useState(0);
-  const [qty, setQty] = useState(1);
-  const item = CATALOG[selectedIdx];
-  const lineTotal = (item.price * qty).toFixed(2);
+interface OrderItem {
+  id: string; // React key
+  productId: string;
+  qty: number;
+}
+
+function OrderItemRow({ 
+  item, 
+  availableProducts, 
+  onUpdate, 
+  onRemove, 
+  showRemove 
+}: { 
+  item: OrderItem;
+  availableProducts: any[];
+  onUpdate: (id: string, productId: string, qty: number) => void;
+  onRemove: () => void; 
+  showRemove: boolean;
+}) {
+  const selectedProduct = availableProducts.find(p => p.id === item.productId) || availableProducts[0];
+  const lineTotal = (selectedProduct?.price * item.qty).toFixed(2);
 
   return (
     <div className="flex items-center gap-2 bg-[#F7F7F8] rounded-[12px] p-2 pr-3 border border-[#ECEDEF]">
       {/* Product Image */}
       <div className="w-10 h-10 rounded-[8px] bg-white border border-[#E4E7EC] overflow-hidden shrink-0 flex items-center justify-center">
-        {item.image ? (
-          <img src={item.image} alt={item.label} className="w-full h-full object-cover" />
+        {selectedProduct?.image ? (
+          <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover" />
         ) : (
           <Icon icon="solar:box-linear" className="text-[18px] text-[#8B93A7]" />
         )}
@@ -87,13 +97,13 @@ function OrderItemRow({ onRemove, showRemove }: { onRemove: () => void; showRemo
       {/* Product select */}
       <div className="relative flex-1 min-w-0">
         <select
-          value={selectedIdx}
-          onChange={e => setSelectedIdx(Number(e.target.value))}
+          value={item.productId}
+          onChange={e => onUpdate(item.id, e.target.value, item.qty)}
           className="modal-input appearance-none pr-8 cursor-pointer text-[13px]"
           style={{ height: '42px' }}
         >
-          {CATALOG.map((c, i) => (
-            <option key={i} value={i}>{c.label} — {c.price} GHS</option>
+          {availableProducts.map((p) => (
+            <option key={p.id} value={p.id}>{p.name} — {p.price.toLocaleString()} GHS</option>
           ))}
         </select>
         <Icon icon="solar:alt-arrow-down-linear" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8B93A7] text-[14px] pointer-events-none" />
@@ -106,13 +116,13 @@ function OrderItemRow({ onRemove, showRemove }: { onRemove: () => void; showRemo
       >
         <button
           type="button"
-          onClick={() => setQty(q => Math.max(1, q - 1))}
+          onClick={() => onUpdate(item.id, item.productId, Math.max(1, item.qty - 1))}
           className="w-9 h-full flex items-center justify-center text-[#525866] hover:bg-[#F3F4F6] transition-colors text-lg font-bold"
         >−</button>
-        <span className="w-9 text-center text-[13px] font-bold text-[#111111]">{qty}</span>
+        <span className="w-9 text-center text-[13px] font-bold text-[#111111]">{item.qty}</span>
         <button
           type="button"
-          onClick={() => setQty(q => q + 1)}
+          onClick={() => onUpdate(item.id, item.productId, item.qty + 1)}
           className="w-9 h-full flex items-center justify-center text-[#525866] hover:bg-[#F3F4F6] transition-colors text-lg font-bold"
         >+</button>
       </div>
@@ -140,7 +150,16 @@ function OrderItemRow({ onRemove, showRemove }: { onRemove: () => void; showRemo
 
 export function NewOrderModal() {
   const { isNewOrderModalOpen, setNewOrderModalOpen, addOrder } = useRetailer();
-  const [itemRows, setItemRows] = useState([Date.now()]);
+  const { products, reserveStock } = useProducts();
+  
+  // Filter available products (not archived, non-zero price)
+  const availableProducts = useMemo(() => 
+    products.filter(p => !p.isArchived && p.price > 0), [products]
+  );
+
+  const [items, setItems] = useState<OrderItem[]>([
+    { id: String(Date.now()), productId: availableProducts[0]?.id || '', qty: 1 }
+  ]);
   const [customerName, setCustomerName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
@@ -154,18 +173,59 @@ export function NewOrderModal() {
     ? GH_ADDRESSES.filter(a => a.code.startsWith(digitalAddress) || a.area.toLowerCase().includes(digitalAddress.toLowerCase()))
     : [];
 
-  const addRow = () => setItemRows(r => [...r, Date.now()]);
-  const removeRow = (key: number) => setItemRows(r => r.filter(k => k !== key));
+  const addRow = () => {
+    setItems(prev => [...prev, { id: String(Date.now()), productId: availableProducts[0]?.id || '', qty: 1 }]);
+  };
+  
+  const removeRow = (id: string) => {
+    setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  const updateRow = (id: string, productId: string, qty: number) => {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, productId, qty } : i));
+  };
+
+  const calculateTotal = () => {
+    return items.reduce((sum, item) => {
+      const p = products.find(prod => prod.id === item.productId);
+      return sum + (p?.price || 0) * item.qty;
+    }, 0);
+  };
 
   const handleCreateOrder = () => {
-    const newId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+    if (items.length === 0) {
+      toast.error('Please add at least one item to the order.');
+      return;
+    }
+
+    const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
     const isDelivery = deliveryMethod === 'Delivery / Dispatch';
+    const totalAmount = calculateTotal();
     
+    // Map internal selection to RetailerOrder items
+    const orderItems = items.map(item => {
+      const p = products.find(prod => prod.id === item.productId)!;
+      return {
+        productId: p.id,
+        name: p.name,
+        qty: item.qty,
+        unitPrice: `${p.price} GHS`,
+        lineTotal: `${(p.price * item.qty).toLocaleString()} GHS`,
+        image: p.image,
+      };
+    });
+
+    // 1. Reserve stock first to prevent over-selling
+    items.forEach(item => {
+      reserveStock(item.productId, item.qty, `Order ${orderId} created`, orderId);
+    });
+
+    // 2. Register the order
     addOrder({
-      id: newId,
+      id: orderId,
       customer: customerName || 'Guest Customer',
       type: 'Retail',
-      amount: '0.00 GHS',
+      amount: `${totalAmount.toLocaleString()} GHS`,
       payStatus: payStatus === 'Pending Payment' ? 'Pending' : 'Paid',
       paymentMethod: payStatus.includes('Cash') ? 'Cash' : 'Bank Transfer',
       delStatus: isDelivery ? 'Ready' : 'In-Store Pickup',
@@ -176,12 +236,15 @@ export function NewOrderModal() {
       orderNotes: '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      items: [],
+      items: orderItems,
       agent: isDelivery ? selectedAgent : undefined,
     });
     
+    toast.success(`Order ${orderId} issued successfully.`);
     setNewOrderModalOpen(false);
+    
     // Reset form
+    setItems([{ id: String(Date.now()), productId: availableProducts[0]?.id || '', qty: 1 }]);
     setCustomerName('');
     setPhoneNumber('');
     setAddress('');
@@ -206,8 +269,7 @@ export function NewOrderModal() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 28, scale: 0.97 }}
                 transition={{ type: 'spring', duration: 0.42, bounce: 0.16 }}
-                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[640px] z-50 focus:outline-none flex flex-col max-h-[92vh] rounded-[28px] overflow-hidden bg-white"
-                style={{ boxShadow: '0 40px 100px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06)' }}
+                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[640px] z-50 focus:outline-none flex flex-col max-h-[92vh] rounded-[28px] overflow-hidden bg-white border border-[#ECEDEF]"
               >
                 {/* ── Hero Header ── */}
                 <div
@@ -225,9 +287,8 @@ export function NewOrderModal() {
                     <div className="flex items-center gap-4">
                       <div className="w-[52px] h-[52px] rounded-[16px] flex items-center justify-center shrink-0"
                         style={{
-                          background: 'linear-gradient(135deg, rgba(212,0,115,0.3), rgba(212,0,115,0.15))',
+                          background: 'rgba(212,0,115,0.15)',
                           border: '1px solid rgba(212,0,115,0.4)',
-                          boxShadow: '0 0 20px rgba(212,0,115,0.2)',
                         }}
                       >
                         <Icon icon="solar:bag-5-bold" className="text-[28px]" style={{ color: '#ff6ec4' }} />
@@ -271,21 +332,28 @@ export function NewOrderModal() {
                     <NewOrderSection icon="solar:user-rounded-bold" label="Customer Information" color="#2563EB" bgColor="#EFF6FF">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FieldGroup label="Customer Name" icon="solar:user-linear">
-                          <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="e.g. Kwame Mensah" className="modal-input" />
+                          <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Kwame Mensah" className="modal-input" />
                         </FieldGroup>
                         <FieldGroup label="Phone Number" icon="solar:phone-linear">
-                          <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="e.g. 024 XXX XXXX" className="modal-input" />
+                          <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="024 XXX XXXX" className="modal-input" />
                         </FieldGroup>
                         <FieldGroup label="Location / Area" icon="solar:map-point-linear" className="sm:col-span-2">
-                          <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. Accra, East Legon" className="modal-input" />
+                          <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Accra, East Legon" className="modal-input" />
                         </FieldGroup>
                       </div>
                     </NewOrderSection>
 
                     <NewOrderSection icon="solar:box-bold" label="Order Items" color="#D40073" bgColor="rgba(212,0,115,0.08)">
                       <div className="space-y-2">
-                        {itemRows.map((key) => (
-                          <OrderItemRow key={key} showRemove={itemRows.length > 1} onRemove={() => removeRow(key)} />
+                        {items.map((item) => (
+                          <OrderItemRow 
+                            key={item.id} 
+                            item={item}
+                            availableProducts={availableProducts}
+                            onUpdate={updateRow}
+                            showRemove={items.length > 1} 
+                            onRemove={() => removeRow(item.id)} 
+                          />
                         ))}
                         <button type="button" onClick={addRow} className="w-full h-10 rounded-[10px] border-2 border-dashed border-[#ECEDEF] text-[13px] font-semibold text-[#8B93A7] hover:border-[#D40073] hover:text-[#D40073] hover:bg-[rgba(212,0,115,0.03)] transition-all flex items-center justify-center gap-2">
                           <Icon icon="solar:add-circle-linear" className="text-[16px]" />
@@ -356,7 +424,7 @@ export function NewOrderModal() {
                             }}
                             onFocus={() => setShowSuggestions(true)}
                             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                            placeholder="e.g. GA-183-4927" 
+                            placeholder="GA-183-4927" 
                             className="w-full h-11 pl-11 pr-4 bg-white border border-[#2563EB]/20 rounded-[10px] text-[14px] font-bold text-[#111111] placeholder:text-[#2563EB]/30 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 transition-all uppercase tracking-widest" 
                           />
                           <AnimatePresence>
@@ -380,11 +448,17 @@ export function NewOrderModal() {
                 <div className="shrink-0 px-6 py-5 bg-white border-t border-[#ECEDEF] flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
                     <div className="text-[11px] font-bold text-[#B0B7C3] uppercase tracking-widest mb-0.5">Estimated Total</div>
-                    <div className="text-[26px] font-extrabold text-[#111111] tracking-tight leading-none">0.00 <span className="text-[15px] text-[#8B93A7] font-semibold">GHS</span></div>
+                    <div className="text-[26px] font-extrabold text-[#111111] tracking-tight leading-none">
+                      {calculateTotal().toLocaleString()} <span className="text-[15px] text-[#8B93A7] font-semibold">GHS</span>
+                    </div>
                   </div>
                   <div className="flex gap-3 w-full sm:w-auto">
                     <button type="button" onClick={() => setNewOrderModalOpen(false)} className="flex-1 sm:flex-none h-11 px-5 rounded-[12px] bg-[#F3F4F6] hover:bg-[#E4E7EC] text-[#525866] font-bold text-[14px] transition-colors">Cancel</button>
-                    <button type="button" onClick={handleCreateOrder} className="flex-1 sm:flex-none h-11 px-7 rounded-[12px] font-bold text-[14px] text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]" style={{ background: 'linear-gradient(135deg, #D40073 0%, #a0005a 100%)', boxShadow: '0 4px 20px rgba(212,0,115,0.38)' }}>
+                    <button 
+                      type="button" 
+                      onClick={handleCreateOrder} 
+                      className="flex-1 sm:flex-none h-14 px-10 bg-[#D40073] hover:bg-[#B80063] text-white font-black text-[15px] rounded-[20px] transition-all flex items-center justify-center gap-3"
+                    >
                       <Icon icon="solar:check-circle-bold" className="text-[18px]" />
                       Confirm Order
                     </button>

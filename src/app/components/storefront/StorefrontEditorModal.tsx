@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Search, Check, PackageSearch, Save, Icon as LucideIcon } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import { StorefrontListing } from '../../pages/StorefrontManagement';
-import { useRetailer } from '../retailer/RetailerContext';
+import { useProducts } from '../../context/ProductContext';
 import { Dialog, DialogContent } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -25,7 +25,7 @@ export function StorefrontEditorModal({
   setListings,
   onClose
 }: StorefrontEditorModalProps) {
-  const { inventory } = useRetailer();
+  const { products } = useProducts();
   
   // Step State for 'Add' mode
   const [step, setStep] = useState<1 | 2>(mode === 'add' ? 1 : 2);
@@ -49,23 +49,24 @@ export function StorefrontEditorModal({
     }
   }, [isOpen, mode, editingListingId, listings]);
 
-  // Inventory available for adding (i.e., not already listed)
+  // Inventory available for adding (i.e., not already listed and not archived)
   const listedIds = new Set(listings.map(l => l.inventoryId));
-  const availableInventory = inventory.filter(item => 
+  const availableInventory = products.filter(item => 
+    !item.isArchived &&
     !listedIds.has(item.id) && 
     (item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.id.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleSelectInventoryItem = (itemId: string) => {
-    const item = inventory.find(i => i.id === itemId);
+    const item = products.find(i => i.id === itemId);
     if (!item) return;
 
-    // Seed the form with default inventory data
+    // Seed the form with default product data
     setEditedListing({
       inventoryId: item.id,
-      displayName: item.name,
-      description: item.description || '',
-      displayPrice: item.price,
+      displayName: item.storefrontName || item.name,
+      description: item.storefrontDescription || item.description || '',
+      displayPrice: `GHS ${item.price.toLocaleString()}`,
       storeCategory: item.category,
       images: item.image ? [item.image] : [],
       isPublished: true,
@@ -101,7 +102,7 @@ export function StorefrontEditorModal({
   };
 
   // Derive live inventory data for the "Source Truth" header in Step 2
-  const liveItem = inventory.find(i => i.id === editedListing?.inventoryId);
+  const liveItem = products.find(i => i.id === editedListing?.inventoryId);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
@@ -121,7 +122,7 @@ export function StorefrontEditorModal({
             >
               <div className="p-6 border-b border-[#ECEDEF] bg-[#F7F7F8] flex items-center justify-between sticky top-0 z-10">
                 <div>
-                  <h2 className="text-[20px] font-black tracking-tight text-[#111111] flex items-center gap-3">
+                   <h2 className="text-[20px] font-black tracking-tight text-[#111111] flex items-center gap-3">
                     <div className="w-10 h-10 rounded-[12px] bg-[#111111] text-white flex items-center justify-center shadow-lg">
                       <Icon icon="solar:box-bold" className="text-[20px]" />
                     </div>
@@ -151,7 +152,7 @@ export function StorefrontEditorModal({
 
               <div className="flex-1 overflow-y-auto p-4 bg-[#F7F7F8] custom-scrollbar">
                 <div className="grid grid-cols-1 gap-3">
-                  {availableInventory.length > 0 ? (
+                   {availableInventory.length > 0 ? (
                     availableInventory.map(item => (
                       <button 
                         key={item.id}
@@ -175,7 +176,7 @@ export function StorefrontEditorModal({
                             <div className="w-1 h-1 rounded-full bg-[#D1D5DB]" />
                             <span className={item.stock === 0 ? 'text-[#EF4444]' : ''}>{item.stock} in stock</span>
                             <div className="w-1 h-1 rounded-full bg-[#D1D5DB]" />
-                            <span className="text-[#111111] font-bold">{item.price}</span>
+                            <span className="text-[#111111] font-bold">GHS {item.price.toLocaleString()}</span>
                           </div>
                         </div>
 
@@ -220,7 +221,7 @@ export function StorefrontEditorModal({
                 
                 <h3 className="absolute top-8 left-8 text-[11px] font-black text-[#8B93A7] uppercase tracking-[0.2em] z-10">Live Customer Preview</h3>
 
-                <div className="w-full max-w-[320px] bg-white rounded-[24px] border-[2px] border-transparent shadow-2xl flex flex-col overflow-hidden relative z-10 mt-8 hover:shadow-[#D40073]/10 hover:-translate-y-2 transition-all duration-300">
+                <div className="w-full max-w-[320px] bg-white rounded-[24px] border-[2px] border-[#ECEDEF] flex flex-col overflow-hidden relative z-10 mt-8 hover:border-[#D40073]/20 transition-all duration-300">
                   {/* Card Image */}
                   <div className="h-[200px] bg-[#F7F7F8] relative overflow-hidden flex items-center justify-center">
                     {editedListing.images.length > 0 ? (
@@ -277,7 +278,7 @@ export function StorefrontEditorModal({
                     </div>
                     <div>
                       <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-0.5">Inventory Link: {liveItem?.id}</p>
-                      <p className="text-[13px] font-bold">{liveItem?.name} <span className="text-white/40 ml-2 font-mono">{liveItem?.price}</span></p>
+                      <p className="text-[13px] font-bold">{liveItem?.name} <span className="text-white/40 ml-2 font-mono">GHS {liveItem?.price.toLocaleString()}</span></p>
                     </div>
                   </div>
                   <div className={`px-3 py-1.5 rounded-[8px] border text-[12px] font-bold flex items-center gap-2 ${
@@ -385,7 +386,7 @@ export function StorefrontEditorModal({
                    <button 
                       onClick={handleSave}
                       disabled={isSaving}
-                      className="h-12 px-8 rounded-[12px] text-[15px] font-black flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-[#111111]/10 bg-[#111111] hover:bg-[#D40073] hover:shadow-[#D40073]/20 text-white min-w-[160px]"
+                      className="h-12 px-8 rounded-[12px] text-[15px] font-black flex items-center justify-center gap-2 transition-all active:scale-95 bg-[#111111] hover:bg-[#D40073] text-white min-w-[160px]"
                     >
                       {isSaving ? (
                         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>

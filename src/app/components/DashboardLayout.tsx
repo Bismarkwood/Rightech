@@ -1,3 +1,4 @@
+import React from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router';
 import { Icon } from '@iconify/react';
 import { motion } from 'motion/react';
@@ -6,6 +7,15 @@ import { NotificationCenter } from './NotificationCenter';
 import { RetailerProvider } from './retailer/RetailerContext';
 import { ConsignmentProvider } from '../context/ConsignmentContext';
 import { OrderWorkflowProvider } from './orders/OrderWorkflowContext';
+import { PaymentProvider } from '../context/PaymentContext';
+import { ShipmentProvider } from '../context/ShipmentContext';
+import { CreditProvider } from '../context/CreditContext';
+import { ProductProvider } from '../context/ProductContext';
+import { AuthProvider } from '../context/AuthContext';
+import { NotificationProvider } from '../context/NotificationContext';
+import { SupplierProvider } from '../context/SupplierContext';
+import { DeliveryProvider } from '../context/DeliveryContext';
+import { OrderManagementProvider } from '../context/OrderManagementContext';
 import { AddSupplierModal } from './retailer/AddSupplierModal';
 import { NewOrderModal } from './retailer/NewOrderModal';
 
@@ -14,21 +24,18 @@ const NAVIGATION = [
     group: 'General',
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: 'solar:widget-5-linear', path: '/dashboard' },
-      { id: 'storefront', label: 'Storefront', icon: 'solar:shop-2-linear', path: '/dashboard/storefront' },
+      { id: 'dealer', label: 'Dealer Manager', icon: 'solar:users-group-two-rounded-linear', path: '/dashboard/dealer' },
+      { id: 'retailer', label: 'Order Management', icon: 'solar:cart-large-2-linear', path: '/dashboard/retailer' },
+      { id: 'products', label: 'Products', icon: 'solar:box-minimalistic-linear', path: '/dashboard/products' },
       { id: 'supply', label: 'Supply', icon: 'solar:box-minimalistic-linear', path: '/dashboard/supply' },
       { id: 'consignment', label: 'Consignments', icon: 'solar:box-bold-duotone', path: '/dashboard/consignment' },
-      { id: 'retailer', label: 'Retailer', icon: 'solar:cart-large-2-linear', path: '/dashboard/retailer' },
-      { id: 'dealer', label: 'Dealer', icon: 'solar:users-group-two-rounded-linear', path: '/dashboard/dealer' },
+      { id: 'storefront', label: 'Storefront', icon: 'solar:shop-2-linear', path: '/dashboard/storefront' },
       { id: 'delivery', label: 'Delivery Agent', icon: 'solar:delivery-linear', path: '/dashboard/delivery' },
+      { id: 'payments', label: 'Payments', icon: 'solar:card-2-linear', path: '/dashboard/payments' },
+      { id: 'shipments', label: 'Shipments', icon: 'solar:box-minimalistic-linear', path: '/dashboard/shipments' },
+      { id: 'credit', label: 'Credit', icon: 'solar:chart-square-linear', path: '/dashboard/credit' },
     ]
   },
-  {
-    group: 'Support',
-    items: [
-      { id: 'docs', label: 'Documentation', icon: 'solar:book-linear', path: '/docs' },
-      { id: 'help', label: 'Help', icon: 'solar:help-linear', path: '/help' },
-    ]
-  }
 ];
 
 const Sidebar = () => {
@@ -122,25 +129,42 @@ const Topbar = () => {
 
 export default function DashboardLayout() {
   return (
-    <RetailerProvider>
-      <ConsignmentProvider>
-        <OrderWorkflowProvider>
-          <div className="flex h-screen w-full bg-[#F7F7F8] font-sans overflow-hidden">
-            <Sidebar />
-            <div className="flex-1 flex flex-col min-w-0 h-full relative">
-              <Topbar />
-              <main className="flex-1 overflow-hidden">
-                <Outlet />
-              </main>
-              
-              {/* Global Modals */}
-              <AddSupplierModal />
-              {/* We can safely remove NewOrderModal soon since CreateOrderModal handles it now, but leaving for legacy safety */}
-              <NewOrderModal />
-            </div>
-          </div>
-        </OrderWorkflowProvider>
-      </ConsignmentProvider>
-    </RetailerProvider>
+    <AuthProvider>
+      <NotificationProvider>
+        <ProductProvider>
+          <SupplierProvider>
+            <ConsignmentProvider>
+              <CreditProvider>
+                <PaymentProvider>
+                  <ShipmentProvider>
+                    <OrderManagementProvider>
+                      <RetailerProvider>
+                        <OrderWorkflowProvider>
+                          <DeliveryProvider>
+                            <div className="flex h-screen w-full bg-[#F7F7F8] font-sans overflow-hidden">
+                              <Sidebar />
+                              <div className="flex-1 flex flex-col min-w-0 h-full relative">
+                                <Topbar />
+                                <main className="flex-1 overflow-hidden">
+                                  <Outlet />
+                                </main>
+                                
+                                {/* Global Modals */}
+                                <AddSupplierModal />
+                                <NewOrderModal />
+                              </div>
+                            </div>
+                          </DeliveryProvider>
+                        </OrderWorkflowProvider>
+                      </RetailerProvider>
+                    </OrderManagementProvider>
+                  </ShipmentProvider>
+                </PaymentProvider>
+              </CreditProvider>
+            </ConsignmentProvider>
+          </SupplierProvider>
+        </ProductProvider>
+      </NotificationProvider>
+    </AuthProvider>
   );
 }

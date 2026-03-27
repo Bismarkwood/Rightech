@@ -185,6 +185,21 @@ const SignupProgress = ({ currentStep, totalSteps }: { currentStep: number, tota
   );
 };
 
+// Social Button Component
+const SocialButton = ({ provider, ...props }: { provider: 'google' | 'apple' } & any) => (
+  <button
+    type="button"
+    className="w-full h-[52px] px-4 bg-white border border-[#E5E7EB] rounded-xl text-[15px] font-bold text-[#111827] hover:bg-[#F9FAFB] transition-all flex items-center justify-center gap-3 group active:scale-[0.98]"
+    {...props}
+  >
+    <Icon 
+      icon={provider === 'google' ? "logos:google-icon" : "tabler:brand-apple-filled"} 
+      className={provider === 'apple' ? "text-[22px]" : "text-[18px]"} 
+    />
+    Sign {props.type === 'signup' ? 'up' : 'in'} with {provider.charAt(0).toUpperCase() + provider.slice(1)}
+  </button>
+);
+
 // Primary Button Component
 const PrimaryButton = ({ children, disabled, loading, ...props }: any) => (
   <motion.button
@@ -202,6 +217,111 @@ const PrimaryButton = ({ children, disabled, loading, ...props }: any) => (
   </motion.button>
 );
 
+// Legal Modal Component
+const LegalModal = ({ isOpen, onClose, title, children, lastUpdated }: any) => (
+  <AnimatePresence>
+    {isOpen && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8">
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }} 
+          className="absolute inset-0 bg-black/40 backdrop-blur-[12px]" 
+          onClick={onClose} 
+        />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+          animate={{ opacity: 1, scale: 1, y: 0 }} 
+          exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+          className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-[32px] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] overflow-hidden flex flex-col border border-[#ECEDEF]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="px-8 py-6 border-b border-[#F3F4F6] flex items-center justify-between bg-white shrink-0">
+            <div>
+              <h3 className="text-[24px] font-bold text-[#111827] tracking-tight">{title}</h3>
+              {lastUpdated && <p className="text-[13px] text-[#98A2B3] mt-1 font-medium">Last updated: {lastUpdated}</p>}
+            </div>
+            <button 
+              onClick={onClose}
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#F9FAFB] text-[#98A2B3] hover:text-[#111827] transition-all"
+            >
+              <X size={20} strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-8 sm:p-10 custom-scrollbar bg-[#FDFDFD]">
+            <div className="prose prose-slate max-w-none prose-p:text-[15px] prose-p:leading-[1.6] prose-p:text-[#475467] prose-headings:text-[#111827] prose-headings:font-bold prose-headings:tracking-tight prose-strong:text-[#111827]">
+              {children}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-8 py-5 border-t border-[#F3F4F6] bg-[#F9FAFB] flex justify-end shrink-0">
+            <button 
+              onClick={onClose}
+              className="h-[48px] px-8 bg-[#111827] text-white rounded-xl font-bold text-[15px] hover:bg-[#1A1C23] transition-all active:scale-[0.98]"
+            >
+              I Understand
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    )}
+  </AnimatePresence>
+);
+
+const TOSContent = () => (
+  <div className="space-y-8">
+    <section>
+      <h4 className="text-[18px] mb-4">1. Acceptance of Terms</h4>
+      <p>By accessing or using Rightech's platform, you agree to comply with and be bound by these Terms of Service. If you do not agree, please do not use our services. These terms apply to all visitors, users, and others who access the platform.</p>
+    </section>
+    <section>
+      <h4 className="text-[18px] mb-4">2. Business Account Responsibility</h4>
+      <p>As a Master Business Admin or registered business user, you are responsible for maintaining the confidentiality of your account credentials. You are solely responsible for all activities that occur under your account, including those of any staff members you invite.</p>
+    </section>
+    <section>
+      <h4 className="text-[18px] mb-4">3. Inventory & Financial Accuracy</h4>
+      <p>Rightech provides tools for operational management. While we strive for 100% accuracy, users are responsible for verifying stock counts, consignment weights, and payment records. We are not liable for business losses resulting from data entry errors or operational mismanagement.</p>
+    </section>
+    <section>
+      <h4 className="text-[18px] mb-4">4. Acceptable Use</h4>
+      <p>You agree not to use the platform for any illegal activities within the jurisdiction of Ghana or internationally. This includes fraudulent transactions, money laundering, or unauthorized data scraping.</p>
+    </section>
+    <section>
+      <h4 className="text-[18px] mb-4">5. Subscription & Payments</h4>
+      <p>Access to certain features requires a valid subscription. Fees are non-refundable except where required by law. We reserve the right to adjust pricing with a 30-day notice.</p>
+    </section>
+  </div>
+);
+
+const PrivacyContent = () => (
+  <div className="space-y-8">
+    <section>
+      <h4 className="text-[18px] mb-4">How we handle your data</h4>
+      <p>At Rightech, your business data is yours. We process information to provide specialized SaaS services, including inventory tracking, employee performance, and financial reporting.</p>
+    </section>
+    <section>
+      <h4 className="text-[18px] mb-4">Data Collection</h4>
+      <p>We collect business details (name, registration), location data (digital addresses), and transaction history. We also collect personal identifiers for account owners and staff to maintain system security.</p>
+    </section>
+    <section>
+      <h4 className="text-[18px] mb-4">Data Security</h4>
+      <p>We implement industry-standard encryption for data at rest and in transit. Your financial preferences and payment methods are protected with multi-layered security protocols.</p>
+    </section>
+    <section>
+      <h4 className="text-[18px] mb-4">Third-Party Sharing</h4>
+      <p>We do not sell your business or personal data. We only share information with certified service providers (e.g., payment gateways, SMS providers) necessary to fulfill your requested operations.</p>
+    </section>
+    <section>
+      <h4 className="text-[18px] mb-4">Ghana Data Protection Act</h4>
+      <p>Our practices are designed to comply with the Ghana Data Protection Act (Act 843). Users have the right to request access to their data or request its deletion upon account termination.</p>
+    </section>
+  </div>
+);
+
 export default function Auth() {
   const navigate = useNavigate();
   const [view, setView] = useState<'login' | 'signup' | 'success'>('login');
@@ -212,6 +332,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showTOSModal, setShowTOSModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [forgotStep, setForgotStep] = useState<'email' | 'otp'>('email');
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotOtpCode, setForgotOtpCode] = useState('');
@@ -247,16 +369,88 @@ export default function Auth() {
   };
 
   const stepTitles: any = {
-    1: { heading: "Your company at a glance", support: "This is your company's identity in the RightTech system. Every supplier, dealer, and transaction will be tied to this account." },
-    2: { heading: "Where are you operating from?", support: "Your primary business location. You can add more branches and warehouses from your dashboard after setup." },
-    3: { heading: "Who is the account owner?", support: "This person becomes the Master Business Admin. They have full control over the account and can invite all other staff members." },
-    4: { heading: "Check your email", support: "" },
-    5: { heading: "Financial preferences", support: "Configure how money flows through your system. Ghana Cedi is your primary currency by default." }
+    1: { heading: "Create your account", support: "Join Rightech to streamline your business operations. Start by setting up your primary login credentials." },
+    2: { heading: "Your company at a glance", support: "This is your company's identity in the RightTech system. Every supplier, dealer, and transaction will be tied to this account." },
+    3: { heading: "Where are you operating from?", support: "Your primary business location. You can add more branches and warehouses from your dashboard after setup." },
+    4: { heading: "Who is the account owner?", support: "This person becomes the Master Business Admin. They have full control over the account and can invite all other staff members." },
+    5: { heading: "Check your email", support: "" },
+    6: { heading: "Financial preferences", support: "Configure how money flows through your system. Ghana Cedi is your primary currency by default." }
   };
+
+  const [signupForm, setSignupForm] = useState({
+    email: '',
+    password: '',
+    agreed: false
+  });
+
+  const [companyForm, setCompanyForm] = useState({
+    name: '',
+    regNumber: '',
+    industry: '',
+    size: '',
+    tradingName: ''
+  });
 
   const renderSignupStep = () => {
     switch(signupStep) {
       case 1: return (
+        <div className="space-y-4">
+          <Input 
+            label="Email address *" 
+            placeholder="name@company.com" 
+            type="email"
+            value={signupForm.email}
+            onChange={(e: any) => setSignupForm({ ...signupForm, email: e.target.value })}
+          />
+          <PasswordInput 
+            label="Password *" 
+            placeholder="Create a strong password" 
+            value={signupForm.password}
+            onChange={(e: any) => setSignupForm({ ...signupForm, password: e.target.value })}
+          />
+          
+          <label className="flex items-start gap-3 p-4 rounded-xl bg-white border border-[#E5E7EB] cursor-pointer group hover:border-[#D40073] transition-all">
+            <div className="relative flex items-center justify-center w-5 h-5 rounded border border-[#D1D5DB] bg-white transition-colors group-hover:border-[#D40073] mt-0.5 shrink-0">
+              <input 
+                type="checkbox" 
+                className="sr-only" 
+                checked={signupForm.agreed} 
+                onChange={(e) => setSignupForm({ ...signupForm, agreed: e.target.checked })} 
+              />
+              {signupForm.agreed && (
+                <div className="absolute inset-0 bg-[#D40073] rounded border border-[#D40073] flex items-center justify-center">
+                  <Check size={12} className="text-white" strokeWidth={4} />
+                </div>
+              )}
+            </div>
+            <span className="text-[13px] font-medium text-[#475467] leading-relaxed select-none">
+              I confirm that I have read and agree to Rightech <button type="button" onClick={() => setShowTOSModal(true)} className="text-[#D40073] font-bold hover:underline">Terms of Service</button> and <button type="button" onClick={() => setShowPrivacyModal(true)} className="text-[#D40073] font-bold hover:underline">Privacy Policy</button>.
+            </span>
+          </label>
+
+          <div className="pt-2">
+            <PrimaryButton 
+              type="button" 
+              disabled={!signupForm.agreed} 
+              onClick={() => setSignupStep(2)}
+            >
+              Continue <ArrowRight size={18} className="ml-2" />
+            </PrimaryButton>
+          </div>
+
+          <div className="relative py-2 flex items-center">
+            <div className="flex-grow border-t border-[#F3F4F6]"></div>
+            <span className="flex-shrink mx-4 text-[12px] font-bold text-[#98A2B3] uppercase tracking-widest">OR</span>
+            <div className="flex-grow border-t border-[#F3F4F6]"></div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <SocialButton provider="google" type="signup" />
+            <SocialButton provider="apple" type="signup" />
+          </div>
+        </div>
+      );
+      case 2: return (
         <div className="space-y-5">
           <Input label="Registered Business Name *" placeholder="e.g. RightShop Ghana Ltd" />
           <Input label="Registration Number" placeholder="e.g. CS123456789" helperText="Ghana Registrar-General number" />
@@ -265,7 +459,7 @@ export default function Auth() {
           <Input label="Trading Name" placeholder="e.g. RightShop" helperText="If different from registered name" />
         </div>
       );
-      case 2: return (
+      case 3: return (
         <div className="space-y-5">
           <Input label="Street Address *" placeholder="e.g. 14 Independence Avenue" />
           <Input label="City *" placeholder="e.g. Accra" />
@@ -274,7 +468,7 @@ export default function Auth() {
           <PremiumSelect label="Location Type" placeholder="Headquarters" options={['Headquarters', 'Branch', 'Warehouse']} value="Headquarters" />
         </div>
       );
-      case 3: return (
+      case 4: return (
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-5">
             <Input label="First Name *" placeholder="Kwame" />
@@ -285,7 +479,7 @@ export default function Auth() {
           <Input label="Job Title" placeholder="e.g. Managing Director, Owner, CEO" />
         </div>
       );
-      case 4: return (
+      case 5: return (
         <div className="space-y-10">
           <p className="text-[16px] text-[#667085] leading-relaxed -mt-4 mb-4">
             We sent a 6-digit code to <span className="text-[#111827] font-semibold">kwame@rightshop.com</span>. Enter it below.
@@ -300,7 +494,7 @@ export default function Auth() {
           </p>
         </div>
       );
-      case 5: return (
+      case 6: return (
         <div className="space-y-6">
           <div className="p-5 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] space-y-4">
             <div className="flex justify-between items-center">
@@ -342,7 +536,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="w-full h-screen flex bg-[#F9FAFB] font-sans text-[#111827] selection:bg-[rgba(212,0,115,0.2)] selection:text-[#D40073] overflow-hidden">
+    <div className="w-full h-screen flex bg-[#F9FAFB] text-[#111827] selection:bg-[rgba(212,0,115,0.2)] selection:text-[#D40073] overflow-hidden">
       <div className="hidden lg:flex lg:w-[45%] xl:w-[48%] relative flex-col justify-between overflow-hidden bg-[#0B0B0F] p-12 xl:p-16">
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img src={IMG_ABSTRACT} alt="Abstract architecture" className="w-full h-full object-cover object-center opacity-40 mix-blend-screen" />
@@ -416,10 +610,21 @@ export default function Auth() {
                       </label>
                       <button type="button" onClick={() => setShowForgotModal(true)} className="text-[14px] font-bold text-[#D40073] hover:text-[#B80063] transition-colors">Forgot password?</button>
                     </div>
-                    <div className="pt-4">
+                    <div className="pt-4 space-y-4">
                       <PrimaryButton type="submit" loading={loading}>
                         <span className="flex items-center gap-2">Sign in <ArrowRight size={18} className="opacity-80 group-hover:translate-x-1 transition-transform" /></span>
                       </PrimaryButton>
+                      
+                      <div className="relative py-2 flex items-center">
+                        <div className="flex-grow border-t border-[#F3F4F6]"></div>
+                        <span className="flex-shrink mx-4 text-[12px] font-bold text-[#98A2B3] uppercase tracking-widest">OR</span>
+                        <div className="flex-grow border-t border-[#F3F4F6]"></div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <SocialButton provider="google" />
+                        <SocialButton provider="apple" />
+                      </div>
                     </div>
                   </form>
                   <div className="mt-10 text-center border-t border-[#F3F4F6] pt-8">
@@ -430,7 +635,7 @@ export default function Auth() {
                 </motion.div>
               ) : view === 'signup' ? (
                 <motion.div key="signup-view" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
-                   <SignupProgress currentStep={signupStep} totalSteps={5} />
+                   <SignupProgress currentStep={signupStep} totalSteps={6} />
                    <AnimatePresence mode="wait">
                       <motion.div key={signupStep} initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -15 }} transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}>
                          <div className="mb-10">
@@ -446,18 +651,20 @@ export default function Auth() {
                                   <ArrowLeft size={20} />
                                </button>
                             )}
-                            <div className="flex-1">
-                              <PrimaryButton type="button" onClick={() => { 
-                                if(signupStep < 5) setSignupStep(s => s + 1); 
-                                else {
-                                  setView('success');
-                                  setTimeout(() => { navigate('/dashboard'); }, 3000);
-                                }
-                              }}>
-                                {signupStep === 5 ? 'Complete Setup' : signupStep === 3 ? 'Send Verification Code' : signupStep === 4 ? 'Verify & Continue' : 'Continue'}
-                                {signupStep !== 5 && signupStep !== 3 && signupStep !== 4 && <ArrowRight size={18} className="ml-2 opacity-80 group-hover:translate-x-1 transition-transform" />}
-                              </PrimaryButton>
-                            </div>
+                            {signupStep > 1 && (
+                              <div className="flex-1">
+                                <PrimaryButton type="button" onClick={() => { 
+                                  if(signupStep < 6) setSignupStep(s => s + 1); 
+                                  else {
+                                    setView('success');
+                                    setTimeout(() => { navigate('/dashboard'); }, 3000);
+                                  }
+                                }}>
+                                  {signupStep === 6 ? 'Complete Setup' : signupStep === 4 ? 'Send Verification Code' : signupStep === 5 ? 'Verify & Continue' : 'Continue'}
+                                  {signupStep !== 6 && signupStep !== 4 && signupStep !== 5 && <ArrowRight size={18} className="ml-2 opacity-80 group-hover:translate-x-1 transition-transform" />}
+                                </PrimaryButton>
+                              </div>
+                            )}
                          </div>
                          {signupStep === 1 && (
                             <p className="mt-8 text-center text-[15px] font-medium text-[#667085]">
@@ -521,6 +728,24 @@ export default function Auth() {
           </div>
         )}
       </AnimatePresence>
+
+      <LegalModal 
+        isOpen={showTOSModal} 
+        onClose={() => setShowTOSModal(false)} 
+        title="Terms of Service" 
+        lastUpdated="March 26, 2026"
+      >
+        <TOSContent />
+      </LegalModal>
+
+      <LegalModal 
+        isOpen={showPrivacyModal} 
+        onClose={() => setShowPrivacyModal(false)} 
+        title="Privacy Policy" 
+        lastUpdated="March 26, 2026"
+      >
+        <PrivacyContent />
+      </LegalModal>
     </div>
   );
 }

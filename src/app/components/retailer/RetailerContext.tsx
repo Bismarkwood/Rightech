@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { MOCK_RETAILER_ORDERS, RetailerOrder, RetailerOrderItem } from '../../data/mockRetailerOrders';
+import { useProducts } from '../../context/ProductContext';
+import { Product } from '../../data/productData';
+import { MOCK_RETAILER_ORDERS, RetailerOrder } from '../../data/mockRetailerOrders';
 
 export interface InventoryItem {
   id: string;
@@ -74,14 +76,6 @@ const MOCK_SUPPLIERS: Supplier[] = [
   },
 ];
 
-const MOCK_INVENTORY: InventoryItem[] = [
-  { id: 'INV-101', name: 'Portland Cement 50kg', category: 'Cement', stock: 450, minStock: 100, price: '85 GHS', status: 'In Stock', lastUpdated: 'Today', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=100&auto=format&fit=crop' },
-  { id: 'INV-102', name: 'Iron Rods 16mm', category: 'Steel', stock: 12, minStock: 50, price: '120 GHS', status: 'Low Stock', lastUpdated: 'Yesterday', image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=100&auto=format&fit=crop' },
-  { id: 'INV-103', name: 'Roofing Sheets (Aluzinc)', category: 'Roofing', stock: 0, minStock: 20, price: '350 GHS', status: 'Out of Stock', lastUpdated: '2 days ago', image: 'https://images.unsplash.com/photo-1635424710928-0544e8512eca?q=80&w=100&auto=format&fit=crop' },
-  { id: 'INV-104', name: 'Emulsion Paint 20L', category: 'Paint', stock: 85, minStock: 30, price: '450 GHS', status: 'In Stock', lastUpdated: 'Today', image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=100&auto=format&fit=crop' },
-  { id: 'INV-105', name: 'PVC Pipes 4"', category: 'Plumbing', stock: 120, minStock: 40, price: '65 GHS', status: 'In Stock', lastUpdated: '1 week ago', image: 'https://images.unsplash.com/photo-1542013936693-840898492040?q=80&w=100&auto=format&fit=crop' },
-];
-
 interface RetailerContextType {
   orders: RetailerOrder[];
   addOrder: (order: RetailerOrder) => void;
@@ -94,8 +88,8 @@ interface RetailerContextType {
   setAddSupplierModalOpen: (open: boolean) => void;
   // Inventory
   inventory: InventoryItem[];
-  addInventoryItem: (item: InventoryItem) => void;
-  updateInventoryItem: (itemId: string, patch: Partial<InventoryItem>) => void;
+  addInventoryItem: (item: Partial<Product>) => void;
+  updateInventoryItem: (itemId: string, patch: Partial<Product>) => void;
   deleteInventoryItem: (itemId: string) => void;
   // Suppliers
   suppliers: Supplier[];
@@ -107,8 +101,24 @@ interface RetailerContextType {
 const RetailerContext = createContext<RetailerContextType | undefined>(undefined);
 
 export function RetailerProvider({ children }: { children: ReactNode }) {
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const [orders, setOrders] = useState<RetailerOrder[]>(MOCK_RETAILER_ORDERS);
-  const [inventory, setInventory] = useState<InventoryItem[]>(MOCK_INVENTORY);
+
+  // Map global products to local InventoryItem format for UI compatibility
+  const inventory: InventoryItem[] = products
+    .filter(p => !p.isArchived)
+    .map(p => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      stock: p.stock,
+      minStock: p.lowStockThreshold,
+      price: `${p.price.toLocaleString()} GHS`,
+      status: p.status as 'In Stock' | 'Low Stock' | 'Out of Stock',
+      lastUpdated: p.updatedAt,
+      image: p.image,
+      description: p.description,
+    }));
 
   const addOrder = (order: RetailerOrder) => {
     setOrders(prev => [order, ...prev]);
@@ -129,27 +139,17 @@ export function RetailerProvider({ children }: { children: ReactNode }) {
   const [isNewOrderModalOpen, setNewOrderModalOpen] = useState(false);
   const [isAddSupplierModalOpen, setAddSupplierModalOpen] = useState(false);
 
-  // Inventory logic
-  const addInventoryItem = (item: InventoryItem) => {
-    setInventory(prev => [item, ...prev]);
+  // Inventory logic using global ProductContext
+  const addInventoryItem = (product: Partial<Product>) => {
+    addProduct(product as any);
   };
 
-  const updateInventoryItem = (itemId: string, patch: Partial<InventoryItem>) => {
-    setInventory(prev => prev.map(item => {
-      if (item.id === itemId) {
-        const next = { ...item, ...patch, lastUpdated: 'Just now' };
-        // Recalc status
-        if (next.stock <= 0) next.status = 'Out of Stock';
-        else if (next.stock <= next.minStock) next.status = 'Low Stock';
-        else next.status = 'In Stock';
-        return next;
-      }
-      return item;
-    }));
+  const updateInventoryItem = (itemId: string, patch: Partial<Product>) => {
+    updateProduct(itemId, patch);
   };
 
   const deleteInventoryItem = (itemId: string) => {
-    setInventory(prev => prev.filter(item => item.id !== itemId));
+    deleteProduct(itemId);
   };
 
   // Supplier logic

@@ -70,23 +70,21 @@ export function InventoryTab() {
   };
 
   const handleCreate = () => {
-    const newId = `INV-${Math.floor(100 + Math.random() * 900)}`;
     const stock = Number(itemForm.stock) || 0;
-    const minStock = Number(itemForm.minStock) || 0;
-    
-    let status: 'In Stock' | 'Low Stock' | 'Out of Stock' = 'In Stock';
-    if (stock <= 0) status = 'Out of Stock';
-    else if (stock <= minStock) status = 'Low Stock';
+    const lowStockThreshold = Number(itemForm.minStock) || 0;
+    const priceStr = itemForm.price || '0';
+    const price = Number(priceStr.replace(/[^0-9.]/g, '')) || 0;
 
-    const newItem: InventoryItem = {
-      ...itemForm as InventoryItem,
-      id: newId,
+    addInventoryItem({
+      name: itemForm.name,
+      category: itemForm.category as any,
       stock,
-      minStock,
-      lastUpdated: 'Just now',
-      status
-    };
-    addInventoryItem(newItem);
+      lowStockThreshold,
+      price,
+      image: itemForm.image,
+      description: itemForm.description,
+      status: (stock <= 0 ? 'Out of Stock' : stock <= lowStockThreshold ? 'Low Stock' : 'In Stock') as any
+    });
     setIsCreateModalOpen(false);
   };
 
@@ -103,7 +101,14 @@ export function InventoryTab() {
 
   const handleUpdate = () => {
     if (selectedItem) {
-      updateInventoryItem(selectedItem.id, itemForm);
+      const priceStr = itemForm.price || '0';
+      const price = typeof priceStr === 'string' ? Number(priceStr.replace(/[^0-9.]/g, '')) : priceStr;
+      
+      updateInventoryItem(selectedItem.id, {
+        ...itemForm,
+        price: Number(price) || 0,
+        lowStockThreshold: itemForm.minStock,
+      } as any);
       setIsEditModalOpen(false);
     }
   };
@@ -123,7 +128,7 @@ export function InventoryTab() {
   };
 
   return (
-    <div className="bg-white rounded-[16px] border border-[#ECEDEF] flex flex-col min-h-[600px] shadow-sm">
+    <div className="bg-white rounded-[16px] border border-[#ECEDEF] flex flex-col min-h-[600px]">
       {/* Header */}
       <div className="p-4 border-b border-[#ECEDEF] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative group w-full sm:w-[320px]">
@@ -138,7 +143,7 @@ export function InventoryTab() {
         </div>
         <button 
           onClick={openCreateModal}
-          className="h-[40px] px-4 flex items-center gap-2 bg-[#111111] hover:bg-[#D40073] text-white rounded-[10px] text-[13px] font-semibold transition-all shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-95"
+          className="h-[40px] px-4 flex items-center gap-2 bg-[#111111] hover:bg-[#D40073] text-white rounded-[10px] text-[13px] font-semibold transition-all active:scale-95"
         >
           <Icon icon="solar:add-circle-bold" className="text-[18px]" />
           Add Item
@@ -254,7 +259,7 @@ export function InventoryTab() {
               <Dialog.Content asChild>
                 <motion.div 
                   initial={{ opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-[24px] p-6 z-50 shadow-2xl focus:outline-none"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-[24px] p-6 z-50 border border-[#ECEDEF] focus:outline-none"
                 >
                   <div className="flex items-start justify-between mb-6">
                     <div className="flex items-center gap-4">
@@ -341,7 +346,7 @@ export function InventoryTab() {
               <Dialog.Content asChild>
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-[28px] overflow-hidden z-50 shadow-2xl focus:outline-none flex flex-col max-h-[90vh]"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-[28px] overflow-hidden z-50 border border-[#ECEDEF] focus:outline-none flex flex-col max-h-[90vh]"
                 >
                   <div className="p-6 border-b border-[#ECEDEF] flex items-center justify-between bg-white shrink-0">
                     <div>
@@ -452,7 +457,7 @@ export function InventoryTab() {
                                     e.stopPropagation();
                                     document.getElementById('inventory-image-upload')?.click();
                                   }}
-                                  className="w-10 h-10 rounded-full bg-white text-[#111111] flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                                  className="w-10 h-10 rounded-full bg-white text-[#111111] border border-[#ECEDEF] flex items-center justify-center hover:scale-110 transition-transform"
                                 >
                                   <Icon icon="solar:pen-bold" />
                                 </button>
@@ -461,7 +466,7 @@ export function InventoryTab() {
                                     e.stopPropagation();
                                     setItemForm(prev => ({ ...prev, image: '' }));
                                   }}
-                                  className="w-10 h-10 rounded-full bg-white text-[#EF4444] flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                                  className="w-10 h-10 rounded-full bg-white text-[#EF4444] border border-[#ECEDEF] flex items-center justify-center hover:scale-110 transition-transform"
                                 >
                                   <Icon icon="solar:trash-bin-trash-bold" />
                                 </button>
@@ -485,7 +490,7 @@ export function InventoryTab() {
                     </button>
                     <button 
                       onClick={isCreateModalOpen ? handleCreate : handleUpdate}
-                      className="flex-1 h-11 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[12px] font-bold text-[14px] transition-all shadow-lg active:scale-[0.98]"
+                      className="flex-1 h-11 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[12px] font-bold text-[14px] transition-all active:scale-[0.98]"
                     >
                       {isCreateModalOpen ? 'Create Item' : 'Save Changes'}
                     </button>
@@ -511,7 +516,7 @@ export function InventoryTab() {
               <Dialog.Content asChild>
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-[28px] p-6 z-50 shadow-2xl focus:outline-none text-center"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-[28px] p-6 z-50 border border-[#ECEDEF] focus:outline-none text-center"
                 >
                   <div className="w-16 h-16 rounded-full bg-[#D40073]/10 flex items-center justify-center mx-auto mb-4 text-[#D40073]">
                     <Icon icon="solar:box-bold" className="text-[32px]" />
@@ -561,7 +566,7 @@ export function InventoryTab() {
                     </button>
                     <button 
                       onClick={handleStockUpdate}
-                      className="flex-1 h-11 bg-[#111111] hover:bg-[#333333] text-white rounded-[14px] font-bold text-[14px] transition-all shadow-lg active:scale-[0.98]"
+                      className="flex-1 h-11 bg-[#111111] hover:bg-[#333333] text-white rounded-[14px] font-bold text-[14px] transition-all active:scale-[0.98]"
                     >
                       Update Stock
                     </button>
@@ -587,7 +592,7 @@ export function InventoryTab() {
               <Dialog.Content asChild>
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-[20px] p-6 z-50 shadow-2xl focus:outline-none text-center"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-[20px] p-6 z-50 border border-[#ECEDEF] focus:outline-none text-center"
                 >
                   <div className="w-12 h-12 rounded-full bg-[#FEF2F2] flex items-center justify-center mx-auto mb-4 text-[#EF4444]">
                     <Icon icon="solar:danger-triangle-bold" className="text-[24px]" />

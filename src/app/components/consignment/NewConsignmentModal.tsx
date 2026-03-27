@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '@iconify/react';
 import { useConsignment } from '../../context/ConsignmentContext';
 import { useRetailer } from '../retailer/RetailerContext';
+import { useProducts } from '../../context/ProductContext';
 import { MOCK_AGENTS } from '../../data/agentData';
 import { toast } from 'sonner';
 import { ConsignmentItem, ConsignmentProduct } from '../../data/consignmentData';
@@ -10,6 +11,7 @@ import { ConsignmentItem, ConsignmentProduct } from '../../data/consignmentData'
 export function NewConsignmentModal() {
   const { isNewConsignmentModalOpen, setNewConsignmentModalOpen, addInboundConsignment, addOutboundConsignment } = useConsignment();
   const { suppliers } = useRetailer();
+  const { products } = useProducts();
   
   const MOCK_DEALERS = [
     { id: 'DLR-101', name: 'Metro Electronics' },
@@ -22,11 +24,9 @@ export function NewConsignmentModal() {
   const [items, setItems] = useState<ConsignmentProduct[]>([]);
   
   // Current Item Form
-  const [currentProductName, setCurrentProductName] = useState('');
-  const [currentSku, setCurrentSku] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState('');
   const [currentQty, setCurrentQty] = useState(1);
   const [currentPrice, setCurrentPrice] = useState(0);
-  const [currentImage, setCurrentImage] = useState('');
 
   // Logistics
   const [deliveryMethod, setDeliveryMethod] = useState<'Pickup' | 'Delivery'>('Pickup');
@@ -42,7 +42,7 @@ export function NewConsignmentModal() {
       }, 500);
       return () => clearTimeout(delayDebounce);
     }
-  }, [location]);
+  }, [location, isSearchingLocation]);
 
   const searchLocation = async (query: string) => {
     setIsSearchingLocation(true);
@@ -57,30 +57,40 @@ export function NewConsignmentModal() {
     }
   };
 
+  const handleProductSelect = (id: string) => {
+    setSelectedProductId(id);
+    const product = products.find(p => p.id === id);
+    if (product) {
+      setCurrentPrice(type === 'Inbound' ? product.costPrice : (product.dealerPrice || product.price));
+    }
+  };
+
   if (!isNewConsignmentModalOpen) return null;
 
   const addItem = () => {
-    if (!currentProductName || !currentSku || currentQty <= 0) {
-      toast.error('Please fill in all product details correctly');
+    const product = products.find(p => p.id === selectedProductId);
+    if (!product || currentQty <= 0) {
+      toast.error('Please select a product and enter a valid quantity');
       return;
     }
+
     const newItem: ConsignmentProduct = {
       id: Math.random().toString(36).substr(2, 9),
-      productName: currentProductName,
-      sku: currentSku,
+      productId: product.id,
+      productName: product.name,
+      sku: product.sku,
       suppliedQty: currentQty,
       soldQty: 0,
       returnedQty: 0,
       unitPrice: currentPrice,
-      image: currentImage || `https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=100&h=100&fit=crop`
+      image: product.image || `https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=100&h=100&fit=crop`
     };
+
     setItems([...items, newItem]);
-    setCurrentProductName('');
-    setCurrentSku('');
+    setSelectedProductId('');
     setCurrentQty(1);
     setCurrentPrice(0);
-    setCurrentImage('');
-    toast.success('Product added to list');
+    toast.success(`${product.name} added to list`);
   };
 
   const removeItem = (id: string) => {
@@ -140,9 +150,7 @@ export function NewConsignmentModal() {
     <AnimatePresence>
       <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           onClick={() => setNewConsignmentModalOpen(false)}
           className="fixed inset-0 bg-black/40 backdrop-blur-xl"
         />
@@ -151,7 +159,7 @@ export function NewConsignmentModal() {
           initial={{ opacity: 0, scale: 0.95, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 30 }}
-          className="relative w-full max-w-[900px] bg-white border border-white/50 rounded-[32px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[90vh]"
+          className="relative w-full max-w-[900px] bg-white border border-white/50 rounded-[32px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[95vh]"
         >
           {/* Header */}
           <div className="px-10 py-8 border-b border-black/5 flex items-center justify-between bg-white/60 sticky top-0 z-10 backdrop-blur-md">
@@ -239,50 +247,45 @@ export function NewConsignmentModal() {
               <div className="bg-[#F9FAFB] p-6 rounded-[24px] border border-[#ECEDEF] space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="col-span-2 space-y-2">
-                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Product Description</label>
-                    <input
-                      type="text"
-                      value={currentProductName}
-                      onChange={(e) => setCurrentProductName(e.target.value)}
-                      placeholder="e.g. Samsung Galaxy A54 5G"
-                      className="w-full h-12 px-4 bg-white border border-[#ECEDEF] rounded-[14px] text-[14px] font-medium focus:border-[#D40073] outline-none transition-all"
-                    />
+                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Search Product Catalogue</label>
+                    <div className="relative">
+                      <Icon icon="solar:minimalistic-magnifer-bold" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#D40073]" />
+                      <select
+                        value={selectedProductId}
+                        onChange={(e) => handleProductSelect(e.target.value)}
+                        className="w-full h-12 pl-10 pr-4 bg-white border border-[#ECEDEF] rounded-[14px] text-[14px] font-bold focus:border-[#D40073] outline-none transition-all appearance-none cursor-pointer"
+                      >
+                        <option value="">Select from Catalogue</option>
+                        {products.filter(p => !p.isArchived).map(p => (
+                          <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">SKU / Model</label>
+                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Movement Qty</label>
                     <input
-                      type="text"
-                      value={currentSku}
-                      onChange={(e) => setCurrentSku(e.target.value)}
-                      placeholder="SMA546-BL"
-                      className="w-full h-12 px-4 bg-white border border-[#ECEDEF] rounded-[14px] text-[14px] font-medium focus:border-[#D40073] outline-none transition-all"
+                      type="number"
+                      value={currentQty}
+                      onChange={(e) => setCurrentQty(Number(e.target.value))}
+                      className="w-full h-12 px-4 bg-white border border-[#ECEDEF] rounded-[14px] text-[14px] font-black focus:border-[#D40073] outline-none transition-all text-center"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Qty</label>
-                      <input
-                        type="number"
-                        value={currentQty}
-                        onChange={(e) => setCurrentQty(Number(e.target.value))}
-                        className="w-full h-12 px-4 bg-white border border-[#ECEDEF] rounded-[14px] text-[14px] font-black focus:border-[#D40073] outline-none transition-all text-center"
-                      />
-                    </div>
-                    <div className="flex items-end">
-                      <button
-                        type="button"
-                        onClick={addItem}
-                        className="w-full h-12 bg-[#111111] hover:bg-[#333333] text-white rounded-[14px] flex items-center justify-center transition-all shadow-lg"
-                      >
-                        <Icon icon="solar:add-circle-bold" className="text-[22px]" />
-                      </button>
-                    </div>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={addItem}
+                      className="w-full h-12 bg-[#111111] hover:bg-[#D40073] text-white rounded-[14px] flex items-center justify-center transition-all shadow-lg font-bold gap-2"
+                    >
+                      <Icon icon="solar:add-circle-bold" className="text-[20px]" />
+                      Add Item
+                    </button>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Unit Price (GHS)</label>
+                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Movement Unit Price (GHS)</label>
                     <input
                       type="number"
                       value={currentPrice}
@@ -291,18 +294,10 @@ export function NewConsignmentModal() {
                       className="w-full h-12 px-4 bg-white border border-[#ECEDEF] rounded-[14px] text-[14px] font-black focus:border-[#D40073] outline-none transition-all"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Image URL (Optional)</label>
-                    <div className="relative">
-                      <Icon icon="solar:gallery-bold" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B93A7]" />
-                      <input
-                        type="text"
-                        value={currentImage}
-                        onChange={(e) => setCurrentImage(e.target.value)}
-                        placeholder="https://images.unsplash.com/..."
-                        className="w-full h-12 pl-10 pr-4 bg-white border border-[#ECEDEF] rounded-[14px] text-[14px] font-medium focus:border-[#D40073] outline-none transition-all"
-                      />
-                    </div>
+                  <div className="flex items-end text-[12px] text-[#8B93A7] font-medium pb-3 italic">
+                    {selectedProductId && products.find(p => p.id === selectedProductId) && (
+                      <span>Catalogue Price: GHS {products.find(p => p.id === selectedProductId)?.price}</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -314,11 +309,7 @@ export function NewConsignmentModal() {
                     {items.map((item) => (
                       <div key={item.id} className="flex items-center justify-between p-4 bg-white border border-[#ECEDEF] rounded-[20px] hover:border-[#D40073] transition-all group">
                         <div className="flex items-center gap-4">
-                          <img 
-                            src={item.image} 
-                            alt={item.productName} 
-                            className="w-12 h-12 rounded-[12px] object-cover bg-[#F3F4F6]"
-                          />
+                          <img src={item.image} alt="" className="w-12 h-12 rounded-[12px] object-cover bg-[#F3F4F6]" />
                           <div>
                             <p className="text-[14px] font-bold text-[#111111]">{item.productName}</p>
                             <p className="text-[11px] font-medium text-[#8B93A7] uppercase">{item.sku} • Qty: {item.suppliedQty}</p>

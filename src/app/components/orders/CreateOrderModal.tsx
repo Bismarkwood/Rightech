@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, Check, PackageSearch, AlertCircle, Plus, Minus, UserRound, MapPin, CreditCard, Banknote, Smartphone, Receipt, ChevronRight, Truck } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import { useRetailer } from '../retailer/RetailerContext';
+import { useCredit } from '../../context/CreditContext';
 import { Dialog, DialogContent } from "../ui/dialog";
 
 // --- Mock Data --- 
@@ -36,11 +37,30 @@ interface OrderItem {
 
 export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrderSuccess }: CreateOrderModalProps) {
   const { inventory } = useRetailer();
+  const { accounts } = useCredit();
+
+  // Map Credit Accounts to Customer objects
+  const customers = useMemo(() => {
+    const dealerCustomers = accounts.map(acc => ({
+      id: acc.dealerId,
+      name: acc.dealerName,
+      type: 'Dealer' as const,
+      contact: 'Dealer Account', // In a real app, this would come from a Dealer record
+      creditScore: acc.band,
+      balance: acc.usedAmount,
+      limit: acc.creditLimit,
+      address: 'Dealer Registered Address',
+      isSuspended: acc.isSuspended
+    }));
+    
+    // Merge with any Retailer-only mock data if needed, or just use dealers for now
+    return [...dealerCustomers, ...MOCK_CUSTOMERS.filter(c => c.type === 'Retailer')];
+  }, [accounts]);
   
   // Section 1: Customer
   const [customerSearch, setCustomerSearch] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState(
-    prefilledCustomerId ? MOCK_CUSTOMERS.find(c => c.id === prefilledCustomerId) : null
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(
+    prefilledCustomerId ? customers.find(c => c.id === prefilledCustomerId) : null
   );
 
   // Section 2: Items
@@ -63,7 +83,7 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
     }
   }, [selectedCustomer, deliveryMethod]);
 
-  const filteredCustomers = MOCK_CUSTOMERS.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase()));
+  const filteredCustomers = customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase()));
   const filteredInventory = inventory.filter(i => i.stock > 0 && i.name.toLowerCase().includes(itemSearch.toLowerCase()));
 
   const handleAddItem = (invItem: any) => {
@@ -99,7 +119,13 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
   
   // Validation
   const hasInvalidQty = orderItems.some(i => i.qty <= 0 || i.qty > i.maxStock);
-  const isCreditValid = !(paymentMethod === 'credit' && selectedCustomer?.type === 'Dealer' && (selectedCustomer.limit - selectedCustomer.balance) < subtotal);
+  
+  // Refined Credit Check
+  const availableCredit = selectedCustomer ? (selectedCustomer.limit - selectedCustomer.balance) : 0;
+  const isSuspended = selectedCustomer?.isSuspended;
+  const isCreditExceeded = paymentMethod === 'credit' && subtotal > availableCredit;
+  
+  const isCreditValid = !(paymentMethod === 'credit' && selectedCustomer?.type === 'Dealer' && (isCreditExceeded || isSuspended));
   const isDeliveryValid = deliveryMethod === 'collection' || (deliveryMethod === 'delivery' && deliveryAddress.trim() !== '' && selectedRiderId);
   const isValid = selectedCustomer && orderItems.length > 0 && !hasInvalidQty && isDeliveryValid && isCreditValid;
 
@@ -456,9 +482,27 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
               </div>
 
               {paymentMethod === 'credit' && selectedCustomer?.type === 'Dealer' && (
-                <div className="mt-3 bg-white border border-[#E4E7EC] rounded-[12px] p-3 flex items-center justify-between">
-                  <div className="text-[12px] font-medium text-[#525866]">Avail. Limit</div>
-                  <div className="text-[14px] font-black text-[#111111]">GHS {(selectedCustomer.limit - selectedCustomer.balance).toFixed(2)}</div>
+                <div className="mt-3 space-y-2">
+                  <div className={`bg-white border rounded-[12px] p-3 flex items-center justify-between ${isCreditExceeded ? 'border-[#EF4444]' : 'border-[#E4E7EC]'}`}>
+                    <div className="text-[12px] font-medium text-[#525866]">Avail. Limit</div>
+                    <div className={`text-[14px] font-black ${isCreditExceeded ? 'text-[#EF4444]' : 'text-[#111111]'}`}>
+                      GHS {availableCredit.toLocaleString()}
+                    </div>
+                  </div>
+                  
+                  {isSuspended && (
+                    <div className="p-3 bg-[#EF4444]/5 border border-[#EF4444]/20 rounded-[12px] flex gap-2">
+                      <AlertCircle className="text-[#EF4444] shrink-0" size={14} />
+                      <p className="text-[11px] font-bold text-[#EF4444]">Account Suspended: Cannot process credit orders.</p>
+                    </div>
+                  )}
+                  
+                  {isCreditExceeded && !isSuspended && (
+                    <div className="p-3 bg-[#D97706]/5 border border-[#D97706]/20 rounded-[12px] flex gap-2">
+                      <AlertCircle className="text-[#D97706] shrink-0" size={14} />
+                      <p className="text-[11px] font-bold text-[#D97706]">Limit Exceeded: GHS {(subtotal - availableCredit).toLocaleString()} short.</p>
+                    </div>
+                  )}
                 </div>
               )}
             </section>

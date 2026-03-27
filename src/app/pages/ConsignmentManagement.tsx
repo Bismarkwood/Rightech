@@ -51,33 +51,39 @@ export default function ConsignmentManagement() {
 
   return (
     <div className="flex flex-col h-full w-full bg-[#F7F7F8] relative min-h-0 font-sans">
+
       {/* ── Page Header ── */}
-      <div className="px-6 md:px-8 pt-8 pb-6 bg-[#F7F7F8] shrink-0 sticky top-0 z-20">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      <div className="bg-white border-b border-[#ECEDEF] px-8 pt-6 pb-5 shrink-0">
+        <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-[28px] font-bold text-[#111111] tracking-tight mb-2">Consignment Hub</h1>
-            <p className="text-[14px] text-[#525866] max-w-xl leading-relaxed font-medium">
-              Manage inbound supply intake and outbound dealer stock in one place.<br />
-              Track sold-through rates and automate partner settlements.
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-[11px] bg-[#111111] text-white flex items-center justify-center">
+                <Icon icon="solar:box-bold-duotone" className="text-[18px]" />
+              </div>
+              <h1 className="text-[24px] font-black text-[#111111] tracking-tight">Consignment Hub</h1>
+            </div>
+            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5 ml-0.5">
+              Manage inbound supply and outbound dealer stock. Track sell-through and settlements.
             </p>
           </div>
           <div className="flex items-center gap-3">
             <button className="h-10 px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[10px] text-[13px] font-bold text-[#111111] hover:bg-[#F3F4F6] transition-colors">
               <Icon icon="solar:download-square-linear" className="text-[18px]" />
-              Export Report
+              Export
             </button>
             <button 
               onClick={() => setNewConsignmentModalOpen(true)}
-              className="h-10 px-4 flex items-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] text-[13px] font-bold transition-all shadow-lg shadow-[#D40073]/10"
+              className="h-10 px-5 flex items-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] text-[13px] font-bold transition-all"
             >
               <Icon icon="solar:add-circle-bold" className="text-[18px]" />
-              Initialize Movement
+              New Movement
             </button>
           </div>
         </div>
-
-        {/* Quick Insights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+      </div>
+      {/* Quick Insights */}
+      <div className="px-6 md:px-8 pt-6 pb-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-5 rounded-[20px] bg-white border border-[#ECEDEF] flex items-center gap-4">
             <div className="w-12 h-12 rounded-[16px] bg-[#D40073]/10 flex items-center justify-center text-[#D40073]">
               <Icon icon="solar:box-minimalistic-bold" className="text-[24px]" />

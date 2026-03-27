@@ -50,7 +50,7 @@ export function DeliveryAssignmentTab() {
   return (
     <div className="flex h-full gap-6 overflow-hidden">
       {/* Left Panel: Dispatch Queue */}
-      <div className="flex-1 flex flex-col bg-white border border-[#ECEDEF] rounded-[20px] overflow-hidden shadow-sm">
+      <div className="flex-1 flex flex-col bg-white border border-[#ECEDEF] rounded-[20px] overflow-hidden">
         <div className="p-5 border-b border-[#ECEDEF] flex items-center justify-between bg-[#FBFBFC]">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[#D40073]/10 flex items-center justify-center text-[#D40073]">
@@ -80,7 +80,7 @@ export function DeliveryAssignmentTab() {
                 onClick={() => setSelectedOrderId(order.id)}
                 className={`p-4 rounded-[16px] border transition-all cursor-pointer group ${
                   selectedOrderId === order.id 
-                    ? 'border-[#D40073] bg-[#FFF5FA] shadow-md' 
+                    ? 'border-[#D40073] bg-[#FFF5FA]' 
                     : 'border-[#ECEDEF] hover:border-[#D40073]/30 hover:bg-[#FBFBFC]'
                 }`}
               >
@@ -103,7 +103,7 @@ export function DeliveryAssignmentTab() {
       </div>
 
       {/* Middle Panel: Active Deliveries / Tracking */}
-      <div className="flex-1 flex flex-col bg-[#FBFBFC] border border-[#ECEDEF] rounded-[20px] overflow-hidden shadow-sm">
+      <div className="flex-1 flex flex-col bg-[#FBFBFC] border border-[#ECEDEF] rounded-[20px] overflow-hidden">
         <div className="p-5 border-b border-[#ECEDEF] flex items-center justify-between bg-white">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB]">
@@ -124,7 +124,7 @@ export function DeliveryAssignmentTab() {
             </div>
           ) : (
             activeDeliveries.map(order => (
-              <div key={order.id} className="bg-white p-4 rounded-[16px] border border-[#ECEDEF] shadow-sm">
+              <div key={order.id} className="bg-white p-4 rounded-[16px] border border-[#ECEDEF]">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] font-bold text-[#111111]">{order.id}</span>
@@ -168,7 +168,7 @@ export function DeliveryAssignmentTab() {
               initial={{ y: 100 }}
               animate={{ y: 0 }}
               exit={{ y: 100 }}
-              className="p-5 bg-white border-t border-[#ECEDEF] shadow-[0_-4px_20px_rgba(0,0,0,0.04)]"
+              className="p-5 bg-white border-t border-[#ECEDEF]"
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -192,7 +192,7 @@ export function DeliveryAssignmentTab() {
                   className={`flex-[2] h-11 rounded-[12px] font-bold text-[14px] flex items-center justify-center gap-2 transition-all ${
                     !selectedAgentId 
                       ? 'bg-[#F3F4F6] text-[#8B93A7] cursor-not-allowed' 
-                      : 'bg-[#D40073] text-white hover:bg-[#B80063] active:scale-[0.98] shadow-md'
+                      : 'bg-[#D40073] text-white hover:bg-[#B80063] active:scale-[0.98]'
                   }`}
                 >
                   {isAssigning ? (
@@ -211,7 +211,7 @@ export function DeliveryAssignmentTab() {
       </div>
 
       {/* Right Panel: Agent Selection */}
-      <div className="w-[340px] flex flex-col bg-white border border-[#ECEDEF] rounded-[20px] overflow-hidden shadow-sm">
+      <div className="w-[340px] flex flex-col bg-white border border-[#ECEDEF] rounded-[20px] overflow-hidden">
         <div className="p-5 border-b border-[#ECEDEF] bg-[#FBFBFC]">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[#16A34A]/10 flex items-center justify-center text-[#16A34A]">
@@ -228,7 +228,7 @@ export function DeliveryAssignmentTab() {
               onClick={() => setSelectedAgentId(agent.id)}
               className={`p-4 rounded-[16px] border transition-all cursor-pointer group ${
                 selectedAgentId === agent.id 
-                  ? 'border-[#16A34A] bg-[#F0FDF4] shadow-sm' 
+                  ? 'border-[#16A34A] bg-[#F0FDF4]' 
                   : 'border-[#ECEDEF] hover:border-[#16A34A]/30 hover:bg-[#FBFBFC]'
               }`}
             >

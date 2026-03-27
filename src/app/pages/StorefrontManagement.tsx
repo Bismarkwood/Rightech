@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '@iconify/react';
-import { Plus, Search, PackageSearch, EyeOff, LayoutGrid } from 'lucide-react';
-import { useRetailer } from '../components/retailer/RetailerContext';
+import { Plus, Search, PackageSearch, LayoutGrid } from 'lucide-react';
+import { useProducts } from '../context/ProductContext';
 import { StorefrontEditorModal } from '../components/storefront/StorefrontEditorModal';
 import { StorefrontSettings } from '../components/storefront/StorefrontSettings';
 
@@ -19,14 +19,16 @@ export interface StorefrontListing {
 }
 
 export default function StorefrontManagement() {
-  const { inventory } = useRetailer();
+  const { products } = useProducts();
   
   const [listings, setListings] = useState<StorefrontListing[]>(() => {
-    return inventory.slice(0, 3).map((item, index) => ({
+    // Filter out archived products for the storefront
+    const activeProducts = products.filter(p => !p.isArchived);
+    return activeProducts.slice(0, 3).map((item, index) => ({
       inventoryId: item.id,
-      displayName: item.name,
-      description: item.description || 'Premium quality building material.',
-      displayPrice: item.price,
+      displayName: item.storefrontName || item.name,
+      description: item.storefrontDescription || item.description || 'Premium quality building material.',
+      displayPrice: `GHS ${item.price.toLocaleString()}`,
       storeCategory: item.category,
       images: item.image ? [item.image] : [],
       isPublished: index < 2,
@@ -43,10 +45,12 @@ export default function StorefrontManagement() {
   const [editorMode, setEditorMode] = useState<'add' | 'edit'>('add');
   const [editingListingId, setEditingListingId] = useState<string | null>(null);
 
-  const filteredListings = listings.filter(l => 
-    l.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.inventoryId.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredListings = listings.filter(l => {
+    const product = products.find(p => p.id === l.inventoryId);
+    if (!product || product.isArchived) return false;
+    return l.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           l.inventoryId.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const handleAddProduct = () => {
     setEditorMode('add');
@@ -131,8 +135,10 @@ export default function StorefrontManagement() {
                   {filteredListings.length > 0 ? (
                     filteredListings.map((listing) => {
                       // Lookup live baseline from context
-                      const liveItem = inventory.find(i => i.id === listing.inventoryId);
-                      const isOutOfStock = liveItem ? liveItem.stock === 0 : false;
+                      const liveItem = products.find(i => i.id === listing.inventoryId);
+                      if (!liveItem || liveItem.isArchived) return null;
+
+                      const isOutOfStock = liveItem.stock === 0;
                       const displayStatus = isOutOfStock ? 'Out of Stock' : (!listing.isPublished ? 'Hidden' : 'Live');
                       const statusColor = isOutOfStock ? 'text-[#EF4444] bg-[#FEF2F2] border-[#FECACA]' : 
                                           (!listing.isPublished ? 'text-[#525866] bg-[#F1F3F5] border-[#ECEDEF]' : 'text-[#16A34A] bg-[#DCFCE7] border-[#BBF7D0]');
@@ -145,8 +151,8 @@ export default function StorefrontManagement() {
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
                           whileHover={{ y: -4 }}
-                          className={`bg-white rounded-[24px] border-[2px] overflow-hidden group hover:shadow-xl transition-all duration-300 flex flex-col ${
-                            listing.isPublished && !isOutOfStock ? 'border-transparent hover:border-[#D40073]/20 shadow-sm' : 'border-[#ECEDEF] opacity-80 hover:opacity-100 hover:border-[#8B93A7]'
+                          className={`bg-white rounded-[24px] border-[2px] overflow-hidden group hover:border-[#D40073]/40 transition-all duration-300 flex flex-col ${
+                            listing.isPublished && !isOutOfStock ? 'border-transparent hover:border-[#D40073]/20' : 'border-[#ECEDEF] opacity-80 hover:opacity-100'
                           }`}
                         >
                           {/* Image Container */}
@@ -190,11 +196,11 @@ export default function StorefrontManagement() {
                             <div className="mt-auto pt-4 border-t border-[#F1F3F5] flex items-center justify-between">
                               <div>
                                 <span className={`text-[18px] font-black ${isOutOfStock ? 'text-[#8B93A7] line-through' : 'text-[#111111]'}`}>
-                                  {listing.displayPrice}
+                                  GHS {liveItem.price.toLocaleString()}
                                 </span>
                               </div>
                               <div className="text-[12px] font-bold text-[#525866] bg-[#F7F7F8] px-2 py-1 rounded-md border border-[#ECEDEF]">
-                                {liveItem?.stock || 0} in stock
+                                {liveItem.stock} in stock
                               </div>
                             </div>
                           </div>
