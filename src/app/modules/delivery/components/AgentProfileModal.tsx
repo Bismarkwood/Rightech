@@ -28,7 +28,7 @@ const MOCK_HISTORY = [
   { id: 'DL-8782', date: 'Mon, 9:00 AM', destination: 'Tema Comm 1, Market', status: 'completed', distance: '18.4 km' },
 ];
 
-export function AgentProfileDrawer({ isOpen, onClose, agent, onDelete, onUpdate }: AgentProfileDrawerProps) {
+export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }: AgentProfileDrawerProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({

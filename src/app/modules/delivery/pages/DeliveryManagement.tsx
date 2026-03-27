@@ -4,9 +4,9 @@ import {
   Package, MapPin, Phone, User, Clock, CheckCircle2,
   AlertCircle, X, Navigation, Check, ChevronRight, Map, Plus, Car, Bike, Truck, Star, IdCard
 } from 'lucide-react';
-import { LiveMapModal } from './LiveMapModal';
-import { NewAgentModal } from './NewAgentModal';
-import { AgentProfileDrawer } from './AgentProfileDrawer';
+import { LiveMapModal } from '../components/LiveMapModal';
+import { NewAgentModal } from '../components/NewAgentModal';
+import { AgentProfileModal } from '../components/AgentProfileModal';
 import { useConsignment } from '../../consignment/context/ConsignmentContext';
 
 const SUB_TABS = ['Overview', 'Assigned', 'Active', 'Completed', 'Agents', 'Notifications'];
@@ -638,7 +638,7 @@ export function DeliveryManagement() {
         onAdd={(newAgent) => setAgents([...agents, newAgent])}
       />
 
-      <AgentProfileDrawer
+      <AgentProfileModal
         isOpen={!!selectedAgent}
         onClose={() => setSelectedAgent(null)}
         agent={selectedAgent}

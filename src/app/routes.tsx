@@ -10,7 +10,7 @@ import RetailerManagement from './modules/retailer/pages/RetailerManagement';
 import ConsignmentManagement from './modules/consignment/pages/ConsignmentManagement';
 import StorefrontManagement from './modules/storefront/pages/StorefrontManagement';
 import PaymentManagement from './modules/payments/pages/PaymentManagement';
-import { DeliveryManagement } from './modules/delivery/components/DeliveryManagement';
+import { DeliveryManagement } from './modules/delivery/pages/DeliveryManagement';
 
 const Shipments = lazy(() => import('./modules/shipment/pages/ShipmentManagement'));
 const CreditManagement = lazy(() => import('./modules/credit/pages/CreditManagement'));
