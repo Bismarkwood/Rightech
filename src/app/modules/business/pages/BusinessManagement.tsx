@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import DealerManagement from '../../dealer/pages/DealerManagement';
+import { useOrderWorkflow } from '../../orders/components/OrderWorkflowContext';
 
 const TABS = [
   'Overview',
@@ -111,6 +112,7 @@ const MOCK_SUPPLIERS = [
 
 export default function BusinessManagement() {
   const location = useLocation();
+  const { openCreateOrder } = useOrderWorkflow();
   
   // Set default tab based on route
   const defaultTab = location.pathname.includes('/dealer') ? 'Dealers' : 'Overview';
@@ -138,7 +140,10 @@ export default function BusinessManagement() {
               <Download size={16} />
               Export
             </button>
-            <button className="h-[40px] px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] hover:bg-[#F3F4F6] transition-colors">
+            <button 
+              onClick={() => openCreateOrder()}
+              className="h-[40px] px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] hover:bg-[#F3F4F6] transition-colors"
+            >
               <Plus size={16} />
               Add Order
             </button>
