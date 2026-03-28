@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, ChevronRight } from 'lucide-react';
 import { CreateOrderModal } from './CreateOrderModal';
-import { OrderDetailDrawer } from './OrderDetailDrawer';
+import { OrderDetailModal } from './OrderDetailModal';
 import { SharingModal } from './SharingModal';
 import { useOrderManagement } from '../context/OrderManagementContext';
 
@@ -85,7 +85,7 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
         onOrderSuccess={handleOrderSuccess}
       />
       
-      <OrderDetailDrawer 
+      <OrderDetailModal 
         isOpen={!!detailOrderData} 
         onClose={() => setDetailOrderData(null)} 
         order={detailOrderData} 
