@@ -33,6 +33,22 @@ export function SharingHub({ order }: SharingHubProps) {
     window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
   };
 
+  const isPickup = order.deliveryMethod === 'collection' || order.deliveryMethod === 'Pickup' || order.deliveryMethod === 'Self Collection';
+
+  if (isPickup) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 bg-[#F8F9FA] rounded-[24px] border border-[#ECEDEF] border-dashed">
+        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm">
+          <Icon icon="solar:shop-bold-duotone" className="text-[32px] text-[#8B93A7]" />
+        </div>
+        <h3 className="text-[16px] font-bold text-[#111111] mb-2">Self-Collection Order</h3>
+        <p className="text-[13px] text-[#525866] text-center max-w-[240px] leading-relaxed">
+          Sharing and live tracking are exclusively available for delivery orders handled by our riders.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* 1. Preview Card */}
