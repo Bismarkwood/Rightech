@@ -49,52 +49,65 @@ const OrderManagementContext = createContext<OrderManagementContextType | undefi
 export function OrderManagementProvider({ children }: { children: ReactNode }) {
   const [orders, setOrders] = useState<Order[]>(() => {
     const saved = localStorage.getItem('righttech_orders');
-    if (saved) return JSON.parse(saved);
+    let existingOrders: Order[] = [];
+    
+    try {
+      if (saved) {
+        existingOrders = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to parse saved orders', e);
+    }
 
-    // Initial Seeding from Mocks if localStorage is empty
-    const transformedRetail: Order[] = MOCK_RETAILER_ORDERS.map(ro => ({
-      id: ro.id,
-      customerName: ro.customer,
-      customerId: 'C-000', // Mock fallback
-      type: 'Retail',
-      status: (ro.delStatus === 'In Transit' ? 'Dispached' : ro.delStatus === 'Delivered' ? 'Delivered' : 'Pending') as OrderStatus,
-      items: ro.items?.map(i => ({
-        productId: i.productId,
-        name: i.name,
-        qty: i.qty,
-        unitPrice: parseFloat(i.unitPrice.replace(/[^0-9.]/g, '')),
-        total: parseFloat(i.lineTotal.replace(/[^0-9.]/g, ''))
-      })) || [],
-      totalAmount: parseFloat(ro.amount.replace(/[^0-9.]/g, '')),
-      paymentStatus: ro.payStatus === 'Paid' ? 'Paid' : ro.payStatus === 'Credit' ? 'Credit' : 'Pending',
-      deliveryMethod: ro.delStatus === 'collection' ? 'Pickup' : 'Dispatch',
-      deliveryAddress: ro.deliveryAddress,
-      trackingToken: ro.trackingToken,
-      riderLocation: ro.riderLocation,
-      estimatedArrivalMin: ro.estimatedArrivalMin,
-      createdAt: ro.createdAt
-    }));
+    // Robust Re-seeding: If empty or contains very few records (stale mock state), 
+    // re-initialize with the full 30+ enterprise-grade mock orders.
+    if (existingOrders.length < 10) {
+      const transformedRetail: Order[] = MOCK_RETAILER_ORDERS.map(ro => ({
+        id: ro.id,
+        customerName: ro.customer,
+        customerId: 'C-000',
+        type: 'Retail',
+        status: (ro.delStatus === 'In Transit' ? 'Dispached' : ro.delStatus === 'Delivered' ? 'Delivered' : 'Pending') as OrderStatus,
+        items: ro.items?.map(i => ({
+          productId: i.productId,
+          name: i.name,
+          qty: i.qty,
+          unitPrice: parseFloat(i.unitPrice.replace(/[^0-9.]/g, '') || '0'),
+          total: parseFloat(i.lineTotal.replace(/[^0-9.]/g, '') || '0')
+        })) || [],
+        totalAmount: parseFloat(ro.amount.replace(/[^0-9.]/g, '') || '0'),
+        paymentStatus: ro.payStatus === 'Paid' ? 'Paid' : ro.payStatus === 'Credit' ? 'Credit' : 'Pending',
+        deliveryMethod: ro.delStatus === 'collection' ? 'Pickup' : 'Dispatch',
+        deliveryAddress: ro.deliveryAddress,
+        trackingToken: ro.trackingToken,
+        riderLocation: ro.riderLocation,
+        estimatedArrivalMin: ro.estimatedArrivalMin,
+        createdAt: ro.createdAt
+      }));
 
-    const transformedDealer: Order[] = MOCK_DEALER_ORDERS.map(do_ => ({
-      id: do_.id,
-      customerName: 'Dealer Customer', // Mock fallback
-      customerId: 'D-000',
-      type: 'Dealer',
-      status: (do_.status === 'Delivered' ? 'Delivered' : 'Pending') as OrderStatus,
-      items: do_.lines.map(l => ({
-        productId: `PRD-${Math.random()}`,
-        name: l.name,
-        qty: l.qty,
-        unitPrice: l.price,
-        total: l.qty * l.price
-      })),
-      totalAmount: do_.total,
-      paymentStatus: do_.payment === 'Paid' ? 'Paid' : 'Credit',
-      deliveryMethod: do_.fulfillment === 'In-Store Pickup' ? 'Pickup' : 'Dispatch',
-      createdAt: new Date().toISOString()
-    }));
+      const transformedDealer: Order[] = MOCK_DEALER_ORDERS.map(do_ => ({
+        id: do_.id,
+        customerName: 'Dealer Customer',
+        customerId: 'D-000',
+        type: 'Dealer',
+        status: (do_.status === 'Delivered' ? 'Delivered' : 'Pending') as OrderStatus,
+        items: do_.lines.map(l => ({
+          productId: `PRD-${Math.random()}`,
+          name: l.name,
+          qty: l.qty,
+          unitPrice: l.price,
+          total: l.qty * l.price
+        })),
+        totalAmount: do_.total,
+        paymentStatus: do_.payment === 'Paid' ? 'Paid' : 'Credit',
+        deliveryMethod: do_.fulfillment === 'In-Store Pickup' ? 'Pickup' : 'Dispatch',
+        createdAt: new Date().toISOString()
+      }));
 
-    return [...transformedRetail, ...transformedDealer];
+      return [...transformedRetail, ...transformedDealer];
+    }
+
+    return existingOrders;
   });
   const { reserveStock, commitStock, releaseStock } = useProducts();
   const { addTransaction } = usePayments();

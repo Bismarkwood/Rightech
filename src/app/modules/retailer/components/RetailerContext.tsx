@@ -104,31 +104,40 @@ export function RetailerProvider({ children }: { children: ReactNode }) {
 
   const orders: RetailerOrder[] = globalOrders
     .filter(o => o.type === 'Retail')
-    .map(o => ({
-      id: o.id,
-      customer: o.customerName,
-      type: 'Retail',
-      amount: `${o.totalAmount.toLocaleString()} GHS`,
-      payStatus: o.paymentStatus === 'Credit' ? 'Credit' : 'Paid',
-      paymentMethod: o.paymentStatus === 'Credit' ? 'Store Credit' : 'Cash',
-      delStatus: o.status as any,
-      credStatus: o.paymentStatus === 'Credit' ? 'Active' : 'N/A',
-      date: new Date(o.createdAt).toLocaleDateString(),
-      deliveryAddress: o.deliveryAddress || '',
-      orderNotes: '',
-      createdAt: o.createdAt,
-      updatedAt: o.createdAt,
-      trackingToken: o.trackingToken,
-      riderLocation: o.riderLocation,
-      estimatedArrivalMin: o.estimatedArrivalMin,
-      items: o.items.map(i => ({
-        productId: i.productId,
-        name: i.name,
-        qty: i.qty,
-        unitPrice: `${i.unitPrice} GHS`,
-        lineTotal: `${i.total} GHS`
-      }))
-    }));
+    .map(o => {
+      let formattedDate = 'N/A';
+      try {
+        formattedDate = o.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'Today';
+      } catch (e) {
+        formattedDate = 'Recently';
+      }
+
+      return {
+        id: o.id,
+        customer: o.customerName || 'Unknown Customer',
+        type: 'Retail',
+        amount: typeof o.totalAmount === 'number' ? `${o.totalAmount.toLocaleString()} GHS` : String(o.totalAmount),
+        payStatus: o.paymentStatus || 'Pending',
+        paymentMethod: o.paymentStatus === 'Credit' ? 'Store Credit' : 'Cash',
+        delStatus: (o.status as any) || 'Pending',
+        credStatus: o.paymentStatus === 'Credit' ? 'Active' : 'N/A',
+        date: formattedDate,
+        deliveryAddress: o.deliveryAddress || 'No address provided',
+        orderNotes: '',
+        createdAt: o.createdAt || new Date().toISOString(),
+        updatedAt: o.createdAt || new Date().toISOString(),
+        trackingToken: o.trackingToken,
+        riderLocation: o.riderLocation,
+        estimatedArrivalMin: o.estimatedArrivalMin,
+        items: (o.items || []).map(i => ({
+          productId: i.productId || 'PRD-000',
+          name: i.name || 'Unknown Product',
+          qty: i.qty || 0,
+          unitPrice: typeof i.unitPrice === 'number' ? `${i.unitPrice} GHS` : String(i.unitPrice),
+          lineTotal: typeof i.total === 'number' ? `${i.total} GHS` : String(i.total)
+        }))
+      };
+    });
 
   const inventory: InventoryItem[] = products
     .filter(p => !p.isArchived)
