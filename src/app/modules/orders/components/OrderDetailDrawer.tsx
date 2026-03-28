@@ -47,6 +47,12 @@ export function OrderDetailDrawer({ isOpen, onClose, order }: OrderDetailDrawerP
           
           <div className="flex items-center gap-2">
             <button 
+              onClick={() => openCreateOrder(order.customerId)}
+              className="h-8 px-3 rounded-full bg-[#F1F3F5] text-[11px] font-black uppercase tracking-widest text-[#525866] hover:bg-[#E4E7EC] transition-colors"
+            >
+              Update Status
+            </button>
+            <button 
               onClick={() => {
                 onClose();
                 openCreateOrder(order.customerId);

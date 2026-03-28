@@ -87,29 +87,38 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
       <AnimatePresence>
         {toastOrderData && (
           <motion.div
-            initial={{ opacity: 0, y: -20, x: 20 }}
-            animate={{ opacity: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-6 right-6 z-[100] w-[360px] bg-white rounded-[16px] border border-[#ECEDEF] shadow-2xl overflow-hidden p-4 flex gap-4 pointer-events-auto"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] w-[400px] bg-white rounded-[24px] border border-[#ECEDEF] shadow-[0_32px_80px_rgba(0,0,0,0.15)] overflow-hidden p-6 flex flex-col items-center text-center pointer-events-auto"
           >
-            <div className="w-10 h-10 rounded-full bg-[#16A34A] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#16A34A]/20">
-              <Check size={20} className="stroke-[3]" />
+            <div className="w-16 h-16 rounded-full bg-[#16A34A] text-white flex items-center justify-center mb-4 shadow-xl shadow-[#16A34A]/20">
+              <Check size={32} className="stroke-[3]" />
             </div>
-            <div className="flex-1 min-w-0 pt-0.5">
-              <div className="text-[14px] font-black text-[#111111] mb-1">
-                Order {toastOrderData.id} created
-              </div>
-              <div className="text-[13px] font-medium text-[#525866] mb-3 leading-tight">
-                {toastOrderData.rider?.name || 'Self Collection'} assigned · GHS {toastOrderData.total?.toFixed(2)}
-              </div>
+            
+            <div className="text-[20px] font-black text-[#111111] mb-2">
+              Order {toastOrderData.id} Created!
+            </div>
+            
+            <div className="text-[14px] font-medium text-[#525866] mb-8 max-w-[280px]">
+              {toastOrderData.rider?.name || 'Self Collection'} assigned · GHS {toastOrderData.total?.toFixed(2)}
+            </div>
+
+            <div className="flex flex-col w-full gap-2">
               <button 
                 onClick={() => {
                   openOrderDetail(toastOrderData);
-                  setToastOrderData(null); // Optional: close toast early when clicked
+                  setToastOrderData(null);
                 }}
-                className="text-[13px] font-bold text-[#D40073] hover:text-[#B80063] flex items-center gap-1 group transition-colors"
+                className="w-full h-12 bg-[#D40073] text-white rounded-[14px] font-black text-[14px] flex items-center justify-center gap-2 hover:bg-[#B80063] transition-all active:scale-[0.98]"
               >
-                View Order <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                View Tracking & Details
+              </button>
+              <button 
+                onClick={() => setToastOrderData(null)}
+                className="w-full h-12 bg-[#F9FAFB] text-[#8B93A7] rounded-[14px] font-black text-[14px] hover:bg-[#F1F3F5] transition-all"
+              >
+                Dismiss
               </button>
             </div>
           </motion.div>
