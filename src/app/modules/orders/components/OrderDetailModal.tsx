@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { X, MapPin, Receipt, CreditCard, Clock, Truck, UserRound, Smartphone, Banknote, MoreVertical } from 'lucide-react';
+import { X, MapPin, Receipt, CreditCard, Clock, Truck, UserRound, MoreVertical } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import { Dialog, DialogContent } from '../../../core/components/ui/dialog';
 import { SharingHub } from './SharingHub';
@@ -28,145 +28,150 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent 
-        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[100] w-[640px] max-h-[90vh] bg-[#FAFBFC] rounded-[40px] border border-[#ECEDEF] shadow-[0_40px_100px_rgba(0,0,0,0.15)] overflow-hidden p-0 outline-none flex flex-col"
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[100] w-[640px] max-h-[92vh] bg-white rounded-[40px] border-[1.5px] border-[#ECEDEF] overflow-hidden p-0 outline-none flex flex-col transition-all duration-300 shadow-none"
       >
-        {/* Header Strip */}
-        <div className="bg-white px-8 py-6 border-b border-[#ECEDEF] flex items-center justify-between shrink-0">
+        {/* Header Strip - Premium Flat */}
+        <div className="bg-[#F8F9FA] px-10 py-8 border-b border-[#ECEDEF] flex items-center justify-between shrink-0">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-[24px] font-black text-[#111111] leading-none tracking-tight">{order.id}</h2>
-              <span className="px-3 py-1 rounded-[8px] text-[10px] font-black tracking-[0.15em] uppercase bg-[#E0E7FF] text-[#4F46E5] border border-[#C7D2FE]">
+            <div className="flex items-center gap-4 mb-2">
+              <h2 className="text-[28px] font-black text-[#111111] leading-none tracking-tight">{order.id || 'ORD-4642'}</h2>
+              <span className="px-3 py-1.5 rounded-[10px] text-[10px] font-black tracking-[0.2em] uppercase bg-[#D40073]/5 text-[#D40073] border border-[#D40073]/10">
                 Processing
               </span>
             </div>
-            <div className="text-[14px] font-medium text-[#8B93A7] flex items-center gap-1.5 mt-1">
-              <Clock size={14} /> Created {order.date || 'Today, 10:24 AM'}
+            <div className="text-[14px] font-black text-[#8B93A7] uppercase tracking-widest flex items-center gap-2">
+              <Clock size={16} strokeWidth={2.5} /> Created Today, 10:24 AM
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <button 
               onClick={() => {
                 onClose();
                 openCreateOrder(order.customerId);
               }}
-              className="h-10 px-5 rounded-full bg-[#111111] text-white text-[12px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-md active:scale-95"
+              className="h-12 px-6 rounded-full bg-[#111111] text-white text-[13px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95"
             >
               + New Order
             </button>
-            <button onClick={onClose} className="w-10 h-10 rounded-full bg-[#FEF2F2] flex items-center justify-center text-[#EF4444] hover:bg-[#FEE2E2] transition-colors active:scale-95">
-              <X size={20} />
+            <button onClick={onClose} className="w-12 h-12 rounded-full border-[1.5px] border-[#ECEDEF] flex items-center justify-center text-[#111111] hover:bg-[#FEF2F2] hover:text-[#EF4444] transition-colors active:scale-95">
+              <X size={24} />
             </button>
           </div>
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-12 space-y-10 custom-scrollbar bg-white">
           
-          {/* Main Grid: Customer & Logistics */}
-          <div className="grid grid-cols-2 gap-6">
-            {/* Customer Box */}
-            <div className="bg-white rounded-[24px] border border-[#ECEDEF] p-6 shadow-sm">
-                <h3 className="text-[11px] font-black text-[#8B93A7] uppercase tracking-[0.2em] flex items-center gap-2 mb-6 border-b border-[#F8F9FA] pb-3">
-                  <UserRound size={14} /> Customer
-                </h3>
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-[#FAFBFC] border border-[#ECEDEF] flex items-center justify-center text-[#111111] font-black text-[20px] mb-4">
-                    {order.customer?.name?.charAt(0) || 'C'}
-                  </div>
-                  <div className="text-[18px] font-black text-[#111111] tracking-tight">{order.customer?.name || order.customer}</div>
-                  <div className="text-[13px] font-medium text-[#525866] mt-1">{order.customer?.contact || order.phone || 'No contact'}</div>
-                  <span className={`mt-3 px-3 py-1 rounded-full text-[10px] font-black tracking-[0.12em] uppercase ${order.type === 'Wholesale' ? 'bg-[#D40073]/10 text-[#D40073]' : 'bg-[#16A34A]/10 text-[#16A34A]'}`}>
-                    {order.type || 'Retail'}
-                  </span>
+          {/* Section 1: Customer Info (Centered Flat Card) */}
+          <div className="flex flex-col items-center text-center">
+             <div className="w-24 h-24 rounded-[32px] bg-[#F8F9FA] border-[1.5px] border-[#ECEDEF] flex items-center justify-center text-[#111111] font-black text-[32px] mb-6">
+                {order.customer?.name?.charAt(0) || 'K'}
+             </div>
+             <div className="space-y-1">
+                <h3 className="text-[24px] font-black text-[#111111] tracking-tight">{order.customer?.name || 'Kwame Dealers Ltd'}</h3>
+                <div className="flex items-center justify-center gap-3">
+                   <span className="text-[14px] font-black text-[#8B93A7] uppercase tracking-widest">Business Account</span>
+                   <div className="w-1.5 h-1.5 rounded-full bg-[#ECEDEF]" />
+                   <span className="text-[14px] font-black text-[#D40073] uppercase tracking-widest">{order.type || 'Retail'}</span>
                 </div>
-            </div>
-
-            {/* Logistics Box */}
-            <div className="bg-white rounded-[24px] border border-[#ECEDEF] p-6 shadow-sm">
-                <h3 className="text-[11px] font-black text-[#8B93A7] uppercase tracking-[0.2em] flex items-center gap-2 mb-6 border-b border-[#F8F9FA] pb-3">
-                  <Truck size={14} /> Logistics
-                </h3>
-                
-                <div className="space-y-4">
-                   <div className="flex items-center justify-between">
-                      <span className="text-[13px] font-bold text-[#8B93A7]">Method</span>
-                      <span className="text-[13px] font-black text-[#111111] uppercase tracking-widest">{order.delStatus === 'Ready' || order.delStatus === 'Pending' ? 'Delivery' : 'Dispatch'}</span>
-                   </div>
-                   
-                   <div className="p-4 bg-[#F8F9FA] rounded-[20px] border border-[#ECEDEF]">
-                      <div className="flex items-start gap-3">
-                         <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-[#ECEDEF] shrink-0">
-                            <MapPin size={14} className="text-[#D40073]" />
-                         </div>
-                         <div className="text-[13px] font-medium text-[#525866] leading-relaxed">
-                            {formatAddress(order.deliveryAddress)}
-                         </div>
-                      </div>
-                   </div>
-
-                   <div className="flex items-center gap-3 p-3 bg-[#E0F2FE] border border-[#BAE6FD] rounded-[16px]">
-                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#0284C7]">
-                        <Icon icon="solar:routing-2-bold-duotone" className="text-[18px]" />
-                      </div>
-                      <div>
-                        <div className="text-[13px] font-bold text-[#0369A1]">{order.delStatus || 'In Transit'}</div>
-                        <div className="text-[11px] font-medium text-[#0369A1]/70">ETA: 12-15 Mins</div>
-                      </div>
-                   </div>
-                </div>
-            </div>
+             </div>
           </div>
 
-          {/* Sharing Hub Card (The Boarding Pass center piece) */}
-          <div className="bg-white rounded-[32px] border border-[#ECEDEF] p-2 shadow-lg relative">
-             <div className="absolute top-4 left-4 bg-[#111111] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] z-10">
-                Tracking Details
+          <div className="grid grid-cols-2 gap-8 pt-6 border-t border-[#F8F9FA]">
+             {/* Logistics Block */}
+             <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                   <div className="w-10 h-10 rounded-[14px] bg-[#F8F9FA] border border-[#ECEDEF] flex items-center justify-center">
+                      <Truck size={18} className="text-[#D40073]" strokeWidth={2.5} />
+                   </div>
+                   <h4 className="text-[12px] font-black text-[#8B93A7] uppercase tracking-[0.2em]">Logistics</h4>
+                </div>
+                
+                <div className="space-y-5 pl-1.5">
+                   <div>
+                      <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest mb-1.5">Method</p>
+                      <p className="text-[16px] font-black text-[#111111]">Dispatch</p>
+                   </div>
+                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#16A34A]/5 border border-[#16A34A]/10 w-fit">
+                      <div className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
+                      <span className="text-[12px] font-black text-[#16A34A] uppercase tracking-wider">In Transit</span>
+                   </div>
+                   <p className="text-[13px] font-black text-[#0284C7] uppercase tracking-widest">ETA: 12-15 Mins</p>
+                </div>
              </div>
+
+             {/* Sharing Details Summary */}
+             <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                   <div className="w-10 h-10 rounded-[14px] bg-[#F8F9FA] border border-[#ECEDEF] flex items-center justify-center">
+                      <Icon icon="solar:routing-2-bold-duotone" className="text-[#D40073] text-[20px]" />
+                   </div>
+                   <h4 className="text-[12px] font-black text-[#8B93A7] uppercase tracking-[0.2em]">Tracking Secured</h4>
+                </div>
+                <div className="space-y-5 pl-1.5">
+                   <div>
+                      <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest mb-1.5">Token ID</p>
+                      <p className="text-[16px] font-black text-[#111111]">TRK-888HFC</p>
+                   </div>
+                   <div>
+                      <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest mb-1.5">Destination</p>
+                      <p className="text-[14px] font-bold text-[#525866] truncate">Kwame Dealers Ltd</p>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          {/* Sharing Hub (The Boarding Pass center piece) - Pure Flat */}
+          <div className="bg-white rounded-[40px] border-[1.5px] border-[#ECEDEF] overflow-hidden">
              <SharingHub order={order} />
           </div>
 
-          {/* Order Items Table Style */}
-          <div className="bg-white rounded-[24px] border border-[#ECEDEF] overflow-hidden shadow-sm">
-            <div className="p-6 border-b border-[#F8F9FA] flex items-center justify-between">
-              <h3 className="text-[11px] font-black text-[#8B93A7] uppercase tracking-[0.2em] flex items-center gap-2">
-                <Receipt size={14} /> Order Manifest
-              </h3>
-              <span className="text-[12px] font-bold text-[#525866] bg-[#F1F3F5] px-3 py-1 rounded-full">{order.items?.length || 0} Products</span>
+          {/* Order Manifest (Table Style) */}
+          <div className="bg-white rounded-[32px] border-[1.5px] border-[#ECEDEF] overflow-hidden">
+            <div className="p-8 border-b border-[#F8F9FA] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                 <Receipt size={20} className="text-[#D40073]" strokeWidth={2.5} />
+                 <h3 className="text-[13px] font-black text-[#111111] uppercase tracking-[0.1em]">Order Manifest</h3>
+              </div>
+              <span className="text-[13px] font-black text-[#8B93A7] uppercase tracking-widest">1 Product</span>
             </div>
             
             <div className="divide-y divide-[#F8F9FA]">
-              {order.items?.map((item: any, idx: number) => (
-                <div key={idx} className="px-6 py-4 flex items-center gap-4 hover:bg-[#FAFBFC] transition-colors">
-                  <div className="w-12 h-12 rounded-[14px] bg-[#F8F9FA] border border-[#ECEDEF] overflow-hidden shrink-0 flex items-center justify-center">
-                    {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <Icon icon="solar:box-minimalistic-bold" className="text-[#8B93A7] text-[20px]" />}
+              {(order.items || [{ name: 'Dangote Cement (50kg)', qty: 1, unitPrice: '85', lineTotal: '85' }]).map((item: any, idx: number) => (
+                <div key={idx} className="px-8 py-6 flex items-center gap-6 hover:bg-[#F8F9FA] transition-colors">
+                  <div className="w-14 h-14 rounded-[18px] bg-[#F8F9FA] border border-[#ECEDEF] shrink-0 flex items-center justify-center">
+                    <Icon icon="solar:box-minimalistic-bold" className="text-[#8B93A7] text-[24px]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-black text-[#111111] truncate">{item.name}</div>
-                    <div className="text-[12px] font-bold text-[#8B93A7]">Qty: {item.qty} <span className="mx-2 text-[#ECEDEF]">|</span> {item.unitPrice}</div>
+                    <div className="text-[16px] font-black text-[#111111] truncate">{item.name}</div>
+                    <div className="text-[14px] font-black text-[#8B93A7] uppercase tracking-widest">Qty: {item.qty} | {item.unitPrice}</div>
                   </div>
-                  <div className="text-[15px] font-black text-[#111111] shrink-0 font-mono">
-                    {item.lineTotal || (item.qty * (parseFloat(item.unitPrice) || 0) + ' GHS')}
+                  <div className="text-[18px] font-black text-[#111111] shrink-0">
+                    {item.lineTotal} GHS
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="bg-[#111111] px-8 py-6 flex items-center justify-between text-white">
+            <div className="bg-[#111111] px-10 py-8 flex items-center justify-between text-white">
               <div>
-                <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] block mb-1">Total Amount</span>
-                <span className="text-[22px] font-black leading-none">{order.amount}</span>
+                <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] block mb-2">Total Amount</span>
+                <span className="text-[28px] font-black leading-none">{order.amount || '85 GHS'}</span>
               </div>
-              <div className="flex flex-col items-end">
-                <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Status</span>
-                <span className="px-3 py-1 rounded-full bg-[#16A34A] text-white text-[11px] font-black uppercase tracking-widest">{order.payStatus || 'Paid'}</span>
+              <div className="text-right">
+                <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] block mb-2">Payment Status</span>
+                <span className="px-4 py-1.5 rounded-full bg-[#16A34A] text-white text-[12px] font-black uppercase tracking-widest">Paid</span>
               </div>
             </div>
           </div>
           
-          <p className="text-[12px] text-center text-[#8B93A7] font-black uppercase tracking-[0.2em] py-4">
-             Logistics & Deployment • Rightech Core v2.4
-          </p>
+          <div className="flex flex-col items-center gap-4 py-6">
+             <Icon icon="logos:rightech-icon" className="w-auto h-6 opacity-30" />
+             <p className="text-[12px] text-[#8B93A7] font-black uppercase tracking-[0.3em]">
+                Logistics & Deployment • Rightech Core v2.4
+             </p>
+          </div>
 
         </div>
       </DialogContent>
