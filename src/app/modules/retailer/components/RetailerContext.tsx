@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useProducts } from '../../products/context/ProductContext';
 import { Product } from '../../../core/data/productData';
-import { MOCK_RETAILER_ORDERS, RetailerOrder } from '../../../core/data/mockRetailerOrders';
+import { RetailerOrder } from '../../../core/data/mockRetailerOrders';
+import { useOrderManagement } from '../../orders/context/OrderManagementContext';
 
 export interface InventoryItem {
   id: string;
@@ -81,17 +82,14 @@ interface RetailerContextType {
   addOrder: (order: RetailerOrder) => void;
   updateOrder: (orderId: string, patch: Partial<RetailerOrder>) => void;
   assignAgent: (orderId: string, agentId: string) => void;
-  // Modals
   isNewOrderModalOpen: boolean;
   setNewOrderModalOpen: (open: boolean) => void;
   isAddSupplierModalOpen: boolean;
   setAddSupplierModalOpen: (open: boolean) => void;
-  // Inventory
   inventory: InventoryItem[];
   addInventoryItem: (item: Partial<Product>) => void;
   updateInventoryItem: (itemId: string, patch: Partial<Product>) => void;
   deleteInventoryItem: (itemId: string) => void;
-  // Suppliers
   suppliers: Supplier[];
   addSupplier: (supplier: Supplier) => void;
   updateSupplier: (supplierId: string, patch: Partial<Supplier>) => void;
@@ -102,9 +100,36 @@ const RetailerContext = createContext<RetailerContextType | undefined>(undefined
 
 export function RetailerProvider({ children }: { children: ReactNode }) {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
-  const [orders, setOrders] = useState<RetailerOrder[]>(MOCK_RETAILER_ORDERS);
+  const { orders: globalOrders, createOrder, updateOrderStatus, assignDeliveryAgent: globalAssign } = useOrderManagement();
 
-  // Map global products to local InventoryItem format for UI compatibility
+  const orders: RetailerOrder[] = globalOrders
+    .filter(o => o.type === 'Retail')
+    .map(o => ({
+      id: o.id,
+      customer: o.customerName,
+      type: 'Retail',
+      amount: `${o.totalAmount.toLocaleString()} GHS`,
+      payStatus: o.paymentStatus === 'Credit' ? 'Credit' : 'Paid',
+      paymentMethod: o.paymentStatus === 'Credit' ? 'Store Credit' : 'Cash',
+      delStatus: o.status as any,
+      credStatus: o.paymentStatus === 'Credit' ? 'Active' : 'N/A',
+      date: new Date(o.createdAt).toLocaleDateString(),
+      deliveryAddress: o.deliveryAddress || '',
+      orderNotes: '',
+      createdAt: o.createdAt,
+      updatedAt: o.createdAt,
+      trackingToken: o.trackingToken,
+      riderLocation: o.riderLocation,
+      estimatedArrivalMin: o.estimatedArrivalMin,
+      items: o.items.map(i => ({
+        productId: i.productId,
+        name: i.name,
+        qty: i.qty,
+        unitPrice: `${i.unitPrice} GHS`,
+        lineTotal: `${i.total} GHS`
+      }))
+    }));
+
   const inventory: InventoryItem[] = products
     .filter(p => !p.isArchived)
     .map(p => ({
@@ -121,51 +146,45 @@ export function RetailerProvider({ children }: { children: ReactNode }) {
     }));
 
   const addOrder = (order: RetailerOrder) => {
-    setOrders(prev => [order, ...prev]);
+    createOrder({
+      id: order.id,
+      customerName: order.customer,
+      customerId: 'C-000',
+      type: 'Retail',
+      items: order.items?.map(i => ({
+        productId: i.productId,
+        name: i.name,
+        qty: i.qty,
+        unitPrice: parseFloat(i.unitPrice.replace(/[^0-9.]/g, '')),
+        total: parseFloat(i.lineTotal.replace(/[^0-9.]/g, ''))
+      })) || [],
+      totalAmount: parseFloat(order.amount.replace(/[^0-9.]/g, '')),
+      paymentStatus: order.payStatus === 'Credit' ? 'Credit' : 'Paid',
+      deliveryMethod: 'Dispatch'
+    });
   };
 
   const updateOrder = (orderId: string, patch: Partial<RetailerOrder>) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...patch, updatedAt: new Date().toISOString() } : o));
+    if (patch.delStatus) {
+      updateOrderStatus(orderId, patch.delStatus as any);
+    }
   };
 
   const assignAgent = (orderId: string, agentId: string) => {
-    setOrders(prev => prev.map(o => 
-      o.id === orderId 
-        ? { ...o, delStatus: 'In Transit', updatedAt: new Date().toISOString() } 
-        : o
-    ));
+    globalAssign(orderId, agentId);
   };
 
   const [isNewOrderModalOpen, setNewOrderModalOpen] = useState(false);
   const [isAddSupplierModalOpen, setAddSupplierModalOpen] = useState(false);
 
-  // Inventory logic using global ProductContext
-  const addInventoryItem = (product: Partial<Product>) => {
-    addProduct(product as any);
-  };
+  const addInventoryItem = (product: Partial<Product>) => addProduct(product as any);
+  const updateInventoryItem = (itemId: string, patch: Partial<Product>) => updateProduct(itemId, patch);
+  const deleteInventoryItem = (itemId: string) => deleteProduct(itemId);
 
-  const updateInventoryItem = (itemId: string, patch: Partial<Product>) => {
-    updateProduct(itemId, patch);
-  };
-
-  const deleteInventoryItem = (itemId: string) => {
-    deleteProduct(itemId);
-  };
-
-  // Supplier logic
   const [suppliers, setSuppliers] = useState<Supplier[]>(MOCK_SUPPLIERS);
-
-  const addSupplier = (supplier: Supplier) => {
-    setSuppliers(prev => [supplier, ...prev]);
-  };
-
-  const updateSupplier = (supplierId: string, patch: Partial<Supplier>) => {
-    setSuppliers(prev => prev.map(s => s.id === supplierId ? { ...s, ...patch } : s));
-  };
-
-  const deleteSupplier = (supplierId: string) => {
-    setSuppliers(prev => prev.filter(s => s.id !== supplierId));
-  };
+  const addSupplier = (supplier: Supplier) => setSuppliers(prev => [supplier, ...prev]);
+  const updateSupplier = (supplierId: string, patch: Partial<Supplier>) => setSuppliers(prev => prev.map(s => s.id === supplierId ? { ...s, ...patch } : s));
+  const deleteSupplier = (supplierId: string) => setSuppliers(prev => prev.filter(s => s.id !== supplierId));
 
   return (
     <RetailerContext.Provider value={{ 

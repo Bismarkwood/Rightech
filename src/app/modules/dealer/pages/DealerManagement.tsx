@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useCredit } from '../../credit/context/CreditContext';
 import { useDealerWorkflow } from '../components/DealerWorkflowContext';
 import { useOrderWorkflow } from '../../orders/components/OrderWorkflowContext';
+import { useOrderManagement } from '../../orders/context/OrderManagementContext';
 import * as Dialog from '@radix-ui/react-dialog';
 import { 
   MOCK_DEALERS, MOCK_DEALER_ORDERS, MOCK_DEALER_PAYMENTS, MOCK_DEALER_CONSIGNMENTS, Dealer
@@ -23,6 +24,11 @@ export default function DealerManagement() {
   const { openCreateDealer } = useDealerWorkflow();
   const { openSharingModal } = useOrderWorkflow();
   const { accounts, getAccountByDealerId } = useCredit();
+  const { orders: globalOrders } = useOrderManagement();
+
+  const dealerOrders = useMemo(() => {
+    return globalOrders.filter(o => o.type === 'Dealer');
+  }, [globalOrders]);
   const location = useLocation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Overview');
@@ -521,26 +527,26 @@ export default function DealerManagement() {
                          View All
                        </button>
                      </div>
-                     <div className="space-y-3">
-                       {MOCK_DEALER_ORDERS.map(o => (
-                         <div 
-                           key={o.id} 
-                           onClick={() => setSelectedOrder(o)}
-                           className="p-4 bg-white border border-[#ECEDEF] rounded-[14px] flex items-center justify-between hover:border-[#D40073] transition-colors cursor-pointer group"
-                         >
-                            <div>
-                              <p className="text-[14px] font-bold text-[#111111] group-hover:text-[#D40073] transition-colors">{o.id}</p>
-                              <p className="text-[13px] font-medium text-[#525866] mt-0.5">{o.date} · {o.items} items</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-[15px] font-bold text-[#111111]">{formatMoney(o.total)}</p>
-                              <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-[4px] mt-1 text-[11px] font-bold ${
-                                o.payment === 'Paid' ? 'bg-[#ECFDF3] text-[#16A34A]' : 'bg-[#EFF6FF] text-[#2563EB]'
-                              }`}>{o.payment}</span>
-                            </div>
-                         </div>
-                       ))}
-                     </div>
+                      <div className="space-y-3">
+                        {dealerOrders.map(o => (
+                          <div 
+                            key={o.id} 
+                            onClick={() => setSelectedOrder(o)}
+                            className="p-4 bg-white border border-[#ECEDEF] rounded-[14px] flex items-center justify-between hover:border-[#D40073] transition-colors cursor-pointer group"
+                          >
+                             <div>
+                               <p className="text-[14px] font-bold text-[#111111] group-hover:text-[#D40073] transition-colors">{o.id}</p>
+                               <p className="text-[13px] font-medium text-[#525866] mt-0.5">{new Date(o.createdAt).toLocaleDateString()} · {o.items.length} items</p>
+                             </div>
+                             <div className="text-right">
+                               <p className="text-[15px] font-bold text-[#111111]">{formatMoney(o.totalAmount)}</p>
+                               <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-[4px] mt-1 text-[11px] font-bold ${
+                                 o.paymentStatus === 'Paid' ? 'bg-[#ECFDF3] text-[#16A34A]' : 'bg-[#EFF6FF] text-[#2563EB]'
+                               }`}>{o.paymentStatus}</span>
+                             </div>
+                          </div>
+                        ))}
+                      </div>
                   </motion.div>
                 )}
 
