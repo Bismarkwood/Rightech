@@ -24,7 +24,7 @@ const DEL_ICON: Record<string, { icon: string; color: string }> = {
 
 export function RetailerWorkspace() {
   const { orders } = useRetailer();
-  const { openCreateOrder } = useOrderWorkflow();
+  const { openCreateOrder, openSharingModal } = useOrderWorkflow();
 
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<OrderStatus>('All');
@@ -320,7 +320,10 @@ export function RetailerWorkspace() {
 
               {/* Drawer Footer */}
               <div className="p-7 border-t border-[#ECEDEF] bg-[#F7F7F8] flex gap-3 shrink-0">
-                <button className="flex-1 h-12 bg-white border border-[#ECEDEF] text-[#111111] font-bold rounded-[14px] text-[14px] hover:bg-[#F3F4F6] transition-all">
+                <button 
+                  onClick={() => openSharingModal(selectedOrder)}
+                  className="flex-1 h-12 bg-white border border-[#ECEDEF] text-[#111111] font-bold rounded-[14px] text-[14px] hover:bg-[#F3F4F6] transition-all"
+                >
                   Update Status
                 </button>
                 <button className="flex-1 h-12 bg-[#D40073] text-white font-bold rounded-[14px] text-[14px] hover:bg-[#B80063] transition-all shadow-lg shadow-[#D40073]/20">

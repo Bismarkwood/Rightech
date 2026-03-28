@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useCredit } from '../../credit/context/CreditContext';
 import { useDealerWorkflow } from '../components/DealerWorkflowContext';
+import { useOrderWorkflow } from '../../orders/components/OrderWorkflowContext';
 import * as Dialog from '@radix-ui/react-dialog';
 import { 
   MOCK_DEALERS, MOCK_DEALER_ORDERS, MOCK_DEALER_PAYMENTS, MOCK_DEALER_CONSIGNMENTS, Dealer
@@ -20,6 +21,7 @@ const CATALOG = [
 
 export default function DealerManagement() {
   const { openCreateDealer } = useDealerWorkflow();
+  const { openSharingModal } = useOrderWorkflow();
   const { accounts, getAccountByDealerId } = useCredit();
   const location = useLocation();
   const navigate = useNavigate();
@@ -825,7 +827,12 @@ export default function DealerManagement() {
                     </div>
                   </div>
                   <div className="p-6 border-t border-[#ECEDEF] flex gap-3">
-                    <button className="flex-1 h-11 bg-[#F3F4F6] text-[#111111] font-bold rounded-[12px] text-[14px]">Update Status</button>
+                    <button 
+                      onClick={() => openSharingModal(selectedOrder)}
+                      className="flex-1 h-11 bg-[#F3F4F6] text-[#111111] font-bold rounded-[12px] text-[14px]"
+                    >
+                      Update Status
+                    </button>
                     <button className="flex-1 h-11 bg-[#D40073] text-white font-bold rounded-[12px] text-[14px]">Print Invoice</button>
                   </div>
                 </motion.div>
