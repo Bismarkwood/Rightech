@@ -1,3 +1,5 @@
+import { GhanaAddress } from '../types/address';
+
 export type RetailerOrderItem = {
   productId: string;
   name: string;
@@ -17,8 +19,7 @@ export type RetailerOrder = {
   delStatus: string;
   credStatus: string;
   date: string;
-  deliveryAddress: string;
-  digitalAddress?: string;
+  deliveryAddress: GhanaAddress | string;
   orderNotes: string;
   createdAt: string;
   updatedAt: string;
@@ -29,6 +30,9 @@ export type RetailerOrder = {
     avatar: string;
     vehicle: string;
   };
+  trackingToken?: string;
+  riderLocation?: { lat: number; lng: number };
+  estimatedArrivalMin?: number;
 };
 
 export const MOCK_RETAILER_ORDERS: RetailerOrder[] = [
@@ -42,7 +46,17 @@ export const MOCK_RETAILER_ORDERS: RetailerOrder[] = [
     delStatus: 'Pending',
     credStatus: 'N/A',
     date: 'Today, 10:30 AM',
-    deliveryAddress: 'Spintex Road, Accra — Near Flower Pot Interchange',
+    trackingToken: 'RT-8991-X82J',
+    riderLocation: { lat: 5.6037, lng: -0.1870 },
+    estimatedArrivalMin: 12,
+    deliveryAddress: {
+      region: 'Greater Accra',
+      city: 'Accra',
+      area: 'Spintex Road',
+      landmark: 'Near Flower Pot Interchange',
+      instructions: 'Deliver before 2pm',
+      contactPhone: '+233 24 123 4567'
+    },
     orderNotes: 'Customer requested early delivery before 2pm.',
     createdAt: '2026-03-25T10:30:00Z',
     updatedAt: '2026-03-25T10:35:00Z',
@@ -61,7 +75,17 @@ export const MOCK_RETAILER_ORDERS: RetailerOrder[] = [
     delStatus: 'In Transit',
     credStatus: 'Active',
     date: 'Today, 09:15 AM',
-    deliveryAddress: 'Tema Industrial Area, Warehouse 12',
+    trackingToken: 'RT-8990-M10Q',
+    riderLocation: { lat: 5.6145, lng: -0.1567 },
+    estimatedArrivalMin: 8,
+    deliveryAddress: {
+      region: 'Greater Accra',
+      city: 'Tema',
+      area: 'Tema Industrial Area',
+      landmark: 'Warehouse 12',
+      instructions: 'Call site manager on arrival',
+      contactPhone: '+233 20 987 6543'
+    },
     orderNotes: 'Call site manager on arrival. Gate access required.',
     createdAt: '2026-03-25T09:15:00Z',
     updatedAt: '2026-03-25T11:05:00Z',
@@ -81,7 +105,13 @@ export const MOCK_RETAILER_ORDERS: RetailerOrder[] = [
     delStatus: 'Ready',
     credStatus: 'N/A',
     date: 'Yesterday',
-    deliveryAddress: 'Madina, Accra — Zongo Junction',
+    deliveryAddress: {
+      region: 'Greater Accra',
+      city: 'Accra',
+      area: 'Madina',
+      landmark: 'Zongo Junction',
+      contactPhone: '+233 55 111 2222'
+    },
     orderNotes: 'Customer will confirm payment on pickup.',
     createdAt: '2026-03-24T16:40:00Z',
     updatedAt: '2026-03-24T17:10:00Z',

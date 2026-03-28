@@ -1,3 +1,5 @@
+import { GhanaAddress } from '../types/address';
+
 export interface Carrier {
   id: string;
   name: string;
@@ -20,7 +22,7 @@ export interface Shipment {
   carrierId: string;
   trackingNumber: string;
   originPort: string;
-  destinationWarehouse: string;
+  destinationAddress: GhanaAddress | string;
   incoterm: string;
   customsRef?: string;
   arrivalDate?: string;
@@ -80,7 +82,14 @@ export const MOCK_SHIPMENTS: Shipment[] = [
     carrierId: 'car-001',
     trackingNumber: 'COS6682910',
     originPort: 'Shenzhen, China',
-    destinationWarehouse: 'Accra Main Warehouse',
+    destinationAddress: {
+      region: 'Greater Accra',
+      city: 'Accra',
+      area: 'Accra Central',
+      landmark: 'Main Distribution Hub, North Industrial Area',
+      instructions: 'Deliver to Warehouse Gate 4',
+      contactPhone: '+233 24 000 1111'
+    },
     incoterm: 'FOB',
     timeline: [
       { stage: 'Order placed', date: '2026-01-12', description: 'ShenzhenTech Co. confirmed', completed: true },
@@ -103,7 +112,14 @@ export const MOCK_SHIPMENTS: Shipment[] = [
     carrierId: 'car-001', // Local fleet
     trackingNumber: 'DG-99281',
     originPort: 'Tema, Ghana',
-    destinationWarehouse: 'Kumasi Distribution Hub',
+    destinationAddress: {
+      region: 'Ashanti',
+      city: 'Kumasi',
+      area: 'Kaase',
+      landmark: 'Kumasi Distribution Hub, near the old bridge',
+      instructions: 'Wait for security clearance at the gate',
+      contactPhone: '+233 20 555 6666'
+    },
     incoterm: 'DDP',
     timeline: [
       { stage: 'Order placed', date: '2026-03-20', description: 'Order confirmed', completed: true },

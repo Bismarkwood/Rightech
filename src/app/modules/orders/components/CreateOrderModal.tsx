@@ -5,6 +5,8 @@ import { Icon } from '@iconify/react';
 import { useRetailer } from '../../retailer/components/RetailerContext';
 import { useCredit } from '../../credit/context/CreditContext';
 import { Dialog, DialogContent } from '../../../core/components/ui/dialog';
+import { GhanaAddress } from '../../../core/types/address';
+import { GhanaAddressForm } from '../../../core/components/GhanaAddressForm';
 
 // --- Mock Data --- 
 const MOCK_CUSTOMERS = [
@@ -69,7 +71,7 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
 
   // Section 3: Delivery
   const [deliveryMethod, setDeliveryMethod] = useState<'collection' | 'delivery' | null>('collection');
-  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState<Partial<GhanaAddress>>({});
   const [selectedRiderId, setSelectedRiderId] = useState<string | null>(null);
 
   // Section 4: Payment
@@ -78,8 +80,9 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
 
   // Initialization & Helpers
   React.useEffect(() => {
-    if (selectedCustomer && deliveryMethod === 'delivery' && !deliveryAddress) {
-      setDeliveryAddress(selectedCustomer.address);
+    if (selectedCustomer && deliveryMethod === 'delivery' && Object.keys(deliveryAddress).length === 0) {
+      // In a real app we'd parse the customer's saved address into the structure
+      setDeliveryAddress({ area: selectedCustomer.address, landmark: 'Registered Business Location' });
     }
   }, [selectedCustomer, deliveryMethod]);
 
@@ -126,7 +129,14 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
   const isCreditExceeded = paymentMethod === 'credit' && subtotal > availableCredit;
   
   const isCreditValid = !(paymentMethod === 'credit' && selectedCustomer?.type === 'Dealer' && (isCreditExceeded || isSuspended));
-  const isDeliveryValid = deliveryMethod === 'collection' || (deliveryMethod === 'delivery' && deliveryAddress.trim() !== '' && selectedRiderId);
+  const isDeliveryValid = deliveryMethod === 'collection' || (
+    deliveryMethod === 'delivery' && 
+    deliveryAddress.region && 
+    deliveryAddress.city && 
+    deliveryAddress.area && 
+    deliveryAddress.landmark && 
+    selectedRiderId
+  );
   const isValid = selectedCustomer && orderItems.length > 0 && !hasInvalidQty && isDeliveryValid && isCreditValid;
 
   const handlePlaceOrder = () => {
@@ -142,6 +152,9 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
       rider: deliveryMethod === 'delivery' ? MOCK_RIDERS.find(r => r.id === selectedRiderId) : null,
       paymentMethod,
       notes,
+      trackingToken: `TRK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+      riderLocation: { lat: 5.6037, lng: -0.1870 },
+      estimatedArrivalMin: 15,
       createdAt: new Date()
     };
     
@@ -407,18 +420,10 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
               <AnimatePresence>
                 {deliveryMethod === 'delivery' && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden space-y-4">
-                    <div>
-                      <div className="relative">
-                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8B93A7]" size={16} />
-                        <input 
-                          type="text" 
-                          value={deliveryAddress}
-                          onChange={(e) => setDeliveryAddress(e.target.value)}
-                          placeholder="Delivery address..."
-                          className="w-full h-12 pl-12 pr-4 bg-white rounded-[14px] text-[14px] font-medium border border-[#E4E7EC] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 outline-none transition-all shadow-sm"
-                        />
-                      </div>
-                    </div>
+                    <GhanaAddressForm 
+                      value={deliveryAddress}
+                      onChange={(val) => setDeliveryAddress(val)}
+                    />
 
                     <div className="space-y-2">
                       <div className="text-[12px] font-bold text-[#525866] mt-4 mb-2">ASSIGN RIDER</div>

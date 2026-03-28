@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, MoreVertical, MapPin, Receipt, CreditCard, Clock, Truck, UserRound, Smartphone, Banknote } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import { Dialog, DialogContent } from '../../../core/components/ui/dialog';
+import { SharingHub } from './SharingHub';
 
 export interface OrderDetailDrawerProps {
   isOpen: boolean;
@@ -168,7 +169,7 @@ export function OrderDetailDrawer({ isOpen, onClose, order }: OrderDetailDrawerP
                     <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border-2 border-[#8B93A7] bg-white ring-4 ring-white" />
                     <div className="flex justify-between items-center w-full">
                       <span className="text-[13px] font-bold text-[#525866] ml-4">Delivered</span>
-                      <span className="text-[12px] font-medium text-[#8B93A7]">—</span>
+                      <span className="text-[12px] font-medium text-[#8B93A7]">---</span>
                     </div>
                   </div>
                 </div>
@@ -182,6 +183,8 @@ export function OrderDetailDrawer({ isOpen, onClose, order }: OrderDetailDrawerP
                 </div>
               </div>
             )}
+
+            <SharingHub order={order} />
           </div>
 
           {/* Payment Block */}

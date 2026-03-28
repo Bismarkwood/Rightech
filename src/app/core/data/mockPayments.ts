@@ -15,84 +15,38 @@ export interface Transaction {
   notes?: string;
 }
 
-export const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'RT-PAY-001',
-    type: 'Order Payment',
-    direction: 'in',
-    party: 'Kwame Dealers Ltd',
-    partyId: 'D-001',
-    partyType: 'Dealer',
-    amount: 1200.00,
-    method: 'MTN Mobile Money',
-    status: 'Confirmed',
-    recordedBy: 'Kwame Asante',
-    timestamp: '2026-03-27T10:42:00Z',
-    reference: 'MOM-884321',
-    linkedId: 'RT-2847',
-    notes: 'Full payment for electrical fittings'
-  },
-  {
-    id: 'RT-PAY-002',
-    type: 'Order Payment',
-    direction: 'in',
-    party: 'RetailShop Tema',
-    partyId: 'R-002',
-    partyType: 'Retailer',
-    amount: 340.00,
-    method: 'Cash',
-    status: 'Confirmed',
-    recordedBy: 'Kwame Asante',
-    timestamp: '2026-03-27T09:18:00Z',
-    reference: 'CSH-1029',
-    linkedId: 'RT-2848'
-  },
-  {
-    id: 'RT-PAY-003',
-    type: 'Supplier Payout',
-    direction: 'out',
-    party: 'ShenzhenTech Co.',
-    partyId: 'SUP-99',
-    partyType: 'Supplier',
-    amount: 8500.00,
-    method: 'Bank Transfer',
-    status: 'Pending',
-    recordedBy: 'Admin',
-    timestamp: '2026-03-26T15:00:00Z',
-    reference: 'BT-9928',
-    linkedId: 'C-0041',
-    notes: '2nd installment for electronics consignment'
-  },
-  {
-    id: 'RT-PAY-004',
-    type: 'Credit Extension',
-    direction: 'credit',
-    party: 'Ama Wholesale',
-    partyId: 'D-002',
-    partyType: 'Dealer',
-    amount: 2000.00,
-    method: 'Store Credit',
-    status: 'Outstanding',
-    recordedBy: 'System',
-    timestamp: '2026-03-26T10:30:00Z',
-    linkedId: 'RT-2845'
-  },
-  {
-    id: 'RT-PAY-005',
-    type: 'Consignment Payment',
-    direction: 'in',
-    party: 'Global Logistics',
-    partyId: 'SUP-102',
-    partyType: 'Supplier',
-    amount: 4500.00,
-    method: 'Bank Transfer',
-    status: 'Confirmed',
-    recordedBy: 'Kwame Asante',
-    timestamp: '2026-03-25T14:20:00Z',
-    reference: 'BT-1023',
-    linkedId: 'C-0039'
+const generateMockTransactions = (count: number): Transaction[] => {
+  const types: Transaction['type'][] = ['Order Payment', 'Consignment Payment', 'Supplier Payout', 'Credit Repayment', 'Credit Extension'];
+  const methods: Transaction['method'][] = ['Cash', 'MTN Mobile Money', 'Telecel Cash', 'Bank Transfer', 'Store Credit'];
+  const parties = ['Kwame Dealers Ltd', 'RetailShop Tema', 'ShenzhenTech Co.', 'Ama Wholesale', 'Global Logistics', 'Accra Supplies', 'Kumasi Hub'];
+  const statuses: Transaction['status'][] = ['Confirmed', 'Pending', 'Outstanding'];
+
+  const txs: Transaction[] = [];
+  for (let i = 1; i <= count; i++) {
+    const type = types[i % types.length];
+    const direction = type.includes('Payout') ? 'out' : (type.includes('Extension') ? 'credit' : 'in');
+    
+    txs.push({
+      id: `RT-PAY-${i.toString().padStart(4, '0')}`,
+      type,
+      direction,
+      party: parties[i % parties.length],
+      partyId: `P-${100 + (i % 50)}`,
+      partyType: direction === 'out' ? 'Supplier' : (i % 3 === 0 ? 'Dealer' : 'Retailer'),
+      amount: Math.floor(Math.random() * 10000) + 100,
+      method: methods[i % methods.length],
+      status: statuses[i % statuses.length],
+      recordedBy: 'System Auditor',
+      timestamp: new Date(Date.now() - i * 3600000).toISOString(),
+      reference: `${methods[i % methods.length].substring(0, 3).toUpperCase()}-${10000 + i}`,
+      linkedId: i % 2 === 0 ? `ORD-${2000 + i}` : undefined,
+      notes: i % 10 === 0 ? 'Verified and reconciled by automated audit trail.' : undefined
+    });
   }
-];
+  return txs;
+};
+
+export const MOCK_TRANSACTIONS = generateMockTransactions(2000);
 
 export interface PaymentMethod {
   id: string;

@@ -15,7 +15,7 @@ import { useNotifications } from '../../../core/context/NotificationContext';
 
 const SUB_TABS = ['Overview', 'Assigned', 'Active', 'Completed', 'Agents', 'Notifications'];
 
-export function DeliveryManagement() {
+export default function DeliveryManagement() {
   const { inboundConsignments, outboundConsignments } = useConsignment();
   const { deliveries, agents, updateDeliveryProgress, assignAgentToDelivery, addAgent, deleteAgent, updateAgent } = useDelivery();
   const { updateOrderStatus } = useOrderManagement();

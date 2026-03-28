@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { apiClient } from '../../../core/api/client';
 
 export interface DeliveryAgent {
   id: string;
@@ -75,7 +76,9 @@ export function DeliveryProvider({ children }: { children: ReactNode }) {
     setDeliveries(prev => [newDelivery, ...prev]);
   };
 
-  const updateDeliveryProgress = (deliveryId: string) => {
+  const updateDeliveryProgress = async (deliveryId: string) => {
+    // 1. Optimistic Update (Instant UI feedback)
+    const previousDeliveries = [...deliveries];
     setDeliveries(prev => prev.map(d => {
       if (d.id === deliveryId) {
         if (d.progress === -1) return { ...d, status: 'active', progress: 0 };
@@ -84,11 +87,34 @@ export function DeliveryProvider({ children }: { children: ReactNode }) {
       }
       return d;
     }));
+
+    try {
+      // 2. Audited Backend Call
+      await apiClient.mutate('PUT', `/deliveries/${deliveryId}/progress`, {}, 'Delivery');
+    } catch (error) {
+      // 3. Rollback on Failure
+      console.error('Failed to update delivery progress:', error);
+      setDeliveries(previousDeliveries);
+    }
   };
 
-  const assignAgentToDelivery = (deliveryId: string, agentId: string) => {
+  const assignAgentToDelivery = async (deliveryId: string, agentId: string) => {
+    // 1. Optimistic Update
+    const previousDeliveries = [...deliveries];
+    const previousAgents = [...agents];
+
     setDeliveries(prev => prev.map(d => d.id === deliveryId ? { ...d, agentId, status: 'active', progress: 0 } : d));
-    updateAgentStatus(agentId, 'On Delivery', deliveryId);
+    setAgents(prev => prev.map(a => a.id === agentId ? { ...a, status: 'On Delivery', currentOrderId: deliveryId } : a));
+
+    try {
+      // 2. Audited Backend Call
+      await apiClient.mutate('POST', `/deliveries/${deliveryId}/assign`, { agentId }, 'Delivery');
+    } catch (error) {
+      // 3. Rollback
+      console.error('Failed to assign agent:', error);
+      setDeliveries(previousDeliveries);
+      setAgents(previousAgents);
+    }
   };
 
   const addAgent = (agentData: Omit<DeliveryAgent, 'id' | 'rating'>) => {

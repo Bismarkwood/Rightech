@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { apiClient } from '../../../core/api/client';
 import { useProducts } from '../../products/context/ProductContext';
 import { usePayments } from '../../payments/context/PaymentContext';
 import { useNotifications } from '../../../core/context/NotificationContext';
 import { useDelivery } from '../../delivery/context/DeliveryContext';
+import { GhanaAddress } from '../../../core/types/address';
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Processing' | 'Dispached' | 'Delivered' | 'Cancelled';
 
@@ -23,10 +25,14 @@ export interface Order {
   items: OrderItem[];
   totalAmount: number;
   paymentStatus: 'Pending' | 'Paid' | 'Credit';
-  deliveryMethod: 'Dispatch' | 'Pickup';
+  deliveryMethod: 'Dispatch' | 'Pickup' | string;
   deliveryAgentId?: string;
+  deliveryAddress?: GhanaAddress | string | null;
+  trackingToken?: string;
+  riderLocation?: { lat: number; lng: number };
+  estimatedArrivalMin?: number;
   createdAt: string;
-}
+};
 
 interface OrderManagementContextType {
   orders: Order[];
@@ -105,15 +111,26 @@ export function OrderManagementProvider({ children }: { children: ReactNode }) {
     notify('Order Confirmed', `Order ${orderId} is now confirmed and ready for fulfillment.`, 'Success');
   };
 
-  const updateOrderStatus = (orderId: string, status: OrderStatus) => {
+  const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
+    // 1. Optimistic Update
+    const previousOrders = [...orders];
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
-    
-    if (status === 'Cancelled') {
-      const order = orders.find(o => o.id === orderId);
-      order?.items.forEach(item => {
-        releaseStock(item.productId, item.qty, `Order ${orderId} cancelled`, orderId);
-      });
-      notify('Order Cancelled', `Order ${orderId} has been cancelled and stock released.`, 'Warning');
+
+    try {
+      // 2. Audited Backend Call
+      await apiClient.mutate('PUT', `/orders/${orderId}/status`, { status }, 'Orders');
+
+      if (status === 'Cancelled') {
+        const order = orders.find(o => o.id === orderId);
+        order?.items.forEach(item => {
+          releaseStock(item.productId, item.qty, `Order ${orderId} cancelled`, orderId);
+        });
+        notify('Order Cancelled', `Order ${orderId} has been cancelled and stock released.`, 'Warning');
+      }
+    } catch (error) {
+      // 3. Rollback
+      console.error('Failed to update order status:', error);
+      setOrders(previousOrders);
     }
   };
 

@@ -7,14 +7,8 @@ import { useProducts } from '../../products/context/ProductContext';
 import { toast } from 'sonner';
 
 /* ─── Ghana Address Suggestions ─────────────────────────── */
-const GH_ADDRESSES = [
-  { code: 'GA-183-4927', area: 'East Legon, Accra' },
-  { code: 'GA-200-1122', area: 'Madina, Accra' },
-  { code: 'GA-050-9988', area: 'Airport Residential, Accra' },
-  { code: 'GS-012-3456', area: 'Adum, Kumasi' },
-  { code: 'GT-101-2020', area: 'Community 1, Tema' },
-  { code: 'GK-044-5566', area: 'Kotei, Kumasi' },
-];
+import { GhanaAddress } from '../../../core/types/address';
+import { GhanaAddressForm } from '../../../core/components/GhanaAddressForm';
 
 const MOCK_AGENTS = [
   { name: 'John Doe', phone: '+233 24 123 4567', avatar: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=100', vehicle: 'Motorbike — GT-2931-22' },
@@ -162,16 +156,10 @@ export function NewOrderModal() {
   ]);
   const [customerName, setCustomerName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [address, setAddress] = useState('');
-  const [digitalAddress, setDigitalAddress] = useState('');
+  const [addressData, setAddressData] = useState<Partial<GhanaAddress>>({});
   const [deliveryMethod, setDeliveryMethod] = useState('Delivery / Dispatch');
   const [payStatus, setPayStatus] = useState('Pending Payment');
   const [selectedAgent, setSelectedAgent] = useState(MOCK_AGENTS[0]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const suggestions = digitalAddress.length > 1 
-    ? GH_ADDRESSES.filter(a => a.code.startsWith(digitalAddress) || a.area.toLowerCase().includes(digitalAddress.toLowerCase()))
-    : [];
 
   const addRow = () => {
     setItems(prev => [...prev, { id: String(Date.now()), productId: availableProducts[0]?.id || '', qty: 1 }]);
@@ -220,6 +208,11 @@ export function NewOrderModal() {
       reserveStock(item.productId, item.qty, `Order ${orderId} created`, orderId);
     });
 
+    if (isDelivery && (!addressData.region || !addressData.city || !addressData.area || !addressData.landmark)) {
+      toast.error('Please complete the delivery address details.');
+      return;
+    }
+
     // 2. Register the order
     addOrder({
       id: orderId,
@@ -231,8 +224,7 @@ export function NewOrderModal() {
       delStatus: isDelivery ? 'Ready' : 'In-Store Pickup',
       credStatus: 'N/A',
       date: 'Just now',
-      deliveryAddress: address,
-      digitalAddress: digitalAddress,
+      deliveryAddress: addressData as GhanaAddress,
       orderNotes: '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -247,8 +239,7 @@ export function NewOrderModal() {
     setItems([{ id: String(Date.now()), productId: availableProducts[0]?.id || '', qty: 1 }]);
     setCustomerName('');
     setPhoneNumber('');
-    setAddress('');
-    setDigitalAddress('');
+    setAddressData({});
   };
 
   return (
@@ -337,9 +328,10 @@ export function NewOrderModal() {
                         <FieldGroup label="Phone Number" icon="solar:phone-linear">
                           <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="024 XXX XXXX" className="modal-input" />
                         </FieldGroup>
-                        <FieldGroup label="Location / Area" icon="solar:map-point-linear" className="sm:col-span-2">
-                          <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Accra, East Legon" className="modal-input" />
-                        </FieldGroup>
+                        <GhanaAddressForm 
+                          value={addressData}
+                          onChange={(val) => setAddressData(val)}
+                        />
                       </div>
                     </NewOrderSection>
 
@@ -406,41 +398,7 @@ export function NewOrderModal() {
                         </FieldGroup>
                       </div>
 
-                      <div className="mt-4 p-4 rounded-[12px] bg-[#2563EB]/5 border border-[#2563EB]/10">
-                        <div className="flex items-center justify-between mb-3">
-                          <label className="text-[12px] font-bold text-[#2563EB] uppercase tracking-wider flex items-center gap-2">
-                            <Icon icon="emojione:flag-for-ghana" className="text-[16px]" />
-                            Ghana Digital Address (GPS)
-                          </label>
-                        </div>
-                        <div className="relative">
-                          <Icon icon="solar:map-point-wave-bold" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2563EB] text-[18px]" />
-                          <input 
-                            type="text" 
-                            value={digitalAddress}
-                            onChange={e => {
-                              setDigitalAddress(e.target.value.toUpperCase());
-                              setShowSuggestions(true);
-                            }}
-                            onFocus={() => setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                            placeholder="GA-183-4927" 
-                            className="w-full h-11 pl-11 pr-4 bg-white border border-[#2563EB]/20 rounded-[10px] text-[14px] font-bold text-[#111111] placeholder:text-[#2563EB]/30 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 transition-all uppercase tracking-widest" 
-                          />
-                          <AnimatePresence>
-                            {showSuggestions && suggestions.length > 0 && (
-                              <motion.div initial={{ opacity: 0, y: -4, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.98 }} className="absolute left-0 right-0 top-full mt-2 bg-white rounded-[12px] border border-[#2563EB]/20 shadow-[0_12px_30px_rgba(37,99,235,0.15)] overflow-hidden z-[60]">
-                                {suggestions.map((s, i) => (
-                                  <button key={i} type="button" onClick={() => { setDigitalAddress(s.code); setAddress(s.area); setShowSuggestions(false); }} className="w-full px-4 py-3 flex flex-col items-start gap-1 hover:bg-[#2563EB]/5 transition-colors border-b border-[#2563EB]/5 last:border-0">
-                                    <span className="text-[14px] font-bold text-[#111111] tracking-widest">{s.code}</span>
-                                    <span className="text-[12px] font-medium text-[#2563EB]">{s.area}</span>
-                                  </button>
-                                ))}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      </div>
+                      {/* Legacy Digital Address block removed */}
                     </NewOrderSection>
                   </div>
                 </div>

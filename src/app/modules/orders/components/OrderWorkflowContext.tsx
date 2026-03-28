@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Check, ChevronRight } from 'lucide-react';
 import { CreateOrderModal } from './CreateOrderModal';
 import { OrderDetailDrawer } from './OrderDetailDrawer';
+import { useOrderManagement } from '../context/OrderManagementContext';
 
 interface OrderWorkflowContextType {
   openCreateOrder: (prefilledCustomerId?: string) => void;
@@ -15,6 +16,7 @@ const OrderWorkflowContext = createContext<OrderWorkflowContextType | undefined>
 export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [prefilledCustomerId, setPrefilledCustomerId] = useState<string | undefined>();
+  const { createOrder } = useOrderManagement();
   
   const [detailOrderData, setDetailOrderData] = useState<any>(null);
   const [toastOrderData, setToastOrderData] = useState<any>(null);
@@ -37,6 +39,28 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
   };
 
   const handleOrderSuccess = (orderData: any) => {
+    // Map CreateOrderModal data to OrderManagementContext format
+    createOrder({
+      customerName: orderData.customer?.name || 'Unknown',
+      customerId: orderData.customer?.id || 'C-000',
+      type: orderData.customer?.type === 'Dealer' ? 'Dealer' : 'Retail',
+      items: orderData.items.map((i: any) => ({
+        productId: i.id || `P-${Math.random()}`,
+        name: i.name,
+        qty: i.qty,
+        unitPrice: i.unitPrice,
+        total: i.qty * i.unitPrice
+      })),
+      totalAmount: orderData.total,
+      paymentStatus: orderData.paymentMethod === 'credit' ? 'Credit' : 'Paid',
+      deliveryMethod: orderData.deliveryMethod === 'delivery' ? 'Dispatch' : 'Pickup',
+      deliveryAgentId: orderData.rider?.id,
+      deliveryAddress: orderData.deliveryAddress,
+      trackingToken: orderData.trackingToken,
+      riderLocation: orderData.riderLocation,
+      estimatedArrivalMin: orderData.estimatedArrivalMin
+    });
+
     setIsCreateOpen(false);
     showToast(orderData);
   };

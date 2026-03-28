@@ -9,6 +9,8 @@ import {
 import { Icon } from '@iconify/react';
 import { useShipments } from '../context/ShipmentContext';
 import { UpdateShipmentStatusModal } from './UpdateShipmentStatusModal';
+import { AddressCard } from '../../../core/components/AddressCard';
+import { GhanaAddress } from '../../../core/types/address';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -150,18 +152,14 @@ export function ShipmentDetailDrawer() {
               
               {/* Quick Info Grid */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white p-5 rounded-[24px] border border-[#ECEDEF] shadow-sm group hover:border-[#D40073]/30 transition-all">
+                <div className="col-span-2">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-[12px] bg-[#D40073]/5 flex items-center justify-center text-[#D40073]">
                       <Navigation size={20} strokeWidth={2.5} />
                     </div>
-                    <div className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest leading-none">Destination</div>
+                    <div className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest leading-none">Destination & Logistics</div>
                   </div>
-                  <div className="text-[15px] font-black text-[#111111]">{shipment.destinationWarehouse}</div>
-                  <div className="text-[13px] font-medium text-[#525866] mt-1 flex items-center gap-1.5 opacity-60">
-                    <MapPin size={14} />
-                    Main Distribution Hub
-                  </div>
+                  <AddressCard address={shipment.destinationAddress} />
                 </div>
 
                 <div className="bg-white p-5 rounded-[24px] border border-[#ECEDEF] shadow-sm group hover:border-[#D40073]/30 transition-all">

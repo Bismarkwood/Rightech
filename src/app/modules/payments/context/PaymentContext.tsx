@@ -3,6 +3,8 @@ import { Transaction, MOCK_TRANSACTIONS, PaymentMethod, MOCK_PAYMENT_METHODS } f
 import { useCredit } from '../../credit/context/CreditContext';
 
 interface PaymentContextType {
+  selectedTransactionId: string | null;
+  setSelectedTransactionId: (id: string | null) => void;
   transactions: Transaction[];
   paymentMethods: PaymentMethod[];
   addTransaction: (tx: Transaction) => void;
@@ -15,6 +17,7 @@ const PaymentContext = createContext<PaymentContextType | undefined>(undefined);
 
 export function PaymentProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
+  const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(MOCK_PAYMENT_METHODS);
   const { recordCreditOrder } = useCredit();
 
@@ -41,6 +44,8 @@ export function PaymentProvider({ children }: { children: ReactNode }) {
 
   return (
     <PaymentContext.Provider value={{ 
+      selectedTransactionId,
+      setSelectedTransactionId,
       transactions, 
       paymentMethods, 
       addTransaction, 

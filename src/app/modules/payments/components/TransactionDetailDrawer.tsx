@@ -6,14 +6,12 @@ import { Dialog, DialogContent } from '../../../core/components/ui/dialog';
 import { usePayments } from '../context/PaymentContext';
 
 export function TransactionDetailDrawer() {
-  // In a real app we'd get the selected ID from context
-  // For demo, we'll just show the UI for "RT-PAY-001" or stay closed
-  const [isOpen, setIsOpen] = React.useState(false);
-  
-  // Expose this globally via a custom hook or dispatch if needed, 
-  // but for this phase we simulate opening the first mock entry.
-  const { transactions } = usePayments();
-  const tx = transactions[0];
+  const { transactions, selectedTransactionId, setSelectedTransactionId } = usePayments();
+  const tx = transactions.find(t => t.id === selectedTransactionId);
+  const isOpen = !!selectedTransactionId;
+  const setIsOpen = (open: boolean) => {
+    if (!open) setSelectedTransactionId(null);
+  };
 
   if (!tx) return null;
 
