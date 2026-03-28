@@ -4,6 +4,7 @@ import { X, MoreVertical, MapPin, Receipt, CreditCard, Clock, Truck, UserRound, 
 import { Icon } from '@iconify/react';
 import { Dialog, DialogContent } from '../../../core/components/ui/dialog';
 import { SharingHub } from './SharingHub';
+import { useOrderWorkflow } from './OrderWorkflowContext';
 import { GhanaAddress } from '../../../core/types/address';
 
 const formatAddress = (address: any): string => {
@@ -21,6 +22,7 @@ export interface OrderDetailDrawerProps {
 }
 
 export function OrderDetailDrawer({ isOpen, onClose, order }: OrderDetailDrawerProps) {
+  const { openCreateOrder } = useOrderWorkflow();
   if (!order) return null;
 
   return (
@@ -44,6 +46,15 @@ export function OrderDetailDrawer({ isOpen, onClose, order }: OrderDetailDrawerP
           </div>
           
           <div className="flex items-center gap-2">
+            <button 
+              onClick={() => {
+                onClose();
+                openCreateOrder(order.customerId);
+              }}
+              className="h-8 px-3 rounded-full bg-[#111111] text-white text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-md active:scale-95"
+            >
+              + New Order
+            </button>
             <button className="w-8 h-8 rounded-full flex items-center justify-center text-[#525866] hover:bg-[#F1F3F5] transition-colors">
               <MoreVertical size={18} />
             </button>

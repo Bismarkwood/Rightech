@@ -167,7 +167,7 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="sm:max-w-[1100px] w-[95vw] h-[85vh] p-0 overflow-hidden bg-white border border-[#ECEDEF] rounded-[24px] shadow-2xl flex flex-col md:flex-row">
+      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] sm:max-w-[1100px] w-[95vw] h-[85vh] p-0 overflow-hidden bg-white border border-[#ECEDEF] rounded-[24px] shadow-2xl flex flex-col md:flex-row">
         
         {/* === LEFT PANE: Customer & Item Selection === */}
         <div className="flex-1 flex flex-col h-full bg-white relative">

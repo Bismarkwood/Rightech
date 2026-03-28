@@ -12,7 +12,7 @@ export function SharingHub({ order }: SharingHubProps) {
   
   // Use id as token for now, or generating a random suffix if not present
   const trackingToken = order.trackingToken || `${order.id}-K8X2`;
-  const trackingUrl = `righttech.com/track/${trackingToken}`;
+  const trackingUrl = `${window.location.protocol}//${window.location.host}/track/${trackingToken}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(trackingUrl);
