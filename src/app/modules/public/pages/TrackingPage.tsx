@@ -14,18 +14,57 @@ export default function TrackingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API fetch for public tracking data
+    // Simulate API fetch for tracking data
     const timer = setTimeout(() => {
-      const match = MOCK_RETAILER_ORDERS.find(o => o.id === token || o.trackingToken === token);
-      if (match) {
-        // Mock data initialization if not already set
-        if (!match.riderLocation) {
-          match.riderLocation = { lat: 5.6037, lng: -0.1870 }; // Accra baseline
-          match.estimatedArrivalMin = 12;
-        }
-        setOrder(match);
+      // 1. Check localStorage for newly created orders
+      const savedOrdersRaw = localStorage.getItem('righttech_orders');
+      const savedOrders = savedOrdersRaw ? JSON.parse(savedOrdersRaw) : [];
+      
+      const matchInSaved = savedOrders.find((o: any) => o.id === token || o.trackingToken === token);
+      
+      if (matchInSaved) {
+        // Normalize Order to RetailerOrder type for the UI components
+        const normalized: RetailerOrder = {
+          id: matchInSaved.id,
+          customer: matchInSaved.customerName,
+          type: matchInSaved.type,
+          amount: `GHS ${matchInSaved.totalAmount.toFixed(2)}`,
+          payStatus: matchInSaved.paymentStatus,
+          paymentMethod: 'Mobile Money', 
+          delStatus: matchInSaved.status,
+          credStatus: 'N/A',
+          date: new Date(matchInSaved.createdAt).toLocaleDateString(),
+          deliveryAddress: matchInSaved.deliveryAddress || 'Accra',
+          orderNotes: '',
+          createdAt: matchInSaved.createdAt,
+          updatedAt: matchInSaved.createdAt,
+          items: matchInSaved.items.map((i: any) => ({ 
+            productId: i.productId,
+            name: i.name || 'Product', 
+            qty: i.qty, 
+            unitPrice: `GHS ${i.unitPrice?.toFixed(2) || '0.00'}`,
+            lineTotal: `GHS ${i.total?.toFixed(2) || '0.00'}`,
+            image: i.image 
+          })),
+          trackingToken: matchInSaved.trackingToken,
+          riderLocation: matchInSaved.riderLocation || { lat: 5.6037, lng: -0.1870 },
+          estimatedArrivalMin: matchInSaved.estimatedArrivalMin || 12,
+          agent: { 
+            name: 'Kofi Mensah', 
+            phone: '0241234567',
+            avatar: 'KM',
+            vehicle: 'Motorcycle'
+          }
+        };
+        setOrder(normalized);
       } else {
-        setError("Tracking link invalid or expired.");
+        // 2. Fallback to static mock data
+        const matchInMocks = MOCK_RETAILER_ORDERS.find(o => o.id === token || o.trackingToken === token);
+        if (matchInMocks) {
+          setOrder(matchInMocks);
+        } else {
+          setError("Tracking link invalid or expired.");
+        }
       }
       setIsLoading(false);
     }, 800);

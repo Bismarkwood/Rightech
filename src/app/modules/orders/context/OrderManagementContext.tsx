@@ -45,11 +45,19 @@ interface OrderManagementContextType {
 const OrderManagementContext = createContext<OrderManagementContextType | undefined>(undefined);
 
 export function OrderManagementProvider({ children }: { children: ReactNode }) {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const saved = localStorage.getItem('righttech_orders');
+    return saved ? JSON.parse(saved) : [];
+  });
   const { reserveStock, commitStock, releaseStock } = useProducts();
   const { addTransaction } = usePayments();
   const { notify } = useNotifications();
   const { createDelivery } = useDelivery();
+
+  // Persist to localStorage whenever orders change
+  React.useEffect(() => {
+    localStorage.setItem('righttech_orders', JSON.stringify(orders));
+  }, [orders]);
 
   const createOrder = (orderData: Omit<Order, 'id' | 'status' | 'createdAt'>) => {
     const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
