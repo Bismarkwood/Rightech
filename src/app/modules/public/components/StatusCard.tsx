@@ -13,8 +13,8 @@ export function StatusCard({ order }: StatusCardProps) {
   const riderName = order.agent?.name?.split(' ')[0] || 'Your rider';
 
   return (
-    <div className="relative px-6 pb-6 mt-[-32px]">
-      <div className="bg-white rounded-[28px] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-[#ECEDEF]">
+    <div className="relative px-0 pb-6 mt-0">
+      <div className="bg-white rounded-[24px] p-6 border border-[#ECEDEF]">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />

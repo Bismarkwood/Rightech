@@ -11,8 +11,8 @@ export function OrderBrief({ order }: OrderBriefProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="bg-[#F8F9FA] border-t border-[#ECEDEF] px-6 py-5">
-      <div className="flex items-center gap-3 mb-6">
+    <div className="bg-[#F8F9FA] border-t border-[#ECEDEF] px-6 py-8">
+      <div className="flex items-center gap-3 mb-8">
         <button 
           onClick={() => window.location.href = `tel:${order.agent?.phone || '0240000000'}`}
           className="flex-1 h-14 bg-[#111111] text-white rounded-[22px] font-black text-[15px] flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-black/10"
@@ -28,53 +28,35 @@ export function OrderBrief({ order }: OrderBriefProps) {
         </button>
       </div>
 
-      <button 
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between text-[11px] font-black text-[#8B93A7] uppercase tracking-[0.15em]"
-      >
+      <div className="flex items-center justify-between text-[11px] font-black text-[#8B93A7] uppercase tracking-[0.15em] mb-6">
         <span>Order Summary • {order.items?.length || 0} Items</span>
-        <Icon 
-          icon="solar:alt-arrow-down-linear" 
-          className={`text-[16px] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
-        />
-      </button>
+      </div>
 
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="pt-5 space-y-4">
-              {order.items?.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-[12px] bg-white border border-[#ECEDEF] flex items-center justify-center overflow-hidden">
-                      {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Icon icon="solar:box-linear" className="text-[#8B93A7] text-[20px]" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-bold text-[#111111]">{item.name}</div>
-                      <div className="text-[11px] font-medium text-[#8B93A7]">Quantity: {item.qty}</div>
-                    </div>
-                  </div>
-                  <div className="text-[13px] font-black text-[#111111] tracking-tight">{item.lineTotal}</div>
-                </div>
-              ))}
+      <div className="space-y-4">
+        {order.items?.map((item, idx) => (
+          <div key={idx} className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-[12px] bg-white border border-[#ECEDEF] flex items-center justify-center overflow-hidden">
+                {item.image ? (
+                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Icon icon="solar:box-linear" className="text-[#8B93A7] text-[20px]" />
+                )}
+              </div>
+              <div>
+                <div className="text-[13px] font-bold text-[#111111]">{item.name}</div>
+                <div className="text-[11px] font-medium text-[#8B93A7]">Quantity: {item.qty}</div>
+              </div>
             </div>
-            
-            <div className="mt-8 pt-6 border-t border-[#ECEDEF] flex items-center justify-between">
-               <div className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest leading-none mb-1">Total to Pay</div>
-               <div className="text-[18px] font-black text-[#111111] leading-none">{order.amount}</div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="text-[13px] font-black text-[#111111] tracking-tight">{item.lineTotal}</div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="mt-8 pt-6 border-t border-[#ECEDEF] flex items-center justify-between">
+         <div className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest leading-none mb-1">Total to Pay</div>
+         <div className="text-[18px] font-black text-[#111111] leading-none">{order.amount}</div>
+      </div>
     </div>
   );
 }

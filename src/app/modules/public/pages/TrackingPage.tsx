@@ -127,39 +127,61 @@ export default function TrackingPage() {
   }
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col overflow-hidden">
-      {/* Real-time Map Background (takes ~70% height on mobile-style layout) */}
+    <div className="fixed inset-0 bg-[#F8F9FA] flex overflow-hidden">
+      {/* Real-time Map Background (takes the remaining space) */}
       <div className="flex-1 relative z-0">
         <TrackingMap order={order} />
         
-        {/* Floating Header Overlay */}
-        <div className="absolute top-6 left-6 right-6 z-10 flex items-center justify-between pointer-events-none">
+        {/* Floating Header Overlay (Simplified for side-drawer layout) */}
+        <div className="absolute top-6 left-6 z-10 pointer-events-none">
           <div className="bg-white/90 backdrop-blur-md rounded-[20px] px-5 py-3 border border-white/50 shadow-lg flex items-center gap-3 pointer-events-auto">
-             <div className="w-10 h-10 rounded-full bg-[#111111] flex items-center justify-center">
-                <Icon icon="solar:bag-bold" className="text-white text-[18px]" />
+             <div className="w-10 h-10 rounded-full bg-[#111111] flex items-center justify-center text-white">
+                <Icon icon="solar:bag-bold" className="text-[18px]" />
              </div>
              <div>
-                <div className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest leading-none mb-1">Tracking Order</div>
+                <div className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest leading-none mb-1">Tracking</div>
                 <div className="text-[15px] font-black text-[#111111] leading-none">{order.id}</div>
              </div>
-          </div>
-          
-          <div className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-md border border-white/50 shadow-lg flex items-center justify-center text-[#111111] pointer-events-auto">
-             <Icon icon="solar:share-bold" className="text-[20px]" />
           </div>
         </div>
       </div>
 
-      {/* Dynamic Interaction Overlay */}
-      <div className="relative z-10 shrink-0 select-none">
-        <StatusCard order={order} />
-        <OrderBrief order={order} />
-      </div>
+      {/* Side Drawer Interaction Layer */}
+      <motion.div 
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        className="w-[85vw] md:w-[400px] bg-white border-l border-[#ECEDEF] z-20 flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.05)] overflow-hidden"
+      >
+        {/* Rider Info Header */}
+        <div className="p-8 border-b border-[#ECEDEF] flex items-center justify-between">
+           <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#D40073]/5 border border-[#D40073]/10 flex items-center justify-center text-[#D40073] font-black">
+                 {order.agent?.avatar || 'KM'}
+              </div>
+              <div>
+                 <p className="text-[15px] font-black text-[#111111]">{order.agent?.name || 'Kofi Mensah'}</p>
+                 <p className="text-[12px] font-medium text-[#8B93A7]">{order.agent?.vehicle || 'Motorcycle'}</p>
+              </div>
+           </div>
+           <button className="w-10 h-10 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#111111] hover:bg-[#D40073] hover:text-white transition-colors">
+              <Icon icon="solar:share-bold" className="text-[18px]" />
+           </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-8 pb-0">
+            <StatusCard order={order} />
+          </div>
+          <OrderBrief order={order} />
+        </div>
+      </motion.div>
 
       <style>{`
         .leaflet-container { height: 100% !important; width: 100% !important; z-index: 0 !important; }
         .leaflet-control-zoom { display: none !important; }
         .leaflet-control-attribution { font-size: 8px !important; opacity: 0.3 !important; }
+        /* Hide scrollbar for internal containers */
+        div::-webkit-scrollbar { width: 0; background: transparent; }
       `}</style>
     </div>
   );
