@@ -4,6 +4,15 @@ import { X, MoreVertical, MapPin, Receipt, CreditCard, Clock, Truck, UserRound, 
 import { Icon } from '@iconify/react';
 import { Dialog, DialogContent } from '../../../core/components/ui/dialog';
 import { SharingHub } from './SharingHub';
+import { GhanaAddress } from '../../../core/types/address';
+
+const formatAddress = (address: any): string => {
+  if (!address) return 'No address provided';
+  if (typeof address === 'string') return address;
+  
+  const { region, city, area, landmark } = address as GhanaAddress;
+  return [landmark, area, city, region].filter(Boolean).join(', ');
+};
 
 export interface OrderDetailDrawerProps {
   isOpen: boolean;
@@ -125,8 +134,9 @@ export function OrderDetailDrawer({ isOpen, onClose, order }: OrderDetailDrawerP
                     <MapPin size={14} className="text-[#525866]" />
                   </div>
                   <div>
-                    <div className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-0.5">Dest. Address</div>
-                    <div className="text-[14px] font-medium text-[#111111]">{order.deliveryAddress || order.customer?.address}</div>
+                    <div className="text-[14px] font-medium text-[#111111]">
+                      {formatAddress(order.deliveryAddress || order.customer?.address)}
+                    </div>
                   </div>
                 </div>
 
