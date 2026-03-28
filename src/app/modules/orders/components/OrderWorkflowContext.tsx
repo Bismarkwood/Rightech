@@ -3,11 +3,13 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Check, ChevronRight } from 'lucide-react';
 import { CreateOrderModal } from './CreateOrderModal';
 import { OrderDetailDrawer } from './OrderDetailDrawer';
+import { SharingModal } from './SharingModal';
 import { useOrderManagement } from '../context/OrderManagementContext';
 
 interface OrderWorkflowContextType {
   openCreateOrder: (prefilledCustomerId?: string) => void;
   openOrderDetail: (orderData: any) => void;
+  openSharingModal: (order: any) => void;
   showToast: (orderData: any) => void;
 }
 
@@ -20,6 +22,7 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
   
   const [detailOrderData, setDetailOrderData] = useState<any>(null);
   const [toastOrderData, setToastOrderData] = useState<any>(null);
+  const [sharingOrder, setSharingOrder] = useState<any>(null);
 
   const openCreateOrder = (customerId?: string) => {
     setPrefilledCustomerId(customerId);
@@ -28,6 +31,10 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
 
   const openOrderDetail = (orderData: any) => {
     setDetailOrderData(orderData);
+  };
+
+  const openSharingModal = (order: any) => {
+    setSharingOrder(order);
   };
 
   const showToast = (orderData: any) => {
@@ -66,7 +73,7 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <OrderWorkflowContext.Provider value={{ openCreateOrder, openOrderDetail, showToast }}>
+    <OrderWorkflowContext.Provider value={{ openCreateOrder, openOrderDetail, openSharingModal, showToast }}>
       {children}
 
       {/* Global Modals & Drawers */}
@@ -81,6 +88,12 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
         isOpen={!!detailOrderData} 
         onClose={() => setDetailOrderData(null)} 
         order={detailOrderData} 
+      />
+
+      <SharingModal 
+        isOpen={!!sharingOrder}
+        onClose={() => setSharingOrder(null)}
+        order={sharingOrder}
       />
 
       {/* Global Toast */}

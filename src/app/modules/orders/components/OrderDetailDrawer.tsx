@@ -22,7 +22,7 @@ export interface OrderDetailDrawerProps {
 }
 
 export function OrderDetailDrawer({ isOpen, onClose, order }: OrderDetailDrawerProps) {
-  const { openCreateOrder } = useOrderWorkflow();
+  const { openCreateOrder, openSharingModal } = useOrderWorkflow();
   if (!order) return null;
 
   return (
@@ -47,8 +47,8 @@ export function OrderDetailDrawer({ isOpen, onClose, order }: OrderDetailDrawerP
           
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => openCreateOrder(order.customerId)}
-              className="h-8 px-3 rounded-full bg-[#F1F3F5] text-[11px] font-black uppercase tracking-widest text-[#525866] hover:bg-[#E4E7EC] transition-colors"
+              onClick={() => openSharingModal(order)}
+              className="h-8 px-3 rounded-full bg-[#D40073] text-white text-[11px] font-black uppercase tracking-widest hover:bg-[#B80063] transition-all shadow-md active:scale-95"
             >
               Update Status
             </button>
