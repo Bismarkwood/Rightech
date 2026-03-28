@@ -36,7 +36,7 @@ export interface Order {
 
 interface OrderManagementContextType {
   orders: Order[];
-  createOrder: (orderData: Omit<Order, 'id' | 'status' | 'createdAt'>) => string;
+  createOrder: (orderData: Omit<Order, 'id' | 'status' | 'createdAt'> & { id?: string }) => string;
   confirmOrder: (orderId: string) => void;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
   assignDeliveryAgent: (orderId: string, agentId: string) => void;
@@ -59,8 +59,8 @@ export function OrderManagementProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('righttech_orders', JSON.stringify(orders));
   }, [orders]);
 
-  const createOrder = (orderData: Omit<Order, 'id' | 'status' | 'createdAt'>) => {
-    const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+  const createOrder = (orderData: Omit<Order, 'id' | 'status' | 'createdAt'> & { id?: string }) => {
+    const orderId = orderData.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
     const newOrder: Order = {
       ...orderData,
       id: orderId,

@@ -63,7 +63,7 @@ export default function TrackingPage() {
         if (matchInMocks) {
           setOrder(matchInMocks);
         } else {
-          setError("Tracking link invalid or expired.");
+          setError("NOT_FOUND");
         }
       }
       setIsLoading(false);
@@ -85,13 +85,40 @@ export default function TrackingPage() {
   }
 
   if (error || !order) {
+    const isExpired = error === "EXPIRED";
     return (
       <div className="fixed inset-0 bg-[#F8F9FA] flex flex-col items-center justify-center p-8 text-center">
-        <div className="w-16 h-16 rounded-[24px] bg-white shadow-xl shadow-red-500/10 flex items-center justify-center mb-6">
-          <Icon icon="solar:danger-bold-duotone" className="text-[32px] text-[#DC2626]" />
+        <div className="w-16 h-16 rounded-[24px] bg-white border border-[#ECEDEF] flex items-center justify-center mb-6">
+          <Icon icon={isExpired ? "solar:clock-circle-bold-duotone" : "solar:danger-bold-duotone"} className={`text-[32px] ${isExpired ? 'text-[#D97706]' : 'text-[#DC2626]'}`} />
+        </div>
+        <h1 className="text-[20px] font-black text-[#111111] mb-2 tracking-tight">
+          {isExpired ? 'Link Expired' : 'Link Invalid'}
+        </h1>
+        <p className="text-[14px] font-medium text-[#8B93A7] max-w-[280px]">
+          {isExpired 
+            ? 'Tracking links are only active for 24 hours after order creation for security reasons.' 
+            : 'We couldn\'t find a tracking record for this link. Please check the URL or contact support.'}
+        </p>
+        <button className="mt-8 h-12 px-6 bg-[#111111] text-white rounded-[16px] font-black text-[14px] hover:scale-105 active:scale-95 transition-all">
+          Contact Support
+        </button>
+      </div>
+    );
+  }
+
+  // Pre-render expiration check if order found
+  const createdAt = order.createdAt ? new Date(order.createdAt).getTime() : 0;
+  const now = new Date().getTime();
+  const isActuallyExpired = createdAt > 0 && (now - createdAt > 24 * 60 * 60 * 1000);
+
+  if (isActuallyExpired) {
+    return (
+      <div className="fixed inset-0 bg-[#F8F9FA] flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-16 h-16 rounded-[24px] bg-white border border-[#ECEDEF] flex items-center justify-center mb-6">
+          <Icon icon="solar:clock-circle-bold-duotone" className="text-[32px] text-[#D97706]" />
         </div>
         <h1 className="text-[20px] font-black text-[#111111] mb-2 tracking-tight">Link Expired</h1>
-        <p className="text-[14px] font-medium text-[#8B93A7] max-w-[280px]">Tracking links are only active for 24 hours after delivery. Please contact support if you need assistance.</p>
+        <p className="text-[14px] font-medium text-[#8B93A7] max-w-[280px]">Tracking links are only active for 24 hours after order creation for security reasons.</p>
         <button className="mt-8 h-12 px-6 bg-[#111111] text-white rounded-[16px] font-black text-[14px] hover:scale-105 active:scale-95 transition-all">
           Contact Support
         </button>

@@ -48,6 +48,7 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
   const handleOrderSuccess = (orderData: any) => {
     // Map CreateOrderModal data to OrderManagementContext format
     createOrder({
+      id: orderData.id,
       customerName: orderData.customer?.name || 'Unknown',
       customerId: orderData.customer?.id || 'C-000',
       type: orderData.customer?.type === 'Dealer' ? 'Dealer' : 'Retail',
