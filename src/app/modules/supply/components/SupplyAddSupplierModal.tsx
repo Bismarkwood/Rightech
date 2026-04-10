@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Icon } from '@iconify/react';
-import { useSuppliers } from '../context/SupplierContext';
+import { useSuppliers, VettingStatus } from '../context/SupplierContext';
 import { X } from 'lucide-react';
 
 export function SupplyAddSupplierModal() {
-  const { isAddSupplierModalOpen, setAddSupplierModalOpen, addSupplier } = useSuppliers();
+  const { 
+    isAddSupplierModalOpen, 
+    setAddSupplierModalOpen, 
+    addSupplier, 
+    editingSupplier, 
+    setEditingSupplier, 
+    updateSupplier 
+  } = useSuppliers();
 
   const emptyForm = {
     name: '',
@@ -13,20 +20,43 @@ export function SupplyAddSupplierModal() {
     phone: '',
     email: '',
     category: 'Electronics',
-    status: 'Pending' as const,
+    status: 'Pending' as VettingStatus,
   };
 
   const [form, setForm] = useState(emptyForm);
 
+  useEffect(() => {
+    if (editingSupplier) {
+      setForm({
+        name: editingSupplier.name,
+        contactPerson: editingSupplier.contactPerson,
+        phone: editingSupplier.phone,
+        email: editingSupplier.email,
+        category: editingSupplier.category,
+        status: editingSupplier.status,
+      });
+    } else {
+      setForm(emptyForm);
+    }
+  }, [editingSupplier]);
+
   const handleSubmit = () => {
     if (!form.name.trim() || !form.phone.trim()) return;
-    addSupplier(form);
+    
+    if (editingSupplier) {
+      updateSupplier(editingSupplier.id, form);
+    } else {
+      addSupplier(form);
+    }
+
     setForm(emptyForm);
+    setEditingSupplier(null);
     setAddSupplierModalOpen(false);
   };
 
   const handleClose = () => {
     setForm(emptyForm);
+    setEditingSupplier(null);
     setAddSupplierModalOpen(false);
   };
 
@@ -46,17 +76,17 @@ export function SupplyAddSupplierModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 12 }}
             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[520px] bg-white rounded-[24px] border border-[#ECEDEF] shadow-2xl z-50 overflow-hidden"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[520px] bg-white rounded-[24px] border border-[#ECEDEF] z-50 overflow-hidden"
           >
             {/* Header */}
             <div className="px-6 py-5 border-b border-[#ECEDEF] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-[10px] bg-[#D40073]/10 flex items-center justify-center">
-                  <Icon icon="solar:user-plus-bold" className="text-[#D40073] text-[18px]" />
+                <div className={`w-9 h-9 rounded-[10px] flex items-center justify-center ${editingSupplier ? 'bg-[#2563EB]/10' : 'bg-[#D40073]/10'}`}>
+                  <Icon icon={editingSupplier ? "solar:user-speak-bold" : "solar:user-plus-bold"} className={editingSupplier ? "text-[#2563EB] text-[18px]" : "text-[#D40073] text-[18px]"} />
                 </div>
                 <div>
-                  <h2 className="text-[16px] font-bold text-[#111111]">Add New Supplier</h2>
-                  <p className="text-[12px] text-[#8B93A7]">Register a new partner to your supply network</p>
+                  <h2 className="text-[16px] font-bold text-[#111111]">{editingSupplier ? 'Edit Supplier Profile' : 'Add New Supplier'}</h2>
+                  <p className="text-[12px] text-[#8B93A7]">{editingSupplier ? 'Update partner information and contact details' : 'Register a new partner to your supply network'}</p>
                 </div>
               </div>
               <button
@@ -143,10 +173,12 @@ export function SupplyAddSupplierModal() {
               <button
                 onClick={handleSubmit}
                 disabled={!form.name.trim() || !form.phone.trim()}
-                className="h-9 px-5 rounded-[10px] text-[13px] font-bold bg-[#D40073] hover:bg-[#B80063] text-white transition-colors disabled:opacity-40 disabled:pointer-events-none flex items-center gap-2"
+                className={`h-9 px-5 rounded-[10px] text-[13px] font-bold text-white transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center gap-2 ${
+                  editingSupplier ? 'bg-[#2563EB] hover:bg-[#1D4ED8]' : 'bg-[#D40073] hover:bg-[#B80063]'
+                }`}
               >
-                <Icon icon="solar:user-plus-bold" className="text-[15px]" />
-                Add Supplier
+                <Icon icon={editingSupplier ? "solar:check-read-bold" : "solar:user-plus-bold"} className="text-[15px]" />
+                {editingSupplier ? 'Update Supplier' : 'Add Supplier'}
               </button>
             </div>
           </motion.div>

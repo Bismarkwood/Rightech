@@ -13,67 +13,67 @@ export function RatingsTab() {
 
   return (
     <div className="relative pb-20">
-      <div className="bg-white rounded-[32px] border border-[#ECEDEF] overflow-hidden">
+      <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 shadow-sm overflow-hidden">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-[#ECEDEF] bg-[#F9FAFB]">
-              <th className="px-8 py-5 text-[12px] font-black uppercase tracking-wider text-[#8B93A7]">Dealer</th>
-              <th className="px-8 py-5 text-[12px] font-black uppercase tracking-wider text-[#8B93A7]">Score</th>
-              <th className="px-8 py-5 text-[12px] font-black uppercase tracking-wider text-[#8B93A7]">Band</th>
-              <th className="px-8 py-5 text-[12px] font-black uppercase tracking-wider text-[#8B93A7]">Trend</th>
-              <th className="px-8 py-5 text-[12px] font-black uppercase tracking-wider text-[#8B93A7]">Last Recalculated</th>
-              <th className="px-8 py-5 text-[12px] font-black uppercase tracking-wider text-[#8B93A7]">Action</th>
+            <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5">
+              <th className="px-6 py-4 text-[12px] font-black uppercase tracking-widest text-[#8B93A7]">Dealer Entity</th>
+              <th className="px-6 py-4 text-[12px] font-black uppercase tracking-widest text-[#8B93A7]">Credit Score</th>
+              <th className="px-6 py-4 text-[12px] font-black uppercase tracking-widest text-[#8B93A7]">Risk Band</th>
+              <th className="px-6 py-4 text-[12px] font-black uppercase tracking-widest text-[#8B93A7]">Trend</th>
+              <th className="px-6 py-4 text-[12px] font-black uppercase tracking-widest text-[#8B93A7]">Last Calculated</th>
+              <th className="px-6 py-4 text-[12px] font-black uppercase tracking-widest text-right text-[#8B93A7]">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#ECEDEF]">
+          <tbody className="divide-y divide-[#ECEDEF] dark:divide-white/5">
             {accounts.map((acc) => (
               <tr 
                 key={acc.id} 
                 onClick={() => setSelectedAccountId(acc.id)}
-                className="hover:bg-[#F9FAFB] cursor-pointer transition-colors group"
+                className="hover:bg-[#FBFBFC] dark:hover:bg-white/5 transition-all group cursor-pointer"
               >
-                <td className="px-8 py-5">
-                  <div className="text-[15px] font-black text-[#111111]">{acc.dealerName}</div>
-                  <div className="text-[12px] font-bold text-[#8B93A7] mt-0.5">ID: {acc.dealerId}</div>
+                <td className="px-6 py-4">
+                  <p className="text-[14px] font-black text-[#111111] dark:text-white group-hover:text-[#D40073] transition-colors">{acc.dealerName}</p>
+                  <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mt-1">{acc.dealerId}</p>
                 </td>
-                <td className="px-8 py-5">
+                <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="text-[16px] font-black text-[#111111]">{acc.score}</div>
-                    <div className="flex-1 h-1.5 w-20 bg-[#F3F4F6] rounded-full overflow-hidden">
-                      <div className="h-full bg-[#111111] rounded-full" style={{ width: `${acc.score}%` }} />
+                    <span className="text-[16px] font-black text-[#111111] dark:text-white tracking-tight">{acc.score}</span>
+                    <div className="flex-1 h-1.5 w-20 bg-[#F3F4F6] dark:bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-[#111111] dark:bg-white rounded-full transition-all" style={{ width: `${acc.score / 10}%` }} />
                     </div>
                   </div>
                 </td>
-                <td className="px-8 py-5">
-                  <span className={`px-3 py-1 rounded-full text-[12px] font-black ${
-                    acc.band === 'Excellent' ? 'bg-[#16A34A]/10 text-[#16A34A]' :
-                    acc.band === 'Good' ? 'bg-[#2563EB]/10 text-[#2563EB]' :
-                    acc.band === 'Fair' ? 'bg-[#D97706]/10 text-[#D97706]' :
-                    'bg-[#EF4444]/10 text-[#EF4444]'
+                <td className="px-6 py-4">
+                  <span className={`inline-flex px-2.5 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-wider border shadow-sm ${
+                    acc.band === 'Excellent' ? 'bg-[#ECFDF5] dark:bg-[#064E3B]/30 text-[#16A34A] border-[#16A34A]/10' :
+                    acc.band === 'Good' ? 'bg-[#EFF6FF] dark:bg-[#1E3A8A]/30 text-[#2563EB] border-[#2563EB]/10' :
+                    acc.band === 'Fair' ? 'bg-[#FFF7ED] dark:bg-[#78350F]/30 text-[#D97706] border-[#D97706]/10' :
+                    'bg-[#FEF2F2] dark:bg-[#7F1D1D]/30 text-[#DC2626] border-[#DC2626]/10'
                   }`}>
                     {acc.band}
                   </span>
                 </td>
-                <td className="px-8 py-5">
+                <td className="px-6 py-4">
                   <div className="flex items-center gap-1.5">
                     {acc.trend === 'up' ? (
-                      <><TrendingUp size={16} className="text-[#16A34A]" /><span className="text-[13px] font-black text-[#16A34A]">Rising</span></>
+                      <><Icon icon="solar:round-arrow-right-up-bold" className="text-[#16A34A]" /><span className="text-[12px] font-black text-[#16A34A] uppercase tracking-wider">Rising</span></>
                     ) : acc.trend === 'down' ? (
-                      <><TrendingDown size={16} className="text-[#EF4444]" /><span className="text-[13px] font-black text-[#EF4444]">Falling</span></>
+                      <><Icon icon="solar:round-arrow-right-down-bold" className="text-[#DC2626]" /><span className="text-[12px] font-black text-[#DC2626] uppercase tracking-wider">Falling</span></>
                     ) : (
-                      <span className="text-[13px] font-black text-[#8B93A7]">Stable</span>
+                      <span className="text-[12px] font-black text-[#8B93A7] uppercase tracking-wider">Stable</span>
                     )}
                   </div>
                 </td>
-                <td className="px-8 py-5">
-                  <div className="text-[14px] font-medium text-[#525866]">
-                    {new Date(acc.lastRecalculated).toLocaleDateString()}
-                  </div>
+                <td className="px-6 py-4 text-[13px] font-bold text-[#8B93A7] uppercase tracking-tighter">
+                  {new Date(acc.lastRecalculated).toLocaleDateString()}
                 </td>
-                <td className="px-8 py-5 text-right">
-                  <button className="p-2 rounded-full hover:bg-white border border-transparent hover:border-[#ECEDEF] transition-all">
-                    <Icon icon="solar:info-circle-linear" width={20} height={20} className="text-[#8B93A7] group-hover:text-[#111111]" />
-                  </button>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <button className="w-9 h-9 rounded-[10px] bg-white dark:bg-white/5 border border-[#ECEDEF] dark:border-white/10 flex items-center justify-center text-[#8B93A7] hover:bg-[#F3F4F6] dark:hover:bg-white/10 hover:text-[#D40073] transition-all shadow-sm">
+                      <Icon icon="solar:info-circle-bold" className="text-[18px]" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -107,7 +107,7 @@ function RatingDetailDrawer({ account, onClose }: { account: CreditAccount | nul
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="absolute right-0 top-0 bottom-0 w-[480px] bg-white shadow-2xl pointer-events-auto flex flex-col"
+          className="absolute right-0 top-0 bottom-0 w-[480px] bg-white border-l border-[#ECEDEF] pointer-events-auto flex flex-col"
         >
           <div className="p-8 border-b border-[#ECEDEF] flex items-center justify-between">
             <div className="flex items-center gap-4">

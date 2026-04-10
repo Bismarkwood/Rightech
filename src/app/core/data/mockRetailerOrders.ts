@@ -20,6 +20,7 @@ export type RetailerOrder = {
   credStatus: string;
   date: string;
   deliveryAddress: GhanaAddress | string;
+  digitalAddress?: string;
   orderNotes: string;
   createdAt: string;
   updatedAt: string;

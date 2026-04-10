@@ -85,7 +85,7 @@ export function NewAgentModal({ isOpen, onClose, onAdd }: NewAgentModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-[520px] bg-white/95 backdrop-blur-xl rounded-[28px] shadow-2xl overflow-hidden border border-white/20"
+            className="w-full max-w-[520px] bg-white/95 backdrop-blur-xl rounded-[28px] overflow-hidden border border-white/20"
           >
             {/* Header */}
             <div className="relative h-[88px] px-8 flex items-center justify-between border-b border-white/40 bg-gradient-to-r from-white/60 to-white/30 backdrop-blur-sm">
@@ -103,7 +103,7 @@ export function NewAgentModal({ isOpen, onClose, onAdd }: NewAgentModalProps) {
               </div>
               <button 
                 onClick={onClose}
-                className="w-10 h-10 rounded-full bg-white shadow-sm border border-[#ECEDEF] hover:bg-[#F7F7F8] hover:scale-105 active:scale-95 flex items-center justify-center transition-all text-[#525866]"
+                className="w-10 h-10 rounded-full bg-white border border-[#ECEDEF] hover:bg-[#F7F7F8] hover:scale-105 active:scale-95 flex items-center justify-center transition-all text-[#525866]"
               >
                 <X size={20} />
               </button>
@@ -123,13 +123,13 @@ export function NewAgentModal({ isOpen, onClose, onAdd }: NewAgentModalProps) {
                   >
                     <div className="flex justify-center mb-8">
                       <div className="relative group cursor-pointer">
-                        <div className="w-[104px] h-[104px] rounded-full bg-gradient-to-tr from-[#F7F7F8] to-[#FFFFFF] border border-[#E4E7EC] shadow-sm flex items-center justify-center group-hover:border-[#D40073]/50 transition-all duration-300 relative overflow-hidden">
+                        <div className="w-[104px] h-[104px] rounded-full bg-gradient-to-tr from-[#F7F7F8] to-[#FFFFFF] border border-[#E4E7EC] flex items-center justify-center group-hover:border-[#D40073]/50 transition-all duration-300 relative overflow-hidden">
                           <User size={40} className="text-[#8B93A7] group-hover:scale-110 transition-transform duration-300" />
                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <ImagePlus size={24} className="text-white" />
                           </div>
                         </div>
-                        <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-gradient-to-br from-[#111111] to-[#333333] shadow-lg text-white flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">
+                        <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-gradient-to-br from-[#111111] to-[#333333] text-white flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform">
                           <Star size={16} className="text-[#FEF08A]" fill="currentColor" />
                         </div>
                       </div>
@@ -147,7 +147,7 @@ export function NewAgentModal({ isOpen, onClose, onAdd }: NewAgentModalProps) {
                             placeholder="e.g. Kwame Mensah"
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            className="w-full h-[54px] pl-12 pr-4 bg-white/50 border border-[#E4E7EC] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/10 rounded-[16px] outline-none transition-all text-[15px] font-medium text-[#111111] placeholder:text-[#8B93A7] placeholder:font-normal shadow-sm"
+                            className="w-full h-[54px] pl-12 pr-4 bg-white/50 border border-[#E4E7EC] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/10 rounded-[16px] outline-none transition-all text-[15px] font-medium text-[#111111] placeholder:text-[#8B93A7] placeholder:font-normal"
                           />
                         </div>
                       </div>
@@ -163,7 +163,7 @@ export function NewAgentModal({ isOpen, onClose, onAdd }: NewAgentModalProps) {
                             placeholder="+233 XX XXX XXXX"
                             value={formData.phone}
                             onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                            className="w-full h-[54px] pl-12 pr-4 bg-white/50 border border-[#E4E7EC] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/10 rounded-[16px] outline-none transition-all text-[15px] font-medium text-[#111111] placeholder:text-[#8B93A7] placeholder:font-normal shadow-sm"
+                            className="w-full h-[54px] pl-12 pr-4 bg-white/50 border border-[#E4E7EC] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/10 rounded-[16px] outline-none transition-all text-[15px] font-medium text-[#111111] placeholder:text-[#8B93A7] placeholder:font-normal"
                           />
                         </div>
                       </div>
@@ -190,8 +190,8 @@ export function NewAgentModal({ isOpen, onClose, onAdd }: NewAgentModalProps) {
                               onClick={() => setFormData({...formData, vehicleType: type.id})}
                               className={`relative h-[110px] flex flex-col items-center justify-center gap-2 rounded-[16px] border-[1.5px] transition-all duration-300 overflow-hidden ${
                                 isSelected 
-                                  ? 'bg-gradient-to-b from-[#FFF5F9] to-white border-[#D40073] shadow-[0_4px_20px_-4px_rgba(212,0,115,0.2)]' 
-                                  : 'bg-white border-[#E4E7EC] hover:border-[#8B93A7] hover:bg-[#F7F7F8] shadow-sm'
+                                  ? 'bg-gradient-to-b from-[#FFF5F9] to-white border-[#D40073]' 
+                                  : 'bg-white border-[#E4E7EC] hover:border-[#8B93A7] hover:bg-[#F7F7F8]'
                               }`}
                             >
                               {isSelected && (
@@ -222,7 +222,7 @@ export function NewAgentModal({ isOpen, onClose, onAdd }: NewAgentModalProps) {
                           placeholder="e.g. GR-1234-23"
                           value={formData.licensePlate}
                           onChange={(e) => setFormData({...formData, licensePlate: e.target.value})}
-                          className="w-full h-[54px] pl-12 pr-4 bg-white/50 border border-[#E4E7EC] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/10 rounded-[16px] outline-none transition-all text-[15px] font-medium text-[#111111] placeholder:text-[#8B93A7] placeholder:font-normal shadow-sm uppercase uppercase"
+                          className="w-full h-[54px] pl-12 pr-4 bg-white/50 border border-[#E4E7EC] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/10 rounded-[16px] outline-none transition-all text-[15px] font-medium text-[#111111] placeholder:text-[#8B93A7] placeholder:font-normal uppercase uppercase"
                         />
                       </div>
                     </div>
@@ -247,7 +247,7 @@ export function NewAgentModal({ isOpen, onClose, onAdd }: NewAgentModalProps) {
               <button 
                 onClick={handleNext}
                 disabled={step === 1 ? (!formData.name || !formData.phone) : (!formData.vehicleType || !formData.licensePlate)}
-                className="h-[48px] px-8 bg-gradient-to-r from-[#111111] to-[#333333] hover:shadow-lg disabled:opacity-50 disabled:hover:shadow-none text-white font-bold text-[14px] rounded-[14px] flex items-center gap-2 transition-all ml-auto hover:scale-[1.02] active:scale-[0.98]"
+                className="h-[48px] px-8 bg-gradient-to-r from-[#111111] to-[#333333] disabled:opacity-50 text-white font-bold text-[14px] rounded-[14px] flex items-center gap-2 transition-all ml-auto hover:scale-[1.02] active:scale-[0.98]"
               >
                 {step === 1 ? 'Continue' : 'Complete Setup'}
                 {step === 1 ? <Check size={18} className="opacity-0 w-0 -ml-2 transition-all" /> : <Check size={18} />}

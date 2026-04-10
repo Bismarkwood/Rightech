@@ -124,7 +124,7 @@ export function ProductFormModal({ isOpen, onClose, editProduct }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 260 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[860px] z-[110] bg-white rounded-[28px] overflow-hidden shadow-2xl border border-[#ECEDEF] flex flex-col max-h-[92vh] font-sans"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[860px] z-[110] bg-white rounded-[28px] overflow-hidden border border-[#ECEDEF] flex flex-col max-h-[92vh] font-sans"
           >
             {/* Header */}
             <div className="px-8 py-6 border-b border-[#ECEDEF] flex items-center justify-between bg-[#F7F7F8] shrink-0">
@@ -329,7 +329,7 @@ export function ProductFormModal({ isOpen, onClose, editProduct }: Props) {
               </button>
               <button
                 onClick={handleSubmit}
-                className="h-11 px-8 bg-[#D40073] hover:bg-[#B80063] text-white font-bold rounded-[14px] text-[14px] flex items-center gap-2 transition-all shadow-lg shadow-[#D40073]/20 disabled:opacity-50"
+                className="h-11 px-8 bg-[#D40073] hover:bg-[#B80063] text-white font-bold rounded-[14px] text-[14px] flex items-center gap-2 transition-all disabled:opacity-50"
               >
                 <Check size={18} strokeWidth={2.5} />
                 {isEditing ? 'Save Changes' : 'Add Product'}

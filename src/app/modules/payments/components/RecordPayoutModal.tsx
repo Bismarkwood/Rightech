@@ -60,7 +60,7 @@ export function RecordPayoutModal({ isOpen, onClose, defaultSupplier }: RecordPa
 
   return (
     <Dialog open={isOpen} onOpenChange={(v) => !v && resetAndClose()}>
-      <DialogContent className="max-w-[540px] p-0 bg-white rounded-[32px] border-none shadow-2xl overflow-hidden">
+      <DialogContent className="max-w-[540px] p-0 bg-white rounded-[32px] border-none overflow-hidden">
         
         {/* Header */}
         <div className="px-8 pt-8 pb-6 border-b border-[#F1F3F5] flex items-center justify-between">
@@ -199,7 +199,7 @@ export function RecordPayoutModal({ isOpen, onClose, defaultSupplier }: RecordPa
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center py-8"
               >
-                <div className="w-20 h-20 bg-[#16A34A] rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-[#16A34A]/20">
+                <div className="w-20 h-20 bg-[#16A34A] rounded-full flex items-center justify-center mx-auto mb-6 text-white">
                   <CheckCircle2 size={40} />
                 </div>
                 <h3 className="text-[24px] font-black text-[#111111] mb-2">Payout Recorded</h3>

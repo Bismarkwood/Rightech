@@ -39,7 +39,7 @@ export function ProductWorkspace() {
             </button>
             <button
               onClick={() => setAddOpen(true)}
-              className="h-10 px-5 bg-[#D40073] hover:bg-[#B80063] text-white text-[13px] font-bold rounded-[10px] flex items-center gap-2 transition-colors shadow-sm shadow-[#D40073]/20"
+              className="h-10 px-5 bg-[#D40073] hover:bg-[#B80063] text-white text-[13px] font-bold rounded-[10px] flex items-center gap-2 transition-colors shrink-0"
             >
               <Plus size={15} strokeWidth={2.5} />
               Add Product

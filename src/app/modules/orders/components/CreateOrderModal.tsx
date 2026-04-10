@@ -58,6 +58,9 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
   const [deliveryAddress, setDeliveryAddress] = useState<Partial<GhanaAddress>>({});
   const [selectedRiderId, setSelectedRiderId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'momo' | 'credit'>('cash');
+  const [isWalkIn, setIsWalkIn] = useState(false);
+  const [walkInName, setWalkInName] = useState('');
+  const [walkInPhone, setWalkInPhone] = useState('');
 
   const filteredCustomers = customers.filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase()));
   const filteredInventory = inventory.filter(i => i.stock > 0 && i.name.toLowerCase().includes(itemSearch.toLowerCase()));
@@ -65,13 +68,18 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
   const subtotal = orderItems.reduce((sum, item) => sum + (item.qty * item.unitPrice), 0);
   const availableCredit = selectedCustomer ? (selectedCustomer.limit - selectedCustomer.balance) : 0;
   const isCreditExceeded = paymentMethod === 'credit' && subtotal > availableCredit;
-  const isValid = selectedCustomer && orderItems.length > 0 && !orderItems.some(i => i.qty <= 0 || i.qty > i.maxStock);
+  
+  const currentCustomer = isWalkIn 
+    ? { id: 'GUEST', name: walkInName, contact: walkInPhone, type: 'Guest', balance: 0, limit: 0 }
+    : selectedCustomer;
+
+  const isValid = currentCustomer && (isWalkIn ? walkInName.length > 2 : true) && orderItems.length > 0 && !orderItems.some(i => i.qty <= 0 || i.qty > i.maxStock);
 
   const handlePlaceOrder = () => {
     if (!isValid) return;
     const orderData = {
       id: `RT-${Math.floor(1000 + Math.random() * 9000)}`,
-      customer: selectedCustomer,
+      customer: currentCustomer,
       items: orderItems,
       total: subtotal,
       deliveryMethod: deliveryMethod === 'delivery' ? 'Dispatch' : 'Self Collection',
@@ -87,11 +95,14 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
     setSelectedCustomer(null);
     setOrderItems([]);
     setDeliveryMethod('collection');
+    setIsWalkIn(false);
+    setWalkInName('');
+    setWalkInPhone('');
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] sm:max-w-[1100px] w-[96vw] h-[88vh] p-0 overflow-hidden bg-white border border-[#ECEDEF] flex flex-col md:flex-row outline-none rounded-[28px] shadow-none">
+      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] sm:max-w-[1100px] w-[96vw] h-[88vh] p-0 overflow-hidden bg-white border border-[#ECEDEF] flex flex-col md:flex-row outline-none rounded-[28px]">
         
         {/* === LEFT: Catalog & Basket === */}
         <div className="flex-1 flex flex-col h-full bg-white border-r border-[#ECEDEF]">
@@ -107,8 +118,39 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
           <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
             {/* 1. Customer */}
             <section>
-              <div className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.1em] mb-4">Step 1: Assign Customer</div>
-              {!selectedCustomer ? (
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.1em]">Step 1: Assign Customer</div>
+                <button 
+                  onClick={() => setIsWalkIn(!isWalkIn)}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border ${isWalkIn ? 'bg-[#D40073] text-white border-[#D40073]' : 'bg-white text-[#8B93A7] border-[#ECEDEF] hover:border-[#D40073] hover:text-[#D40073]'}`}
+                >
+                  <Icon icon={isWalkIn ? "solar:users-group-two-rounded-bold" : "solar:user-bold"} />
+                  {isWalkIn ? 'Switch to Dealer' : 'Walk-in Customer'}
+                </button>
+              </div>
+
+              {isWalkIn ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="relative">
+                    <Icon icon="solar:user-linear" className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B0B7C3]" />
+                    <input 
+                      placeholder="Customer Name"
+                      value={walkInName}
+                      onChange={(e) => setWalkInName(e.target.value)}
+                      className="w-full h-12 pl-11 pr-4 bg-[#F9FAFB] rounded-xl text-[14px] font-semibold border border-[#ECEDEF] focus:bg-white focus:border-[#D40073] outline-none transition-all"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Icon icon="solar:phone-linear" className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B0B7C3]" />
+                    <input 
+                      placeholder="Contact Number (Optional)"
+                      value={walkInPhone}
+                      onChange={(e) => setWalkInPhone(e.target.value)}
+                      className="w-full h-12 pl-11 pr-4 bg-[#F9FAFB] rounded-xl text-[14px] font-semibold border border-[#ECEDEF] focus:bg-white focus:border-[#D40073] outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              ) : !selectedCustomer ? (
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B0B7C3]" size={18} />
                   <input 
@@ -246,7 +288,12 @@ export function CreateOrderModal({ isOpen, onClose, prefilledCustomerId, onOrder
                   { id: 'momo', label: 'E-Money', icon: Smartphone },
                   { id: 'credit', label: 'Credit', icon: CreditCard },
                 ].map(m => (
-                  <button key={m.id} onClick={() => setPaymentMethod(m.id as any)} className={`h-16 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all bg-white ${paymentMethod === m.id ? 'border-[#D40073] text-[#D40073]' : 'border-[#ECEDEF] text-[#8B93A7]'}`}>
+                  <button 
+                    key={m.id} 
+                    onClick={() => m.id !== 'credit' || !isWalkIn ? setPaymentMethod(m.id as any) : null} 
+                    disabled={m.id === 'credit' && isWalkIn}
+                    className={`h-16 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all bg-white ${paymentMethod === m.id ? 'border-[#D40073] text-[#D40073]' : 'border-[#ECEDEF] text-[#8B93A7]'} ${m.id === 'credit' && isWalkIn ? 'opacity-30 grayscale cursor-not-allowed' : ''}`}
+                  >
                     <m.icon size={18} />
                     <span className="text-[11px] font-black">{m.label}</span>
                   </button>

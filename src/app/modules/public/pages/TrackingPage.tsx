@@ -75,7 +75,7 @@ export default function TrackingPage() {
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-[#F8F9FA] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-[24px] bg-white shadow-xl shadow-[#D40073]/10 flex items-center justify-center mb-6">
+        <div className="w-16 h-16 rounded-[24px] bg-white flex items-center justify-center mb-6">
           <Icon icon="solar:routing-bold-duotone" className="text-[32px] text-[#D40073] animate-pulse" />
         </div>
         <h1 className="text-[20px] font-black text-[#111111] mb-2 tracking-tight">Locating your delivery...</h1>
@@ -134,7 +134,7 @@ export default function TrackingPage() {
         
         {/* Floating Header Overlay (Simplified for side-drawer layout) */}
         <div className="absolute top-6 left-6 z-10 pointer-events-none">
-          <div className="bg-white/90 backdrop-blur-md rounded-[20px] px-5 py-3 border border-white/50 shadow-lg flex items-center gap-3 pointer-events-auto">
+          <div className="bg-white/90 backdrop-blur-md rounded-[20px] px-5 py-3 border border-white/50 flex items-center gap-3 pointer-events-auto">
              <div className="w-10 h-10 rounded-full bg-[#111111] flex items-center justify-center text-white">
                 <Icon icon="solar:bag-bold" className="text-[18px]" />
              </div>
@@ -150,7 +150,7 @@ export default function TrackingPage() {
       <motion.div 
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
-        className="w-[85vw] md:w-[400px] bg-white border-l border-[#ECEDEF] z-20 flex flex-col shadow-[-20px_0_50px_rgba(0,0,0,0.05)] overflow-hidden"
+        className="w-[85vw] md:w-[400px] bg-white border-l border-[#ECEDEF] z-20 flex flex-col overflow-hidden"
       >
         {/* Rider Info Header */}
         <div className="p-8 border-b border-[#ECEDEF] flex items-center justify-between">

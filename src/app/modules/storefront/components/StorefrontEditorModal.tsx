@@ -108,7 +108,7 @@ export function StorefrontEditorModal({
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open && !isSaving) onClose();
     }}>
-      <DialogContent className={`p-0 overflow-hidden rounded-[32px] border border-[#ECEDEF] bg-white shadow-none transition-all duration-300 ${step === 1 ? 'sm:max-w-[700px]' : 'sm:max-w-[1000px]'}`}>
+      <DialogContent className={`p-0 overflow-hidden rounded-[32px] border border-[#ECEDEF] bg-white transition-all duration-300 ${step === 1 ? 'sm:max-w-[700px]' : 'sm:max-w-[1000px]'}`}>
         
         {/* Step 1: Select Inventory Item */}
         <AnimatePresence mode="wait">
@@ -123,7 +123,7 @@ export function StorefrontEditorModal({
               <div className="p-6 border-b border-[#ECEDEF] bg-[#F7F7F8] flex items-center justify-between sticky top-0 z-10">
                 <div>
                    <h2 className="text-[20px] font-black tracking-tight text-[#111111] flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-[12px] bg-[#111111] text-white flex items-center justify-center shadow-lg">
+                    <div className="w-10 h-10 rounded-[12px] bg-[#111111] text-white flex items-center justify-center">
                       <Icon icon="solar:box-bold" className="text-[20px]" />
                     </div>
                     Select Source Inventory
@@ -132,7 +132,7 @@ export function StorefrontEditorModal({
                 </div>
                 <button 
                   onClick={onClose}
-                  className="w-10 h-10 rounded-full bg-white text-[#525866] flex items-center justify-center hover:bg-[#E4E7EC] hover:text-[#111111] transition-colors border border-[#ECEDEF] shadow-sm"
+                  className="w-10 h-10 rounded-full bg-white text-[#525866] flex items-center justify-center hover:bg-[#E4E7EC] hover:text-[#111111] transition-colors border border-[#ECEDEF]"
                 >
                   <X size={18} />
                 </button>
@@ -145,7 +145,7 @@ export function StorefrontEditorModal({
                     placeholder="Search available inventory by name or SKU..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full h-12 pl-12 pr-4 bg-[#F7F7F8] border border-[#ECEDEF] font-medium rounded-[14px] focus:bg-white focus:border-[#D40073] shadow-none"
+                    className="w-full h-12 pl-12 pr-4 bg-[#F7F7F8] border border-[#ECEDEF] font-medium rounded-[14px] focus:bg-white focus:border-[#D40073]"
                   />
                 </div>
               </div>
@@ -157,7 +157,7 @@ export function StorefrontEditorModal({
                       <button 
                         key={item.id}
                         onClick={() => handleSelectInventoryItem(item.id)}
-                        className="p-4 rounded-[16px] bg-white border border-[#ECEDEF] hover:border-[#D40073]/40 hover:shadow-md transition-all text-left flex items-center gap-4 group"
+                        className="p-4 rounded-[16px] bg-white border border-[#ECEDEF] hover:border-[#D40073]/40 transition-all text-left flex items-center gap-4 group"
                       >
                         <div className="w-14 h-14 rounded-[12px] bg-[#F7F7F8] overflow-hidden shrink-0 border border-[#ECEDEF]">
                           {item.image ? (
@@ -187,7 +187,7 @@ export function StorefrontEditorModal({
                     ))
                   ) : (
                     <div className="py-16 flex flex-col items-center justify-center text-center">
-                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border border-[#ECEDEF] mb-4">
+                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border border-[#ECEDEF] mb-4">
                         <PackageSearch size={28} className="text-[#8B93A7]" />
                       </div>
                       <h4 className="text-[16px] font-bold text-[#111111]">No available items found</h4>
@@ -232,14 +232,14 @@ export function StorefrontEditorModal({
                     
                     {/* Live Badges */}
                     <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                       <div className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${
+                       <div className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                          (liveItem?.stock || 0) === 0 ? 'text-[#EF4444] bg-[#FEF2F2] border-[#FECACA]' : 
                          (!editedListing.isPublished ? 'text-[#525866] bg-[#F1F3F5] border-[#ECEDEF]' : 'text-[#16A34A] bg-[#DCFCE7] border-[#BBF7D0]')
                        }`}>
                          {(liveItem?.stock || 0) === 0 ? 'Out of Stock' : (!editedListing.isPublished ? 'Hidden' : 'Live')}
                        </div>
                        {editedListing.isFeatured && editedListing.isPublished && (liveItem?.stock || 0) > 0 && (
-                         <div className="bg-[#D40073] text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                         <div className="bg-[#D40073] text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
                            Featured
                          </div>
                        )}
@@ -258,7 +258,7 @@ export function StorefrontEditorModal({
                           {editedListing.displayPrice || <span className="opacity-30">0.00 GHS</span>}
                         </span>
                       </div>
-                      <div className="w-10 h-10 rounded-[12px] bg-[#111111] text-white flex items-center justify-center relative shadow-md">
+                      <div className="w-10 h-10 rounded-[12px] bg-[#111111] text-white flex items-center justify-center relative">
                         <Icon icon="solar:cart-large-2-bold" className="text-[18px]" />
                         {(liveItem?.stock || 0) === 0 && <div className="absolute inset-0 bg-white/70 rounded-[12px] cursor-not-allowed"></div>}
                       </div>
@@ -302,7 +302,7 @@ export function StorefrontEditorModal({
                          name="displayName"
                          value={editedListing.displayName}
                          onChange={handleInputChange}
-                         className="h-12 rounded-[14px] font-bold text-[#111111] border-[#ECEDEF] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 shadow-none transition-all"
+                         className="h-12 rounded-[14px] font-bold text-[#111111] border-[#ECEDEF] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 transition-all"
                        />
                     </div>
                     
@@ -312,7 +312,7 @@ export function StorefrontEditorModal({
                          name="storeCategory"
                          value={editedListing.storeCategory}
                          onChange={handleInputChange}
-                         className="h-12 rounded-[14px] font-bold text-[#111111] border-[#ECEDEF] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 shadow-none transition-all"
+                         className="h-12 rounded-[14px] font-bold text-[#111111] border-[#ECEDEF] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 transition-all"
                        />
                     </div>
 
@@ -322,7 +322,7 @@ export function StorefrontEditorModal({
                          name="displayPrice"
                          value={editedListing.displayPrice}
                          onChange={handleInputChange}
-                         className="h-12 rounded-[14px] font-black text-[#D40073] border-[#ECEDEF] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 shadow-none transition-all pl-4 bg-[#F7F7F8]"
+                         className="h-12 rounded-[14px] font-black text-[#D40073] border-[#ECEDEF] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 pl-4 bg-[#F7F7F8] transition-all"
                        />
                     </div>
 
@@ -333,7 +333,7 @@ export function StorefrontEditorModal({
                          rows={3}
                          value={editedListing.description}
                          onChange={handleInputChange}
-                         className="w-full rounded-[14px] border border-[#ECEDEF] bg-[#F7F7F8] p-4 text-[13px] font-medium text-[#111111] focus:outline-none focus:bg-white focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 transition-all resize-none shadow-none"
+                         className="w-full rounded-[14px] border border-[#ECEDEF] bg-[#F7F7F8] p-4 text-[13px] font-medium text-[#111111] focus:outline-none focus:bg-white focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 transition-all resize-none"
                          placeholder="Highlight product quality and specifics for the buyer..."
                        />
                     </div>
@@ -365,7 +365,7 @@ export function StorefrontEditorModal({
                   </div>
                 </div>
 
-                <div className="p-6 shrink-0 border-t border-[#ECEDEF] bg-white flex justify-end gap-3 z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+                <div className="p-6 shrink-0 border-t border-[#ECEDEF] bg-white flex justify-end gap-3 z-10">
                    {mode === 'edit' && (
                      <button 
                        onClick={() => {

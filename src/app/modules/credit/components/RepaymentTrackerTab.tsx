@@ -31,7 +31,7 @@ export function RepaymentTrackerTab() {
               key={acc.id}
               onClick={() => setSelectedDealerId(acc.dealerId)}
               className={`w-full text-left p-4 rounded-[20px] transition-all flex items-center justify-between group ${
-                selectedDealerId === acc.dealerId ? 'bg-[#111111] text-white shadow-lg' : 'hover:bg-[#F9FAFB]'
+                selectedDealerId === acc.dealerId ? 'bg-[#111111] text-white' : 'hover:bg-[#F9FAFB]'
               }`}
             >
               <div>
@@ -73,7 +73,7 @@ export function RepaymentTrackerTab() {
                   <FileText size={18} />
                   Download Statement
                 </button>
-                <button className="flex items-center gap-2 px-6 h-12 bg-[#D40073] text-white rounded-[18px] text-[14px] font-black hover:bg-[#B3005F] transition-all shadow-lg shadow-[#D40073]/20">
+                <button className="flex items-center gap-2 px-6 h-12 bg-[#D40073] text-white rounded-[18px] text-[14px] font-black hover:bg-[#B3005F] transition-all">
                   Record Repayment
                 </button>
               </div>
@@ -83,7 +83,7 @@ export function RepaymentTrackerTab() {
               <div className="space-y-8 relative before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-[2px] before:bg-[#F3F4F6]">
                 {filteredTransactions.map((tx, idx) => (
                   <div key={tx.id} className="relative pl-12">
-                    <div className={`absolute left-0 top-0 w-10 h-10 rounded-full flex items-center justify-center shadow-lg ${
+                    <div className={`absolute left-0 top-0 w-10 h-10 rounded-full flex items-center justify-center ${
                       tx.type === 'Extension' ? 'bg-[#EF4444] text-white' : 'bg-[#16A34A] text-white'
                     }`}>
                       {tx.type === 'Extension' ? <ArrowUpRight size={20} /> : <ArrowDownLeft size={20} />}

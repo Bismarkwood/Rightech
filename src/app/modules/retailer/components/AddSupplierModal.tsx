@@ -50,7 +50,7 @@ export function AddSupplierModal() {
 
   return (
     <Dialog open={isAddSupplierModalOpen} onOpenChange={setAddSupplierModalOpen}>
-      <DialogContent className="sm:max-w-[500px] border-none shadow-2xl bg-white/90 backdrop-blur-xl rounded-[28px] p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-[500px] border-none bg-white/90 backdrop-blur-xl rounded-[28px] p-0 overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D40073] via-[#FF4D94] to-[#D40073]" />
         
         <DialogHeader className="px-8 pt-8 pb-4">
@@ -155,7 +155,7 @@ export function AddSupplierModal() {
           <button 
             onClick={handleAddSupplier}
             disabled={!newSupplier.name || !newSupplier.phone}
-            className="flex-[2] h-14 bg-[#111111] hover:bg-black text-white rounded-[18px] text-[15px] font-bold shadow-xl shadow-black/10 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:hover:bg-[#111111]"
+            className="flex-[2] h-14 bg-[#111111] hover:bg-black text-white rounded-[18px] text-[15px] font-bold transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:hover:bg-[#111111]"
           >
             Complete Onboarding
           </button>

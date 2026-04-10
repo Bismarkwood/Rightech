@@ -18,7 +18,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, isRiderView =
     <motion.div 
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-white border border-[#ECEDEF] rounded-[24px] overflow-hidden ${isRiderView ? 'ring-2 ring-[#D40073]/5 border-[#D40073]/20 shadow-xl shadow-[#D40073]/5' : ''}`}
+      className={`bg-white border border-[#ECEDEF] rounded-[24px] overflow-hidden ${isRiderView ? 'ring-2 ring-[#D40073]/5 border-[#D40073]/20' : ''}`}
     >
       <div className="p-6 space-y-5">
         <div className="flex items-start justify-between gap-4">
@@ -74,7 +74,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, isRiderView =
           {isRiderView && (
             <a 
               href={`tel:${address.contactPhone}`}
-              className="h-14 w-14 rounded-full bg-[#16A34A] text-white flex items-center justify-center shadow-lg shadow-[#16A34A]/20 hover:scale-105 transition-all"
+              className="h-14 w-14 rounded-full bg-[#16A34A] text-white flex items-center justify-center hover:scale-105 transition-all"
             >
               <Phone size={24} />
             </a>

@@ -34,15 +34,15 @@ export function SharingHub({ order }: SharingHubProps) {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-8 w-full bg-transparent">
+    <div className="flex flex-col gap-5 p-5 w-full bg-transparent">
       
       {/* High-Fidelity Boarding Pass - Ticket Centerpiece */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative bg-[#111111] rounded-[36px] overflow-hidden border border-[#111111]"
+        className="relative bg-[#111111] rounded-[24px] overflow-hidden border border-[#111111]"
       >
-        <div className="p-8 pb-6 bg-gradient-to-br from-[#111111] to-[#333333] relative">
+        <div className="p-6 pb-4 bg-gradient-to-br from-[#111111] to-[#333333] relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#D40073]/20 rounded-full blur-[40px] -translate-y-1/2 translate-x-1/2" />
           
           <div className="flex items-start justify-between relative z-10 mb-8">
@@ -51,7 +51,7 @@ export function SharingHub({ order }: SharingHubProps) {
                   <div className="w-1.5 h-1.5 rounded-full bg-[#16A34A] animate-pulse" />
                   <span className="text-[9px] font-black text-[#16A34A] uppercase tracking-[0.2em]">Tracking Secured</span>
                </div>
-               <h3 className="text-[26px] font-black text-white tracking-tighter">{trackingToken}</h3>
+               <h3 className="text-[20px] font-black text-white tracking-tighter">{trackingToken}</h3>
             </div>
             <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-md">
                <Icon icon="solar:routing-2-bold-duotone" className="text-[26px] text-[#D40073]" />
@@ -65,7 +65,7 @@ export function SharingHub({ order }: SharingHubProps) {
              </div>
              <div className="text-right">
                 <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1.5">Arrival (Est)</p>
-                <p className="text-[14px] font-bold text-[#D40073]">15 Mins</p>
+                <p className="text-[13px] font-bold text-[#D40073]">15 Mins</p>
              </div>
           </div>
         </div>
@@ -96,7 +96,7 @@ export function SharingHub({ order }: SharingHubProps) {
           <button 
             key={item.id}
             onClick={item.action}
-            className="flex items-center gap-3 p-4 bg-white border border-[#ECEDEF] rounded-[24px] hover:bg-[#F8F9FA] hover:border-[#D40073]/50 transition-all active:scale-95 group shadow-none"
+            className="flex items-center gap-3 p-4 bg-white border border-[#ECEDEF] rounded-[24px] hover:bg-[#F8F9FA] hover:border-[#D40073]/50 transition-all active:scale-95 group"
           >
             <div 
                className="w-10 h-10 rounded-full flex items-center justify-center grow-0 shrink-0 group-hover:scale-110 transition-transform"
@@ -105,7 +105,7 @@ export function SharingHub({ order }: SharingHubProps) {
                <Icon icon={item.icon} className="text-[20px]" style={{ color: item.id === 'whatsapp' ? undefined : item.id === 'link' ? '#D40073' : item.color }} />
             </div>
             <div className="text-left">
-              <h4 className="text-[14px] font-black text-[#111111] leading-none mb-0.5">{item.label}</h4>
+              <h4 className="text-[13px] font-black text-[#111111] leading-none mb-0.5">{item.label}</h4>
               <p className="text-[10px] font-bold text-[#8B93A7] uppercase tracking-wider">{item.sub}</p>
             </div>
           </button>

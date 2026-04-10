@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router';
+import { Icon } from '@iconify/react';
 import {
   Plus,
   Download,
@@ -33,7 +34,7 @@ const TABS = [
 ];
 
 const Card = ({ children, className = "" }: any) => (
-  <div className={`bg-white rounded-[18px] border border-[#ECEDEF] overflow-hidden ${className}`}>
+  <div className={`bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 shadow-sm rounded-[22px] overflow-hidden ${className}`}>
     {children}
   </div>
 );
@@ -47,8 +48,8 @@ const KPICard = ({ title, value, icon: Icon, colorClass, gradientClass }: any) =
       </div>
     </div>
     <div className="relative z-10">
-      <h3 className={`text-[28px] font-bold tracking-tight leading-none mb-1.5 ${gradientClass ? 'text-white' : 'text-[#111111]'}`}>{value}</h3>
-      <p className={`text-[14px] font-medium ${gradientClass ? 'text-white/80' : 'text-[#525866]'}`}>{title}</p>
+      <h3 className={`text-[28px] font-bold tracking-tight leading-none mb-1.5 ${gradientClass ? 'text-white' : 'text-[#111111] dark:text-white'}`}>{value}</h3>
+      <p className={`text-[14px] font-medium ${gradientClass ? 'text-white/80' : 'text-[#525866] dark:text-[#8B93A7]'}`}>{title}</p>
     </div>
   </Card>
 );
@@ -56,12 +57,12 @@ const KPICard = ({ title, value, icon: Icon, colorClass, gradientClass }: any) =
 const FlowNode = ({ icon: Icon, title, value, status, isLast = false }: any) => (
   <div className="flex items-center">
     <div className="flex flex-col items-center group">
-      <div className="w-[80px] h-[80px] bg-white rounded-[16px] border border-[#ECEDEF] flex flex-col items-center justify-center gap-1 hover:border-[#D40073]/50 transition-all relative z-10">
-        <Icon size={20} className="text-[#111111]" strokeWidth={2} />
-        <span className="text-[18px] font-bold text-[#111111] leading-none mt-1">{value}</span>
+      <div className="w-[80px] h-[80px] bg-white dark:bg-white/5 border border-[#ECEDEF] dark:border-white/10 shadow-sm rounded-[16px] flex flex-col items-center justify-center gap-1 hover:border-[#D40073]/50 transition-all relative z-10">
+        <Icon size={20} className="text-[#111111] dark:text-white" strokeWidth={2} />
+        <span className="text-[18px] font-bold text-[#111111] dark:text-white leading-none mt-1">{value}</span>
       </div>
       <div className="mt-3 text-center">
-        <p className="text-[13px] font-bold text-[#111111]">{title}</p>
+        <p className="text-[13px] font-bold text-[#111111] dark:text-white">{title}</p>
         <p className="text-[12px] text-[#8B93A7] font-medium mt-0.5">{status}</p>
       </div>
     </div>
@@ -79,22 +80,28 @@ const AlertItem = ({ type, title, desc, time }: any) => {
   const isDanger = type === 'danger';
   const isWarning = type === 'warning';
   
+  const colors = isDanger 
+    ? { bg: 'bg-[#DC2626]/5 dark:bg-[#DC2626]/20', border: 'border-[#DC2626]/10 dark:border-white/5', text: 'text-[#DC2626] dark:text-[#F87171]' }
+    : isWarning 
+    ? { bg: 'bg-[#D97706]/5 dark:bg-[#D97706]/20', border: 'border-[#D97706]/10 dark:border-white/5', text: 'text-[#D97706] dark:text-[#FB923C]' }
+    : { bg: 'bg-[#2563EB]/5 dark:bg-[#2563EB]/20', border: 'border-[#2563EB]/10 dark:border-white/5', text: 'text-[#2563EB] dark:text-[#60A5FA]' };
+
   return (
-    <div className="flex items-start gap-4 p-[16px] bg-white border border-[#ECEDEF] rounded-[14px] hover:border-[#D40073]/30 transition-colors group">
+    <div className={`${colors.bg} ${colors.border} flex items-start gap-4 p-[16px] border rounded-[14px] hover:border-[#D40073]/30 transition-colors group shadow-sm`}>
       <div className={`mt-0.5 shrink-0 w-[32px] h-[32px] rounded-[10px] flex items-center justify-center ${
-        isDanger ? 'bg-[#FEF2F2] text-[#DC2626]' : 
-        isWarning ? 'bg-[#FFF7ED] text-[#D97706]' : 
-        'bg-[#EFF6FF] text-[#2563EB]'
+        isDanger ? 'bg-[#DC2626]/10 text-[#DC2626] dark:text-[#F87171]' : 
+        isWarning ? 'bg-[#D97706]/10 text-[#D97706] dark:text-[#FB923C]' : 
+        'bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60A5FA]'
       }`}>
         {isDanger ? <AlertCircle size={16} strokeWidth={2.5} /> : 
          isWarning ? <Clock size={16} strokeWidth={2.5} /> : 
          <Truck size={16} strokeWidth={2.5} />}
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="text-[14px] font-semibold text-[#111111] mb-0.5">{title}</h4>
-        <p className="text-[13px] text-[#525866] leading-relaxed">{desc}</p>
+        <h4 className={`text-[14px] font-black ${colors.text} mb-0.5`}>{title}</h4>
+        <p className={`text-[13px] font-medium ${colors.text}/80 leading-relaxed`}>{desc}</p>
       </div>
-      <div className="shrink-0 text-[12px] font-medium text-[#8B93A7]">
+      <div className={`shrink-0 text-[12px] font-black ${colors.text}/60`}>
         {time}
       </div>
     </div>
@@ -126,49 +133,54 @@ export default function BusinessManagement() {
   }, [location]);
 
   return (
-    <div className="flex flex-col h-full bg-[#F7F7F8] font-sans overflow-hidden">
+    <div className="flex flex-col h-full bg-[#F7F7F8] dark:bg-[#0B0F1A] font-sans overflow-hidden">
       
-      {/* Header Area */}
-      <div className="px-6 md:px-8 pt-8 pb-0 bg-[#F7F7F8] shrink-0 z-20">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      {/* ── Page Header ── */}
+      <div className="bg-white dark:bg-[#151B2B] border-b border-[#ECEDEF] dark:border-white/5 px-8 pt-6 shrink-0 sticky top-0 z-20">
+        <div className="flex items-end justify-between mb-4">
           <div>
-            <h1 className="text-[28px] font-bold text-[#111111] tracking-tight mb-1">Business Management</h1>
-            <p className="text-[14px] text-[#525866]">Manage your operations, supply chain, and financial performance</p>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-[11px] bg-[#111111] dark:bg-white text-white dark:text-[#111111] flex items-center justify-center">
+                <Icon icon="solar:layers-bold-duotone" className="text-[18px]" />
+              </div>
+              <h1 className="text-[24px] font-black text-[#111111] dark:text-white tracking-tight">Business Management</h1>
+            </div>
+            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5 ml-0.5">Manage your operations, supply chain, and financial performance</p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="h-[40px] px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] hover:bg-[#F3F4F6] transition-colors">
+          <div className="flex items-center gap-3 mb-1">
+            <button className="h-10 px-4 bg-white border border-[#E4E7EC] text-[#111111] text-[13px] font-bold rounded-[10px] flex items-center gap-2 hover:bg-[#F3F4F6] transition-colors">
               <Download size={16} />
               Export
             </button>
             <button 
               onClick={() => openCreateOrder()}
-              className="h-[40px] px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] hover:bg-[#F3F4F6] transition-colors"
+              className="h-10 px-4 bg-white border border-[#E4E7EC] text-[#111111] text-[13px] font-bold rounded-[10px] flex items-center gap-2 hover:bg-[#F3F4F6] transition-colors"
             >
               <Plus size={16} />
               Add Order
             </button>
-            <button className="h-[40px] px-4 flex items-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[12px] text-[14px] font-semibold transition-colors">
+            <button className="h-10 px-4 bg-[#D40073] hover:bg-[#B80063] text-white text-[13px] font-bold rounded-[10px] flex items-center gap-2 transition-colors">
               <Plus size={16} />
               Add Supplier
             </button>
           </div>
         </div>
 
-        {/* Tabs Navigation */}
-        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar border-b border-[#ECEDEF]">
+        {/* ── Tab Nav ── */}
+        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
           {TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-4 text-[14px] font-medium whitespace-nowrap transition-colors relative ${
-                activeTab === tab ? 'text-[#D40073]' : 'text-[#525866] hover:text-[#111111]'
+              className={`pb-4 text-[14px] font-bold whitespace-nowrap transition-colors relative ${
+                activeTab === tab ? 'text-[#D40073]' : 'text-[#8B93A7] hover:text-[#111111]'
               }`}
             >
               {tab}
               {activeTab === tab && (
                 <motion.div
                   layoutId="activeTabIndicator"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#D40073]"
+                  className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#D40073] rounded-t-full"
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
@@ -193,7 +205,7 @@ export default function BusinessManagement() {
             >
               {/* Section 1: Operational KPIs */}
               <div>
-                <h2 className="text-[16px] font-bold text-[#111111] mb-4">Operational Snapshot</h2>
+                <h2 className="text-[16px] font-bold text-[#111111] dark:text-white mb-4">Operational Snapshot</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
                   <KPICard title="Total Suppliers" value="24" icon={Users} gradientClass="bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9]" />
                   <KPICard title="Active Dealers" value="156" icon={Store} gradientClass="bg-gradient-to-br from-[#3B82F6] to-[#2563EB]" />
@@ -220,7 +232,7 @@ export default function BusinessManagement() {
               {/* Section 3: Priority Alerts */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-[16px] font-bold text-[#111111]">Attention Required</h2>
+                  <h2 className="text-[16px] font-bold text-[#111111] dark:text-white">Attention Required</h2>
                   <button className="text-[13px] font-semibold text-[#D40073] hover:text-[#B80063] transition-colors">
                     View all alerts
                   </button>
@@ -266,22 +278,22 @@ export default function BusinessManagement() {
             >
               <Card className="flex flex-col min-h-[500px]">
                 {/* Table Header / Filters */}
-                <div className="p-4 border-b border-[#ECEDEF] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+                <div className="p-4 border-b border-[#ECEDEF] dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#151B2B]">
                   <div className="relative group w-full sm:w-[320px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors" size={16} />
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors" size={16} />
                     <input 
                       type="text" 
                       placeholder="Search suppliers..." 
-                      className="w-full h-9 pl-9 pr-4 bg-[#F7F7F8] border border-transparent rounded-[8px] text-[13px] text-[#111111] placeholder:text-[#8B93A7] focus:outline-none focus:bg-white focus:border-[#D40073] transition-all"
+                      className="w-full h-10 pl-10 pr-4 bg-[#F7F7F8] dark:bg-white/5 border border-transparent dark:border-white/10 rounded-[10px] text-[13px] text-[#111111] dark:text-white placeholder:text-[#8B93A7] focus:outline-none focus:bg-white dark:focus:bg-white/10 focus:border-[#D40073] transition-all"
                     />
                   </div>
                   <div className="flex items-center gap-3">
-                    <button className="h-9 px-3 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[8px] text-[13px] font-medium text-[#111111] hover:bg-[#F3F4F6] transition-colors">
+                    <button className="h-10 px-4 flex items-center gap-2 bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 rounded-[10px] text-[13px] font-bold text-[#111111] dark:text-[#8B93A7] hover:bg-[#F3F4F6] dark:hover:bg-white/10 transition-colors">
                       <Filter size={14} />
-                      Filter Status
+                      Filters
                     </button>
-                    <button className="h-9 px-3 flex items-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[8px] text-[13px] font-semibold transition-colors">
-                      <Plus size={14} />
+                    <button className="h-10 px-4 flex items-center gap-2 bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-[10px] text-[13px] font-black transition-all hover:bg-[#D40073] hover:text-white">
+                      <Plus size={14} strokeWidth={3} />
                       New Supplier
                     </button>
                   </div>
@@ -291,47 +303,47 @@ export default function BusinessManagement() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-[#F7F7F8] border-b border-[#ECEDEF]">
-                        <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Supplier Name</th>
-                        <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Type</th>
-                        <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Active Products</th>
-                        <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Outstanding Payment</th>
-                        <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Status</th>
-                        <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider text-right">Actions</th>
+                      <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5">
+                        <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Supplier Name</th>
+                        <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Type</th>
+                        <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Active Products</th>
+                        <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Outstanding Payment</th>
+                        <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Status</th>
+                        <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="text-[13px]">
+                    <tbody className="divide-y divide-[#ECEDEF] dark:divide-white/5">
                       {MOCK_SUPPLIERS.map((supplier) => (
-                        <tr key={supplier.id} className="border-b border-[#ECEDEF] last:border-0 hover:bg-[#FBFBFC] transition-colors cursor-pointer group">
-                          <td className="py-4 px-5">
-                            <div className="font-semibold text-[#111111] flex items-center gap-2">
+                        <tr key={supplier.id} className="hover:bg-[#F7F7F8] dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                          <td className="py-4 px-6">
+                            <div className="text-[14px] font-black text-[#111111] dark:text-white flex items-center gap-2 group-hover:text-[#D40073] transition-colors">
                               {supplier.name}
-                              <ArrowUpRight size={14} className="text-[#8B93A7] opacity-0 group-hover:opacity-100 transition-opacity" />
+                              <ArrowUpRight size={14} className="text-[#8B93A7] opacity-0 group-hover:opacity-100 transition-all" />
                             </div>
-                            <div className="text-[12px] text-[#8B93A7] mt-0.5">{supplier.id}</div>
+                            <div className="text-[11px] font-bold text-[#D40073] uppercase mt-1 tracking-wider">{supplier.id}</div>
                           </td>
-                          <td className="py-4 px-5">
-                            <span className="inline-flex items-center px-2 py-1 rounded-[6px] text-[12px] font-medium bg-[#F3F4F6] text-[#525866]">
+                          <td className="py-4 px-6">
+                            <span className="inline-flex items-center px-2 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-wider bg-[#F3F4F6] dark:bg-white/5 text-[#525866] dark:text-[#8B93A7] border border-transparent dark:border-white/10">
                               {supplier.type}
                             </span>
                           </td>
-                          <td className="py-4 px-5 font-medium text-[#111111]">{supplier.products}</td>
-                          <td className="py-4 px-5">
-                            <span className={`font-semibold ${supplier.balance !== '0 GHS' ? 'text-[#DC2626]' : 'text-[#16A34A]'}`}>
+                          <td className="py-4 px-6 font-bold text-[#111111] dark:text-white">{supplier.products} Items</td>
+                          <td className="py-4 px-6">
+                            <span className={`text-[14px] font-black ${supplier.balance !== '0 GHS' ? 'text-[#DC2626]' : 'text-[#16A34A]'}`}>
                               {supplier.balance}
                             </span>
                           </td>
-                          <td className="py-4 px-5">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[12px] font-semibold ${
-                              supplier.status === 'Active' ? 'bg-[#ECFDF3] text-[#16A34A]' :
-                              supplier.status === 'Pending' ? 'bg-[#FFF7ED] text-[#D97706]' :
-                              'bg-[#F3F4F6] text-[#525866]'
+                          <td className="py-4 px-6">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-wider border ${
+                              supplier.status === 'Active' ? 'bg-[#ECFDF3] dark:bg-[#064E3B]/30 text-[#16A34A] border-[#16A34A]/10' :
+                              supplier.status === 'Pending' ? 'bg-[#FFF7ED] dark:bg-[#78350F]/30 text-[#D97706] border-[#D97706]/10' :
+                              'bg-[#F3F4F6] dark:bg-white/5 text-[#525866] dark:text-[#8B93A7] border-transparent'
                             }`}>
                               {supplier.status}
                             </span>
                           </td>
-                          <td className="py-4 px-5 text-right">
-                            <button className="w-8 h-8 inline-flex items-center justify-center text-[#8B93A7] hover:text-[#111111] hover:bg-[#F3F4F6] rounded-[8px] transition-colors">
+                          <td className="py-4 px-6 text-right">
+                            <button className="w-9 h-9 inline-flex items-center justify-center text-[#8B93A7] hover:text-[#111111] dark:hover:text-white hover:bg-white dark:hover:bg-white/5 border border-transparent hover:border-[#ECEDEF] dark:hover:border-white/10 rounded-[10px] transition-all shadow-sm">
                               <MoreHorizontal size={18} />
                             </button>
                           </td>
@@ -342,11 +354,11 @@ export default function BusinessManagement() {
                 </div>
 
                 {/* Table Footer / Pagination */}
-                <div className="p-4 border-t border-[#ECEDEF] flex items-center justify-between text-[13px] text-[#525866] bg-white mt-auto">
+                <div className="p-4 border-t border-[#ECEDEF] dark:border-white/5 flex items-center justify-between text-[13px] font-bold text-[#8B93A7] uppercase tracking-wider bg-[#F9FAFB] dark:bg-white/5 mt-auto">
                   <div>Showing 1 to 5 of 24 suppliers</div>
-                  <div className="flex items-center gap-1">
-                    <button className="px-3 py-1.5 border border-[#ECEDEF] rounded-[8px] hover:bg-[#F3F4F6] disabled:opacity-50 transition-colors">Previous</button>
-                    <button className="px-3 py-1.5 border border-[#ECEDEF] rounded-[8px] hover:bg-[#F3F4F6] disabled:opacity-50 transition-colors">Next</button>
+                  <div className="flex items-center gap-2">
+                    <button className="px-4 py-2 border border-[#ECEDEF] dark:border-white/10 rounded-[10px] hover:bg-white dark:hover:bg-white/5 disabled:opacity-50 transition-all shadow-sm">Previous</button>
+                    <button className="px-4 py-2 border border-[#ECEDEF] dark:border-white/10 rounded-[10px] hover:bg-white dark:hover:bg-white/5 disabled:opacity-50 transition-all shadow-sm text-[#111111] dark:text-white">Next</button>
                   </div>
                 </div>
               </Card>

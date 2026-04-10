@@ -98,13 +98,7 @@ export function NotificationCenter() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.97 }}
               transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
-              className="absolute right-0 top-[calc(100%+10px)] w-[380px] z-[999] rounded-[20px] overflow-hidden"
-              style={{
-                background: 'rgba(255,255,255,0.82)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
-                border: '1px solid rgba(0,0,0,0.06)',
-              }}
+              className="absolute right-0 top-[calc(100%+10px)] w-[380px] z-[999] rounded-[20px] overflow-hidden bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10"
             >
               {/* Dropdown header */}
               <div className="px-5 pt-5 pb-3 flex items-center justify-between">
@@ -190,13 +184,7 @@ export function NotificationCenter() {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 60, scale: 0.97 }}
               transition={{ type: 'spring', duration: 0.45, bounce: 0.14 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-[520px] z-[1001] flex flex-col"
-              style={{
-                background: 'rgba(255,255,255,0.88)',
-                backdropFilter: 'blur(32px)',
-                WebkitBackdropFilter: 'blur(32px)',
-                borderLeft: '1px solid rgba(0,0,0,0.06)',
-              }}
+              className="fixed top-0 right-0 bottom-0 w-full max-w-[520px] z-[1001] flex flex-col bg-white dark:bg-[#151B2B] border-l border-[#ECEDEF] dark:border-white/5"
             >
               {/* Panel Header */}
               <div
@@ -287,12 +275,12 @@ export function NotificationCenter() {
                           transition={{ delay: i * 0.05, type: 'spring', duration: 0.4, bounce: 0.1 }}
                           className="flex items-start gap-4 p-4 rounded-[16px] cursor-pointer group transition-all"
                           style={{
-                            background: n.read ? '#F7F7F8' : '#ffffff',
-                            border: '1px solid #ECEDEF',
+                            background: n.read ? 'var(--rt-notif-read-bg)' : 'var(--rt-notif-bg)',
+                            border: '1px solid var(--rt-glass-border)',
                           }}
                           onClick={() => markRead(n.id)}
-                          onMouseEnter={e => (e.currentTarget.style.background = '#FBFBFC')}
-                          onMouseLeave={e => (e.currentTarget.style.background = n.read ? '#F7F7F8' : '#ffffff')}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'var(--rt-notif-hover-bg)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = n.read ? 'var(--rt-notif-read-bg)' : 'var(--rt-notif-bg)')}
                         >
                           {/* Icon badge */}
                           <div
@@ -355,13 +343,7 @@ export function NotificationCenter() {
              animate={{ opacity: 1, y: 0, scale: 1 }}
              exit={{ opacity: 0, y: -16, scale: 0.96 }}
              transition={{ type: 'spring', duration: 0.45, bounce: 0.2 }}
-             className="fixed top-5 left-1/2 -translate-x-1/2 z-[2000] w-full max-w-[400px] flex items-start gap-3 px-4 py-4 rounded-[18px] cursor-pointer"
-             style={{
-               background: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(0,0,0,0.08)',
-            }}
+             className="fixed top-5 left-1/2 -translate-x-1/2 z-[2000] w-full max-w-[400px] flex items-start gap-3 px-4 py-4 rounded-[18px] cursor-pointer bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10"
             onClick={() => { setToast(null); setPanelOpen(true); }}
           >
             {/* Icon */}

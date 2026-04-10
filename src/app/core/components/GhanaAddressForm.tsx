@@ -107,7 +107,7 @@ export const GhanaAddressForm: React.FC<GhanaAddressFormProps> = ({ value, onCha
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white border border-[#ECEDEF] rounded-[16px] shadow-xl z-50 overflow-hidden"
+              className="absolute left-0 right-0 top-full mt-2 bg-white border border-[#ECEDEF] rounded-[16px] z-50 overflow-hidden"
             >
               {filteredAreas.map(area => (
                 <button

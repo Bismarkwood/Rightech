@@ -13,7 +13,7 @@ export function StorefrontSettings() {
 
   return (
     <div className="max-w-[800px] mx-auto pb-12">
-      <div className="bg-white rounded-[24px] border border-[#ECEDEF] p-8 shadow-sm">
+      <div className="bg-white rounded-[24px] border border-[#ECEDEF] p-8">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-[14px] bg-[#111111] text-white flex items-center justify-center">
              <Settings2 size={24} />
@@ -41,7 +41,7 @@ export function StorefrontSettings() {
               <div className="space-y-2">
                 <label className="text-[12px] font-black text-[#525866] uppercase tracking-wider">Brand Highlight Color</label>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-[12px] bg-[#D40073] shadow-inner shrink-0" />
+                  <div className="w-12 h-12 rounded-[12px] bg-[#D40073] shrink-0" />
                   <input 
                     type="text" 
                     defaultValue="#D40073"
@@ -107,7 +107,7 @@ export function StorefrontSettings() {
             </button>
             <button 
               onClick={handleSave}
-              className="h-12 px-8 rounded-[12px] font-bold text-white bg-[#111111] hover:bg-[#D40073] transition-colors shadow-md flex items-center justify-center gap-2 min-w-[140px]"
+              className="h-12 px-8 rounded-[12px] font-bold text-white bg-[#111111] hover:bg-[#D40073] transition-colors flex items-center justify-center gap-2 min-w-[140px]"
             >
               {isSaving ? (
                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>

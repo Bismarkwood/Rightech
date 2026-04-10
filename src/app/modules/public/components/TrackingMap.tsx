@@ -88,7 +88,7 @@ export function TrackingMap({ order }: TrackingMapProps) {
         zoom={14} 
         className="w-full h-full"
       >
-        <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
         
         <Polyline 
           positions={[riderPos, destPos]} 

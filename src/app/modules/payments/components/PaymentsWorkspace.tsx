@@ -10,6 +10,7 @@ const TABS = [
   { id: 'overview', label: 'Overview', icon: 'solar:chart-2-bold' },
   { id: 'transactions', label: 'Transactions', icon: 'solar:checklist-bold' },
   { id: 'payouts', label: 'Payouts', icon: 'solar:arrow-up-bold' },
+  { id: 'methods', label: 'Payment Methods', icon: 'solar:settings-minimalistic-bold' },
 ];
 
 export function PaymentsWorkspace() {
@@ -79,6 +80,7 @@ export function PaymentsWorkspace() {
             {activeTab === 'overview' && <OverviewTab />}
             {activeTab === 'transactions' && <TransactionsTab />}
             {activeTab === 'payouts' && <PayoutsTab />}
+            {activeTab === 'methods' && <PaymentMethodsTab />}
           </motion.div>
         </AnimatePresence>
       </div>

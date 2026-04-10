@@ -25,15 +25,20 @@ export function CreditWorkspace() {
       <div className="bg-white border-b border-[#ECEDEF] px-8 pt-6 shrink-0">
         <div className="flex items-end justify-between mb-4">
           <div>
-            <h1 className="text-[24px] font-black text-[#111111] tracking-tight">Credit Management</h1>
-            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5">Monitor credit health and automated dealer ratings.</p>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-[11px] bg-[#111111] text-white flex items-center justify-center">
+                <Icon icon="solar:widget-bold-duotone" className="text-[18px]" />
+              </div>
+              <h1 className="text-[24px] font-black text-[#111111] tracking-tight">Credit Management</h1>
+            </div>
+            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5 ml-0.5">Monitor credit health and automated dealer ratings.</p>
           </div>
           <div className="flex items-center gap-3 mb-1">
             <button className="h-10 px-4 bg-white border border-[#E4E7EC] text-[#111111] text-[13px] font-bold rounded-[10px] flex items-center gap-2 hover:bg-[#F3F4F6] transition-colors">
               <Icon icon="solar:download-square-linear" className="text-[17px]" />
               Export
             </button>
-            <button className="h-10 px-5 bg-[#D40073] hover:bg-[#B80063] text-white text-[13px] font-bold rounded-[10px] flex items-center gap-2 transition-colors shadow-sm shadow-[#D40073]/20">
+            <button className="h-10 px-5 bg-[#D40073] hover:bg-[#B80063] text-white text-[13px] font-bold rounded-[10px] flex items-center gap-2 transition-colors">
               <Plus size={15} strokeWidth={2.5} />
               Extend Credit
             </button>

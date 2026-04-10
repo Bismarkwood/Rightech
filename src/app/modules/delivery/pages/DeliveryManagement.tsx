@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Icon } from '@iconify/react';
 import {
   Package, MapPin, Phone, User, Clock, CheckCircle2,
   AlertCircle, X, Navigation, Check, ChevronRight, Map, Plus, Car, Bike, Truck, Star, IdCard
 } from 'lucide-react';
-import { LiveMapModal } from '../components/LiveMapModal';
 import { NewAgentModal } from '../components/NewAgentModal';
 import { AgentProfileModal } from '../components/AgentProfileModal';
+import { AgentsMapModal } from '../components/AgentsMapModal';
 import { useConsignment } from '../../consignment/context/ConsignmentContext';
 
 import { useDelivery } from '../context/DeliveryContext';
@@ -23,9 +24,9 @@ export default function DeliveryManagement() {
 
   const [activeTab, setActiveTab] = useState('Overview');
   const [isRejectModalOpen, setIsRejectModalOpen] = useState<string | null>(null);
-  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [isAgentsMapOpen, setIsAgentsMapOpen] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>(undefined);
   const [isNewAgentOpen, setIsNewAgentOpen] = useState(false);
-  const [selectedMapDelivery, setSelectedMapDelivery] = useState<any>(null);
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
 
   // Map Consignments to Deliveries dynamically
@@ -42,7 +43,8 @@ export default function DeliveryManagement() {
       time: c.date,
       priority: 'High',
       progress: 1,
-      isConsignment: true
+      isConsignment: true,
+      agentId: undefined
     }));
 
   const allActiveDeliveries = [...deliveries, ...transitConsignments];
@@ -77,7 +79,7 @@ export default function DeliveryManagement() {
 
   // Helpers
   const Card = ({ children, className = "" }: any) => (
-    <div className={`bg-white rounded-[16px] border border-[#ECEDEF] overflow-hidden ${className}`}>
+    <div className={`bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 rounded-[16px] overflow-hidden ${className}`}>
       {children}
     </div>
   );
@@ -89,20 +91,25 @@ export default function DeliveryManagement() {
 
   return (
     <div className="flex flex-col h-full w-full bg-[#F7F7F8] relative min-h-0">
-      {/* Header & Sub Navigation */}
-      <div className="px-6 md:px-8 pt-8 pb-0 bg-[#F7F7F8] shrink-0 sticky top-0 z-20">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      {/* ── Page Header ── */}
+      <div className="bg-white border-b border-[#ECEDEF] px-8 pt-6 shrink-0 sticky top-0 z-20">
+        <div className="flex items-end justify-between mb-4">
           <div>
-            <h1 className="text-[28px] font-bold text-[#111111] tracking-tight mb-1">Delivery Agent</h1>
-            <p className="text-[14px] text-[#525866]">Manage assigned tasks, active routes, and update delivery status</p>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-[11px] bg-[#111111] text-white flex items-center justify-center">
+                <Icon icon="solar:delivery-bold-duotone" className="text-[18px]" />
+              </div>
+              <h1 className="text-[24px] font-black text-[#111111] tracking-tight">Delivery Agent</h1>
+            </div>
+            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5 ml-0.5">Manage assigned tasks, active routes, and update delivery status.</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-1">
             <button 
               onClick={() => {
-                setSelectedMapDelivery(activeList[0] || null);
-                setIsMapOpen(true);
+                setSelectedAgentId(undefined);
+                setIsAgentsMapOpen(true);
               }}
-              className="h-[40px] px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[12px] text-[14px] font-semibold text-[#111111] hover:bg-[#F3F4F6] transition-colors"
+              className="h-10 px-5 flex items-center gap-2 bg-white border border-[#ECEDEF] hover:bg-[#F3F4F6] text-[#111111] rounded-[10px] text-[13px] font-bold transition-all"
             >
               <Navigation size={16} />
               Open Map
@@ -110,20 +117,20 @@ export default function DeliveryManagement() {
           </div>
         </div>
 
-        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar border-b border-[#ECEDEF]">
+        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
           {SUB_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-4 text-[14px] font-medium whitespace-nowrap transition-colors relative ${
-                activeTab === tab ? 'text-[#D40073]' : 'text-[#525866] hover:text-[#111111]'
+              className={`pb-4 text-[14px] font-bold whitespace-nowrap transition-colors relative ${
+                activeTab === tab ? 'text-[#D40073]' : 'text-[#8B93A7] hover:text-[#111111]'
               }`}
             >
-              {tab}
+              <span className="relative z-10">{tab}</span>
               {activeTab === tab && (
                 <motion.div
                   layoutId="deliveryTabIndicator"
-                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#D40073]"
+                  className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#D40073] rounded-t-full"
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
@@ -242,12 +249,12 @@ export default function DeliveryManagement() {
 
                           <div className="space-y-4 mb-6 flex-1">
                             <div className="relative pl-6 before:absolute before:left-[11px] before:top-2 before:bottom-[-16px] before:w-[2px] before:bg-[#E4E7EC]">
-                              <div className="absolute left-2 top-1.5 w-2 h-2 rounded-full bg-[#D40073] border-2 border-white shadow-[0_0_0_2px_#D40073]" />
+                              <div className="absolute left-2 top-1.5 w-2 h-2 rounded-full bg-[#D40073] border-2 border-white" />
                               <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-0.5">Pickup</p>
                               <p className="text-[13px] font-medium text-[#111111]">{delivery.pickup}</p>
                             </div>
                             <div className="relative pl-6">
-                              <div className="absolute left-2 top-1.5 w-2 h-2 rounded-full bg-[#111111] border-2 border-white shadow-[0_0_0_2px_#111111]" />
+                              <div className="absolute left-2 top-1.5 w-2 h-2 rounded-full bg-[#111111] border-2 border-white" />
                               <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-0.5">Dropoff</p>
                               <p className="text-[13px] font-medium text-[#111111]">{delivery.dropoff}</p>
                             </div>
@@ -313,11 +320,11 @@ export default function DeliveryManagement() {
                   <p className="text-[14px] font-medium text-[#111111]">No active deliveries</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-[16px] border border-[#ECEDEF] overflow-hidden">
+                <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 overflow-hidden shadow-sm">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-[#ECEDEF] bg-[#F7F7F8]">
+                        <tr className="border-b border-[#ECEDEF] dark:border-white/5 bg-[#F9FAFB] dark:bg-white/5">
                           <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Order ID</th>
                           <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Customer</th>
                           <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Locations</th>
@@ -325,9 +332,9 @@ export default function DeliveryManagement() {
                           <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#ECEDEF]">
+                      <tbody className="divide-y divide-[#ECEDEF] dark:divide-white/5">
                         {activeList.map(delivery => (
-                          <tr key={delivery.id} className="hover:bg-[#F7F7F8] transition-colors group">
+                          <tr key={delivery.id} className="hover:bg-[#F7F7F8] dark:hover:bg-white/5 transition-colors group">
                             <td className="py-4 px-6">
                               <span className="text-[14px] font-bold text-[#111111]">{delivery.id}</span>
                               <div className="mt-1 flex items-center gap-1">
@@ -370,8 +377,8 @@ export default function DeliveryManagement() {
                               <div className="flex items-center justify-end gap-2">
                                 <button
                                   onClick={() => {
-                                    setSelectedMapDelivery(delivery);
-                                    setIsMapOpen(true);
+                                    setSelectedAgentId(delivery.agentId);
+                                    setIsAgentsMapOpen(true);
                                   }}
                                   className="h-8 px-3 rounded-[8px] bg-white border border-[#E4E7EC] text-[#111111] hover:bg-[#F3F4F6] text-[12px] font-bold flex items-center gap-1.5 transition-colors"
                                 >
@@ -405,40 +412,44 @@ export default function DeliveryManagement() {
               transition={{ duration: 0.2 }}
               className="max-w-[1200px] mx-auto"
             >
-               <Card className="overflow-hidden">
+               <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 overflow-hidden shadow-sm">
                  <table className="w-full text-left border-collapse">
                    <thead>
-                     <tr className="bg-[#F7F7F8] border-b border-[#ECEDEF]">
-                       <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Order ID</th>
-                       <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Delivered To</th>
-                       <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Date / Time</th>
-                       <th className="py-3 px-5 text-[12px] font-semibold text-[#525866] uppercase tracking-wider">Status</th>
+                     <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5">
+                       <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Order ID</th>
+                       <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Delivered To</th>
+                       <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Date / Time</th>
+                       <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Status</th>
                      </tr>
                    </thead>
-                   <tbody className="text-[13px]">
+                   <tbody className="divide-y divide-[#ECEDEF] dark:divide-white/5">
                      {completedList.map(delivery => (
-                       <tr key={delivery.id} className="border-b border-[#ECEDEF] last:border-0 hover:bg-[#FBFBFC] transition-colors">
-                         <td className="py-4 px-5 font-bold text-[#111111]">{delivery.id}</td>
-                         <td className="py-4 px-5">
-                           <p className="font-semibold text-[#111111]">{delivery.customer}</p>
-                           <p className="text-[12px] text-[#525866]">{delivery.dropoff}</p>
+                       <tr key={delivery.id} className="hover:bg-[#F7F7F8] dark:hover:bg-white/5 transition-colors group">
+                         <td className="py-4 px-6">
+                           <span className="text-[14px] font-bold text-[#111111] dark:text-white uppercase tracking-tight">{delivery.id}</span>
                          </td>
-                         <td className="py-4 px-5 font-medium text-[#525866]">{delivery.time}</td>
-                         <td className="py-4 px-5">
-                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[12px] font-bold bg-[#ECFDF3] text-[#16A34A]">
-                             <CheckCircle2 size={12} /> Completed
+                         <td className="py-4 px-6">
+                           <p className="text-[14px] font-bold text-[#111111] dark:text-white">{delivery.customer}</p>
+                           <p className="text-[12px] text-[#525866] dark:text-[#8B93A7] mt-1">{delivery.dropoff}</p>
+                         </td>
+                         <td className="py-4 px-6">
+                           <span className="text-[14px] font-bold text-[#525866] dark:text-[#8B93A7]">{delivery.time}</span>
+                         </td>
+                         <td className="py-4 px-6">
+                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[12px] font-bold bg-[#ECFDF3] dark:bg-[#064E3B]/30 text-[#16A34A]">
+                             <CheckCircle2 size={14} /> COMPLETED
                            </span>
                          </td>
                        </tr>
                      ))}
                      {completedList.length === 0 && (
                        <tr>
-                         <td colSpan={4} className="py-12 text-center text-[#525866]">No completed deliveries yet.</td>
+                         <td colSpan={4} className="py-12 text-center text-[#8B93A7] font-medium">No completed deliveries yet.</td>
                        </tr>
                      )}
                    </tbody>
                  </table>
-               </Card>
+               </div>
             </motion.div>
           )}
 
@@ -453,10 +464,10 @@ export default function DeliveryManagement() {
               className="max-w-[1200px] mx-auto space-y-4"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[18px] font-bold text-[#111111]">Delivery Agents ({agents.length})</h2>
+                <h2 className="text-[18px] font-black text-[#111111] dark:text-white uppercase tracking-tight">Delivery Agents ({agents.length})</h2>
                 <button
                   onClick={() => setIsNewAgentOpen(true)}
-                  className="h-[40px] px-4 bg-[#D40073] hover:bg-[#B3005F] text-white font-bold text-[14px] rounded-[12px] flex items-center gap-2 transition-colors"
+                  className="h-[40px] px-4 bg-[#111111] dark:bg-white text-white dark:text-[#111111] font-black text-[13px] rounded-[10px] flex items-center gap-2 hover:bg-[#D40073] hover:text-white transition-all active:scale-95 border border-transparent dark:border-white/10"
                 >
                   <Plus size={16} />
                   Add New Agent
@@ -473,46 +484,48 @@ export default function DeliveryManagement() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                     >
-                      <Card className="p-5 flex flex-col h-full hover:border-[#D40073]/30 transition-all group">
+                      <Card className="p-5 flex flex-col h-full hover:border-[#D40073]/30 transition-all group bg-white dark:bg-[#151B2B] rounded-[22px] border-[#ECEDEF] dark:border-white/10 shadow-sm">
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex gap-3">
                             <div className="relative">
-                              <div className="w-12 h-12 rounded-full bg-[#F3F4F6] flex items-center justify-center border border-[#ECEDEF]">
+                              <div className="w-12 h-12 rounded-full bg-[#F3F4F6] dark:bg-white/5 flex items-center justify-center border border-[#ECEDEF] dark:border-white/10">
                                 <User size={20} className="text-[#8B93A7]" />
                               </div>
-                              <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 border-2 border-white rounded-full ${agent.status !== 'Offline' ? 'bg-[#16A34A]' : 'bg-[#8B93A7]'}`} />
+                              <div className={`absolute bottom-0.5 right-0.5 w-3 h-3 border-2 border-white dark:border-[#151B2B] rounded-full ${agent.status !== 'Offline' ? 'bg-[#16A34A]' : 'bg-[#8B93A7]'}`} />
                             </div>
                             <div>
-                              <h3 className="text-[16px] font-bold text-[#111111]">{agent.name}</h3>
-                              <p className="text-[12px] text-[#525866]">{agent.id}</p>
+                              <h3 className="text-[16px] font-bold text-[#111111] dark:text-white line-clamp-1">{agent.name}</h3>
+                              <p className="text-[12px] font-bold text-[#D40073] uppercase">{agent.id}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 bg-[#FFFBEB] text-[#D97706] px-2 py-1 rounded-[6px] text-[12px] font-bold">
+                          <div className="flex items-center gap-1 bg-[#FFFBEB] dark:bg-[#78350F]/20 text-[#D97706] px-2 py-1 rounded-[6px] text-[12px] font-black border border-[#FEF3C7] dark:border-[#78350F]/20">
                             <Star size={12} fill="currentColor" /> {agent.rating}
                           </div>
                         </div>
 
                         <div className="space-y-3 mb-6 flex-1">
-                          <div className="flex items-center gap-2 text-[13px] text-[#525866]">
+                          <div className="flex items-center gap-2.5 text-[13px] font-bold text-[#525866] dark:text-[#8B93A7]">
                             <Phone size={14} className="text-[#8B93A7]" />
                             {agent.phone}
                           </div>
-                          <div className="flex items-center gap-2 text-[13px] text-[#525866] capitalize">
-                            {agent.vehicleType === 'bike' ? <Bike size={14} className="text-[#8B93A7]" /> :
-                             agent.vehicleType === 'van' ? <Car size={14} className="text-[#8B93A7]" /> :
-                             <Truck size={14} className="text-[#8B93A7]" />}
-                            {agent.vehicleType} • {agent.licensePlate}
+                          <div className="flex items-center gap-2.5 text-[13px] font-bold text-[#525866] dark:text-[#8B93A7] capitalize">
+                            {agent.vehicleType === 'bike' ? <Bike size={16} className="text-[#D40073]" /> :
+                             agent.vehicleType === 'van' ? <Car size={16} className="text-[#D40073]" /> :
+                             <Truck size={16} className="text-[#D40073]" />}
+                            <span className="text-[#111111] dark:text-white">{agent.vehicleType}</span>
+                            <span className="w-1 h-1 rounded-full bg-[#ECEDEF] dark:bg-white/20" />
+                            {agent.licensePlate}
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-4 border-t border-[#ECEDEF]">
+                        <div className="flex items-center justify-between pt-4 border-t border-[#ECEDEF] dark:border-white/5 mt-auto">
                           <div>
-                            <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-0.5">Total Deliveries</p>
-                            <p className="text-[16px] font-bold text-[#111111]">{agent.deliveries}</p>
+                            <p className="text-[10px] font-black text-[#8B93A7] uppercase tracking-widest mb-1">TOTAL DELIVERIES</p>
+                            <p className="text-[18px] font-black text-[#111111] dark:text-white">{agent.deliveries}</p>
                           </div>
                           <button 
                             onClick={() => setSelectedAgent(agent)}
-                            className="h-[36px] px-4 rounded-[8px] bg-[#F7F7F8] hover:bg-[#E4E7EC] text-[#111111] text-[13px] font-bold transition-colors"
+                            className="h-[40px] px-5 rounded-[12px] bg-[#F7F7F8] dark:bg-white/5 hover:bg-[#E4E7EC] dark:hover:bg-white/10 text-[#111111] dark:text-white text-[13px] font-black transition-all border border-transparent hover:border-[#ECEDEF] dark:hover:border-white/10 shadow-sm"
                           >
                             View Profile
                           </button>
@@ -535,11 +548,11 @@ export default function DeliveryManagement() {
               transition={{ duration: 0.2 }}
               className="max-w-[800px] mx-auto"
             >
-              <Card className="flex flex-col">
-                <div className="p-4 border-b border-[#ECEDEF]">
-                  <h3 className="text-[16px] font-bold text-[#111111]">Recent Alerts</h3>
+              <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 flex flex-col shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-[#ECEDEF] dark:border-white/5 bg-[#F9FAFB] dark:bg-white/5">
+                  <h3 className="text-[16px] font-black text-[#111111] dark:text-white uppercase tracking-tight">Recent Alerts</h3>
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col divide-y divide-[#ECEDEF] dark:divide-white/5">
                   {notifications.map((note: any) => {
                     let dotColor = 'bg-[#8B93A7]';
                     let icon = <Navigation size={14} className="text-[#8B93A7]" />;
@@ -549,19 +562,19 @@ export default function DeliveryManagement() {
                     if (note.type === 'alert') { dotColor = 'bg-[#DC2626]'; icon = <AlertCircle size={14} className="text-[#DC2626]" />; }
 
                     return (
-                      <div key={note.id} className="flex items-start gap-4 p-4 border-b border-[#ECEDEF] last:border-0 hover:bg-[#FBFBFC] transition-colors cursor-pointer">
-                        <div className={`mt-0.5 shrink-0 w-[32px] h-[32px] rounded-full bg-white border border-[#ECEDEF] flex items-center justify-center`}>
+                      <div key={note.id} className="flex items-start gap-4 p-5 hover:bg-[#F7F7F8] dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                        <div className={`mt-0.5 shrink-0 w-[40px] h-[40px] rounded-[10px] bg-white dark:bg-white/5 border border-[#ECEDEF] dark:border-white/10 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
                           {icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[14px] font-medium text-[#111111]">{note.text}</p>
-                          <p className="text-[12px] font-medium text-[#8B93A7] mt-1">{note.time}</p>
+                          <p className="text-[14px] font-bold text-[#111111] dark:text-white line-clamp-2">{note.text}</p>
+                          <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mt-1">{note.time}</p>
                         </div>
                       </div>
                     )
                   })}
                 </div>
-              </Card>
+              </div>
             </motion.div>
           )}
 
@@ -614,10 +627,13 @@ export default function DeliveryManagement() {
         )}
       </AnimatePresence>
 
-      <LiveMapModal 
-        isOpen={isMapOpen} 
-        onClose={() => setIsMapOpen(false)} 
-        delivery={selectedMapDelivery || activeList[0]} 
+      <AgentsMapModal 
+        isOpen={isAgentsMapOpen}
+        onClose={() => {
+          setIsAgentsMapOpen(false);
+          setSelectedAgentId(undefined);
+        }}
+        selectedAgentId={selectedAgentId}
       />
 
       <NewAgentModal 

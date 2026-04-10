@@ -6,32 +6,31 @@ import { useCredit } from '../../credit/context/CreditContext';
 import { useDealerWorkflow } from '../components/DealerWorkflowContext';
 import { useOrderWorkflow } from '../../orders/components/OrderWorkflowContext';
 import { useOrderManagement } from '../../orders/context/OrderManagementContext';
+import { useConsignment } from '../../consignment/context/ConsignmentContext';
 import * as Dialog from '@radix-ui/react-dialog';
 import { 
   MOCK_DEALERS, MOCK_DEALER_ORDERS, MOCK_DEALER_PAYMENTS, MOCK_DEALER_CONSIGNMENTS, Dealer
 } from '../../../core/data/mockDealerData';
 
-const TABS = ['Overview', 'Orders', 'Payments', 'Credit'];
+
 const CATALOG = [
-  { label: 'Samsung Galaxy A54', price: 2500 },
-  { label: 'LG 55" UHD TV', price: 9000 },
-  { label: 'JBL Flip 6', price: 1280 },
   { label: 'Sony WH-1000XM5', price: 3400 },
   { label: 'Apple Watch Series 9', price: 4200 },
 ];
 
 export default function DealerManagement() {
   const { openCreateDealer } = useDealerWorkflow();
-  const { openSharingModal } = useOrderWorkflow();
+  const { openCreateOrder, openSharingModal } = useOrderWorkflow();
   const { accounts, getAccountByDealerId } = useCredit();
   const { orders: globalOrders } = useOrderManagement();
+  const { outboundConsignments } = useConsignment();
 
   const dealerOrders = useMemo(() => {
     return globalOrders.filter(o => o.type === 'Dealer');
   }, [globalOrders]);
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('Overview');
+
   const [selectedDealer, setSelectedDealer] = useState<any>(null);
 
   // Sync selectedDealer credit data with CreditContext
@@ -50,7 +49,7 @@ export default function DealerManagement() {
       scoreValue: creditAccount.score
     };
   }, [selectedDealer, creditAccount]);
-  const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
+
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [isAllOrdersModalOpen, setIsAllOrdersModalOpen] = useState(false);
   const [orderSearch, setOrderSearch] = useState('');
@@ -61,7 +60,6 @@ export default function DealerManagement() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
   const [isReplenishModalOpen, setIsReplenishModalOpen] = useState(false);
-  const [itemRows, setItemRows] = useState([0]);
 
   const filteredDealers = MOCK_DEALERS.filter(d => {
     const matchSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase()) || d.id.toLowerCase().includes(searchQuery.toLowerCase());
@@ -72,8 +70,6 @@ export default function DealerManagement() {
 
   const regions = Array.from(new Set(MOCK_DEALERS.map(d => d.region)));
 
-  const addRow = () => setItemRows(r => [...r, Date.now()]);
-  const removeRow = (key: number) => setItemRows(r => r.filter(k => k !== key));
 
   const formatMoney = (val: number) => `GHS ${val.toLocaleString()}`;
 
@@ -87,95 +83,115 @@ export default function DealerManagement() {
   return (
     <div className="flex flex-col h-full w-full bg-[#F7F7F8] relative min-h-0 font-sans">
       {/* ── Page Header ── */}
-      <div className="px-6 md:px-8 pt-8 pb-6 bg-[#F7F7F8] shrink-0 sticky top-0 z-20">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      <div className="bg-white dark:bg-[#151B2B] border-b border-[#ECEDEF] dark:border-white/5 px-8 pt-6 shrink-0 sticky top-0 z-20">
+        <div className="flex items-end justify-between mb-4">
           <div>
-            <h1 className="text-[28px] font-bold text-[#111111] tracking-tight mb-2">Dealer Management</h1>
-            <p className="text-[14px] text-[#525866] max-w-xl leading-relaxed font-medium">
-              Browse & order products · Pay (cash / e-cash / credit)<br />
-              View consignment history · View credit score
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-[11px] bg-[#111111] text-white flex items-center justify-center">
+                <Icon icon="solar:users-group-two-rounded-bold-duotone" className="text-[18px]" />
+              </div>
+              <h1 className="text-[24px] font-black text-[#111111] tracking-tight">Dealer Management</h1>
+            </div>
+            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5 ml-0.5">
+              Browse products, process orders, and manage dealer credit.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="h-10 px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[10px] text-[13px] font-bold text-[#111111] hover:bg-[#F3F4F6] transition-colors">
+          <div className="flex items-center gap-3 mb-1">
+            <button className="h-10 px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] text-[#111111] text-[13px] font-bold hover:bg-[#F3F4F6] transition-colors rounded-[10px]">
               <Icon icon="solar:download-square-linear" className="text-[18px]" />
-              Export Data
+              Export
             </button>
             <button 
               onClick={() => openCreateDealer()}
-              className="h-10 px-4 flex items-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] text-[13px] font-bold transition-colors"
+              className="h-10 px-5 flex items-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] text-[13px] font-bold transition-all"
             >
-              <Icon icon="solar:add-circle-linear" className="text-[18px]" />
+              <Icon icon="solar:add-circle-bold" className="text-[18px]" />
               Create Dealer
             </button>
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
-          {/* Stat 1 */}
-          <div className="relative p-5 rounded-[16px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #120009 0%, #2e001a 100%)', boxShadow: '0 8px 24px rgba(46,0,26,0.15)' }}>
-            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #D40073, transparent 70%)' }} />
-            <div className="relative flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                <Icon icon="solar:users-group-two-rounded-bold" className="text-[20px]" />
-              </div>
-            </div>
-            <p className="relative text-[13px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Total Dealers</p>
-            <p className="relative text-[24px] font-bold text-white tracking-tight">1,248</p>
-          </div>
-          {/* Stat 2 */}
-          <div className="relative p-5 rounded-[16px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)', boxShadow: '0 8px 24px rgba(49,46,129,0.15)' }}>
-            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #818cf8, transparent 70%)' }} />
-            <div className="relative flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                <Icon icon="solar:chart-square-bold" className="text-[20px]" />
-              </div>
-              <span className="px-2 py-1 rounded-[6px] text-[12px] font-bold" style={{ background: 'rgba(255,255,255,0.15)', color: '#fff' }}>+5.2%</span>
-            </div>
-            <p className="relative text-[13px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Active Orders</p>
-            <p className="relative text-[24px] font-bold text-white tracking-tight">342</p>
-          </div>
-          {/* Stat 3 */}
-          <div className="relative p-5 rounded-[16px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #059669 0%, #064e3b 100%)', boxShadow: '0 8px 24px rgba(6,78,59,0.15)' }}>
-            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #34d399, transparent 70%)' }} />
-            <div className="relative flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                <Icon icon="solar:chart-pie-bold" className="text-[20px]" />
-              </div>
-            </div>
-            <p className="relative text-[13px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Avg Credit Score</p>
-            <p className="relative text-[24px] font-bold text-white tracking-tight">745</p>
-          </div>
-          {/* Stat 4 */}
-          <div className="relative p-5 rounded-[16px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #ea580c 0%, #7c2d12 100%)', boxShadow: '0 8px 24px rgba(124,45,18,0.15)' }}>
-            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #fdba74, transparent 70%)' }} />
-            <div className="relative flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                <Icon icon="solar:wallet-bold" className="text-[20px]" />
-              </div>
-            </div>
-            <p className="relative text-[13px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Total Outstanding</p>
-            <p className="relative text-[24px] font-bold text-white tracking-tight">GHS 41,900</p>
-          </div>
-        </div>
+
       </div>
 
-      {/* ── Main List Area ── */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-8 pt-0 min-h-0">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="bg-white rounded-[16px] border border-[#ECEDEF] overflow-hidden">
+      {/* ── Main Scrollable Area ── */}
+      <div className="flex-1 overflow-y-auto min-h-0 bg-[#F7F7F8] dark:bg-[#0B0F1A]">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-8 py-6 flex flex-col gap-8">
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Stat 1 */}
+            <div className="relative p-6 rounded-[22px] overflow-hidden bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 shadow-sm transition-all hover:translate-y-[-2px] hover:shadow-md group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#111111]/5 to-transparent dark:from-white/5 rounded-bl-full transition-all group-hover:scale-110" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-11 h-11 rounded-[12px] bg-[#F7F7F8] dark:bg-white/5 border border-[#ECEDEF] dark:border-white/10 flex items-center justify-center text-[#111111] dark:text-white group-hover:bg-[#111111] group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-[#111111] transition-all">
+                  <Icon icon="solar:users-group-two-rounded-bold" className="text-[22px]" />
+                </div>
+              </div>
+              <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest mb-1 group-hover:text-[#111111] dark:group-hover:text-white transition-colors">Total Dealers</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-[26px] font-black text-[#111111] dark:text-white tracking-tight">1,248</p>
+                <span className="text-[12px] font-black text-[#16A34A] flex items-center gap-0.5">
+                  <Icon icon="solar:arrow-up-right-bold" />
+                  +12%
+                </span>
+              </div>
+            </div>
+
+            {/* Stat 2 */}
+            <div className="relative p-6 rounded-[22px] overflow-hidden bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 shadow-sm transition-all hover:translate-y-[-2px] hover:shadow-md group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#4F46E5]/5 to-transparent rounded-bl-full transition-all group-hover:scale-110" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-11 h-11 rounded-[12px] bg-[#EEF2FF] dark:bg-[#4F46E5]/10 border border-[#E0E7FF] dark:border-[#4F46E5]/20 flex items-center justify-center text-[#4F46E5] group-hover:bg-[#4F46E5] group-hover:text-white transition-all">
+                  <Icon icon="solar:chart-square-bold" className="text-[22px]" />
+                </div>
+              </div>
+              <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest mb-1 group-hover:text-[#4F46E5] transition-colors">Active Orders</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-[26px] font-black text-[#111111] dark:text-white tracking-tight">342</p>
+                <span className="text-[12px] font-black text-[#16A34A] flex items-center gap-0.5">
+                  <Icon icon="solar:arrow-up-right-bold" />
+                  +5%
+                </span>
+              </div>
+            </div>
+
+            {/* Stat 3 */}
+            <div className="relative p-6 rounded-[22px] overflow-hidden bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 shadow-sm transition-all hover:translate-y-[-2px] hover:shadow-md group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#059669]/5 to-transparent rounded-bl-full transition-all group-hover:scale-110" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-11 h-11 rounded-[12px] bg-[#ECFDF5] dark:bg-[#059669]/10 border border-[#D1FAE5] dark:border-[#059669]/20 flex items-center justify-center text-[#059669] group-hover:bg-[#059669] group-hover:text-white transition-all">
+                  <Icon icon="solar:chart-pie-bold" className="text-[22px]" />
+                </div>
+              </div>
+              <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest mb-1 group-hover:text-[#059669] transition-colors">Avg Credit Score</p>
+              <p className="text-[26px] font-black text-[#111111] dark:text-white tracking-tight">745</p>
+            </div>
+
+            {/* Stat 4 */}
+            <div className="relative p-6 rounded-[22px] overflow-hidden bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 shadow-sm transition-all hover:translate-y-[-2px] hover:shadow-md group">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#D40073]/5 to-transparent rounded-bl-full transition-all group-hover:scale-110" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-11 h-11 rounded-[12px] bg-[#FFF1F2] dark:bg-[#D40073]/10 border border-[#FFE4E6] dark:border-[#D40073]/20 flex items-center justify-center text-[#D40073] group-hover:bg-[#D40073] group-hover:text-white transition-all">
+                  <Icon icon="solar:wallet-bold" className="text-[22px]" />
+                </div>
+              </div>
+              <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest mb-1 group-hover:text-[#D40073] transition-colors">Total Outstanding</p>
+              <p className="text-[26px] font-black text-[#111111] dark:text-white tracking-tight">GHS 41.9k</p>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 shadow-sm rounded-[22px] overflow-hidden">
             
             {/* Table Toolbar */}
-            <div className="p-4 border-b border-[#ECEDEF] flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#F7F7F8] relative">
+            <div className="h-16 px-4 border-b border-[#ECEDEF] dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#F9FAFB] dark:bg-white/5 relative">
               <div className="relative max-w-md w-full group">
-                <Icon icon="solar:magnifer-linear" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors text-[18px]" />
+                <Icon icon="solar:magnifer-linear" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors text-[18px]" />
                 <input 
-                  type="text" 
-                  placeholder="Search dealers by name or ID..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 h-10 bg-white border border-[#E4E7EC] rounded-[10px] text-[13px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.1)] focus:border-[#D40073] transition-all"
+                   type="text" 
+                   placeholder="Search dealers by name or ID..."
+                   value={searchQuery}
+                   onChange={(e) => setSearchQuery(e.target.value)}
+                   className="w-full pl-10 pr-4 h-10 bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 rounded-[10px] text-[13px] font-black text-[#111111] dark:text-white placeholder:text-[#8B93A7] focus:outline-none focus:border-[#D40073] transition-all"
                 />
               </div>
               
@@ -198,7 +214,7 @@ export default function DealerManagement() {
                 {isFilterOpen && (
                   <>
                     <div className="fixed inset-0 z-30" onClick={() => setIsFilterOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-[280px] bg-white border border-[#E4E7EC] shadow-xl rounded-[16px] p-5 z-40 transform origin-top-right transition-all">
+                    <div className="absolute right-0 mt-2 w-[280px] bg-white border border-[#E4E7EC] rounded-[16px] p-5 z-40 transform origin-top-right transition-all">
                        <h3 className="text-[14px] font-bold text-[#111111] mb-4">Filter Table</h3>
                        
                        <div className="space-y-4">
@@ -256,66 +272,66 @@ export default function DealerManagement() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#ECEDEF] bg-white">
-                    <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Dealer</th>
+                  <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5">
+                    <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Dealer Details</th>
                     <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Status</th>
                     <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Credit Score</th>
-                    <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Orders</th>
+                    <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Activity</th>
                     <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Outstanding</th>
                     <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ECEDEF]">
+                <tbody className="divide-y divide-[#ECEDEF] dark:divide-white/5">
                   {filteredDealers.map((dealer) => (
                     <tr 
                       key={dealer.id} 
-                      className="hover:bg-[#FBFBFC] transition-colors group cursor-pointer"
-                      onClick={() => { setSelectedDealer(dealer); setActiveTab('Overview'); }}
+                      className="hover:bg-[#FBFBFC] dark:hover:bg-white/5 transition-all group cursor-pointer"
+                      onClick={() => setSelectedDealer(dealer)}
                     >
                       <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-[10px] bg-[#F7F7F8] border border-[#ECEDEF] flex items-center justify-center text-[#111111] font-bold shrink-0 text-[16px]">
+                        <div className="flex items-center gap-4">
+                          <div className="w-11 h-11 rounded-[12px] bg-[#F7F7F8] dark:bg-white/5 border border-[#ECEDEF] dark:border-white/10 flex items-center justify-center text-[#111111] dark:text-white font-black shrink-0 text-[18px] group-hover:bg-[#111111] group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-[#111111] transition-all">
                             {dealer.name.charAt(0)}
                           </div>
                           <div>
-                            <p className="text-[14px] font-bold text-[#111111]">{dealer.name}</p>
-                            <p className="text-[13px] font-medium text-[#8B93A7]">{dealer.id} • {dealer.region}</p>
+                            <p className="text-[14px] font-black text-[#111111] dark:text-white group-hover:text-[#D40073] transition-colors">{dealer.name}</p>
+                            <p className="text-[12px] font-bold text-[#8B93A7] mt-1 uppercase tracking-wider">{dealer.id} • {dealer.region}</p>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[12px] font-bold ${
-                          dealer.status === 'Active' ? 'bg-[#ECFDF3] text-[#16A34A]' : 
-                          dealer.status === 'Warning' ? 'bg-[#FFF7ED] text-[#D97706]' : 
-                          'bg-[#F3F4F6] text-[#525866]'
+                        <span className={`inline-flex px-2.5 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-wider border shadow-sm ${
+                          dealer.status === 'Active' ? 'bg-[#ECFDF3] dark:bg-[#064E3B]/30 text-[#16A34A] border-[#16A34A]/10' : 
+                          dealer.status === 'Warning' ? 'bg-[#FFF7ED] dark:bg-[#78350F]/30 text-[#D97706] border-[#D97706]/10' : 
+                          'bg-[#F3F4F6] dark:bg-white/5 text-[#525866] dark:text-[#8B93A7] border-transparent'
                         }`}>
                           {dealer.status}
                         </span>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="flex items-center gap-2.5">
-                          <div className={`h-1.5 w-16 rounded-full overflow-hidden bg-[#F3F4F6]`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`h-1.5 w-16 rounded-full overflow-hidden bg-[#F3F4F6] dark:bg-white/10`}>
                             <div 
                               className="h-full rounded-full transition-all" 
                               style={{ width: `${(dealer.creditScore / 1000) * 100}%`, background: getRiskColor(dealer.creditScore) }}
                             />
                           </div>
-                          <span className="text-[14px] font-bold text-[#111111]">{dealer.creditScore}</span>
+                          <span className="text-[14px] font-black text-[#111111] dark:text-white">{dealer.creditScore}</span>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <p className="text-[14px] font-bold text-[#111111]">{dealer.ordersCount}</p>
-                        <p className="text-[12px] font-medium text-[#8B93A7]">Last: {dealer.lastOrder}</p>
+                        <p className="text-[14px] font-black text-[#111111] dark:text-white">{dealer.ordersCount} ORDERS</p>
+                        <p className="text-[11px] font-bold text-[#8B93A7] mt-1 uppercase tracking-wider">Last: {dealer.lastOrder}</p>
                       </td>
                       <td className="py-4 px-6">
-                        <p className="text-[14px] font-bold text-[#111111]">{formatMoney(dealer.outstanding)}</p>
+                        <p className="text-[16px] font-black text-[#111111] dark:text-white tracking-tight">{formatMoney(dealer.outstanding)}</p>
                       </td>
                       <td className="py-4 px-6 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[#8B93A7] hover:bg-white hover:shadow-sm hover:text-[#111111] transition-all border border-transparent hover:border-[#ECEDEF]">
+                          <button className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[#8B93A7] hover:bg-white hover:text-[#111111] transition-all border border-transparent hover:border-[#ECEDEF]">
                             <Icon icon="solar:arrow-up-right-linear" className="text-[18px]" />
                           </button>
-                          <button className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[#8B93A7] hover:bg-white hover:shadow-sm hover:text-[#111111] transition-all border border-transparent hover:border-[#ECEDEF]">
+                          <button className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[#8B93A7] hover:bg-white hover:text-[#111111] transition-all border border-transparent hover:border-[#ECEDEF]">
                             <Icon icon="solar:menu-dots-bold" className="text-[18px]" />
                           </button>
                         </div>
@@ -343,8 +359,9 @@ export default function DealerManagement() {
             )}
 
             {/* Pagination footer */}
-            <div className="p-4 border-t border-[#ECEDEF] flex items-center justify-between text-[13px] font-medium text-[#525866] bg-[#F7F7F8]">
+            <div className="p-4 border-t border-[#ECEDEF] dark:border-white/5 flex items-center justify-between text-[13px] font-black text-[#8B93A7] bg-[#F9FAFB] dark:bg-white/5 uppercase tracking-wider">
               <span>Showing {filteredDealers.length} of {MOCK_DEALERS.length} dealers</span>
+              <span>Page 1 of 1</span>
             </div>
           </div>
         </div>
@@ -362,10 +379,10 @@ export default function DealerManagement() {
             <motion.div
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-[600px] bg-white border-l border-[#ECEDEF] shadow-2xl z-50 flex flex-col font-sans"
+              className="fixed top-0 right-0 bottom-0 w-full max-w-[600px] bg-white dark:bg-[#151B2B] border-l border-[#ECEDEF] dark:border-white/10 z-50 flex flex-col font-sans"
             >
               {/* Drawer Header */}
-              <div className="px-6 py-6 border-b border-[#ECEDEF] shrink-0 bg-[#F7F7F8] relative overflow-hidden">
+              <div className="px-6 py-6 border-b border-white/10 dark:border-white/5 shrink-0 bg-white/5 relative overflow-hidden">
                 <button 
                   onClick={() => setSelectedDealer(null)}
                   className="absolute top-6 right-6 w-8 h-8 rounded-full hover:bg-[#E4E7EC] flex items-center justify-center transition-colors text-[#8B93A7] hover:text-[#111111]"
@@ -374,7 +391,7 @@ export default function DealerManagement() {
                 </button>
 
                 <div className="flex items-center gap-4 mb-5">
-                  <div className="w-16 h-16 rounded-[14px] bg-white border border-[#E4E7EC] shadow-sm flex items-center justify-center text-[#111111] text-[24px] font-bold shrink-0">
+                  <div className="w-16 h-16 rounded-[14px] bg-white border border-[#E4E7EC] flex items-center justify-center text-[#111111] text-[24px] font-bold shrink-0">
                     {selectedDealer.name.charAt(0)}
                   </div>
                   <div>
@@ -393,30 +410,17 @@ export default function DealerManagement() {
                   </div>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex gap-1 bg-[#ECEDEF] p-1 rounded-[10px] w-fit">
-                  {TABS.map(t => (
-                    <button
-                      key={t}
-                      onClick={() => setActiveTab(t)}
-                      className="h-8 px-4 rounded-[8px] text-[13px] font-bold transition-all"
-                      style={activeTab === t ? { background: '#111111', color: '#fff' } : { color: '#525866' }}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
+
               </div>
 
               {/* Drawer Scrolled Content */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
+              <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-transparent">
                 
-                {/* ── TAB: OVERVIEW ── */}
-                {activeTab === 'Overview' && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                 {/* ── Overview ── */}
+                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                     {/* Quick Stats Grid */}
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #059669 0%, #064e3b 100%)', boxShadow: '0 4px 16px rgba(6,78,59,0.15)' }}>
+                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #059669 0%, #064e3b 100%)' }}>
                          <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #34d399, transparent 70%)' }} />
                          <p className="relative text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Credit Score</p>
                          <div className="relative flex items-center gap-3 mt-1">
@@ -426,19 +430,19 @@ export default function DealerManagement() {
                            </div>
                          </div>
                       </div>
-                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #120009 0%, #2e001a 100%)', boxShadow: '0 4px 16px rgba(46,0,26,0.15)' }}>
+                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #120009 0%, #2e001a 100%)' }}>
                          <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #D40073, transparent 70%)' }} />
                          <p className="relative text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Total Orders</p>
                          <p className="relative text-[22px] font-bold text-white tracking-tight mt-1">{selectedDealer.ordersCount}</p>
                       </div>
-                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #ea580c 0%, #7c2d12 100%)', boxShadow: '0 4px 16px rgba(124,45,18,0.15)' }}>
+                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #ea580c 0%, #7c2d12 100%)' }}>
                          <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #fdba74, transparent 70%)' }} />
                          <p className="relative text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Outstanding</p>
                          <p className="relative text-[22px] font-bold text-white tracking-tight mt-1">
                            {formatMoney(selectedDealer.outstanding)}
                          </p>
                       </div>
-                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)', boxShadow: '0 4px 16px rgba(49,46,129,0.15)' }}>
+                      <div className="relative p-4 rounded-[14px] overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #312e81 100%)' }}>
                          <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none opacity-20" style={{ background: 'radial-gradient(circle, #818cf8, transparent 70%)' }} />
                          <p className="relative text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.7)' }}>Used Credit</p>
                          <p className="relative text-[22px] font-bold text-white tracking-tight mt-1">
@@ -512,12 +516,12 @@ export default function DealerManagement() {
                          <p className="text-[11px] text-[#8B93A7] mt-2 font-medium italic">"Consistent stock rotation and zero aging inventory."</p>
                        </div>
                      </div>
-                   </motion.div>
-                )}
+                    </motion.div>
 
-                {/* ── TAB: ORDERS ── */}
-                {activeTab === 'Orders' && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                 <div className="h-px bg-[#ECEDEF] my-2" />
+
+                 {/* ── Orders ── */}
+                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                      <div className="flex items-center justify-between">
                        <h3 className="text-[15px] font-bold text-[#111111]">Recent Orders</h3>
                        <button 
@@ -547,12 +551,12 @@ export default function DealerManagement() {
                           </div>
                         ))}
                       </div>
-                  </motion.div>
-                )}
+                   </motion.div>
 
-                {/* ── TAB: PAYMENTS ── */}
-                {activeTab === 'Payments' && (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                 <div className="h-px bg-[#ECEDEF] my-2" />
+
+                 {/* ── Payments ── */}
+                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                     <div className="flex items-center justify-between">
                        <h3 className="text-[15px] font-bold text-[#111111]">Payment History</h3>
                        <button className="h-8 px-3 bg-[#111111] text-white rounded-[8px] text-[12px] font-bold hover:bg-[#333333] transition-colors">
@@ -582,12 +586,12 @@ export default function DealerManagement() {
                           </tbody>
                         </table>
                       </div>
-                   </motion.div>
-                 )}
+                    </motion.div>
 
-                  {/* ── TAB: CREDIT (Centralized) ── */}
-                  {activeTab === 'Credit' && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                 <div className="h-px bg-[#ECEDEF] my-2" />
+
+                 {/* ── Credit ── */}
+                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                        <div className="p-8 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[24px] text-center">
                           <div className="w-16 h-16 rounded-full bg-[#111111] text-white flex items-center justify-center mx-auto mb-4">
                             <Icon icon="solar:chart-square-bold-duotone" className="text-[32px]" />
@@ -610,7 +614,7 @@ export default function DealerManagement() {
 
                           <Link 
                             to="/dashboard/credit"
-                            className="mt-6 w-full h-12 bg-[#111111] text-white rounded-[16px] text-[14px] font-black flex items-center justify-center gap-2 hover:bg-black transition-all shadow-lg shadow-black/10"
+                            className="mt-6 w-full h-12 bg-[#111111] text-white rounded-[16px] text-[14px] font-black flex items-center justify-center gap-2 hover:bg-black transition-all"
                           >
                             Manage in Credit Module
                             <Icon icon="solar:arrow-right-up-linear" className="text-[18px]" />
@@ -632,16 +636,59 @@ export default function DealerManagement() {
                              </div>
                           ))}
                        </div>
-                    </motion.div>
-                  )}
+                     </motion.div>
+
+                 <div className="h-px bg-[#ECEDEF] my-2" />
+
+                 {/* ── Consignment ── */}
+                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                       <div className="flex items-center justify-between">
+                         <h3 className="text-[15px] font-bold text-[#111111]">Stock Consignments</h3>
+                         <span className="text-[11px] font-bold text-[#D40073] bg-[#D40073]/5 px-2 py-0.5 rounded-full uppercase">Live Manifest</span>
+                       </div>
+                       
+                       <div className="space-y-3">
+                         {outboundConsignments.filter(c => c.partnerId === selectedDealer.id).length > 0 ? (
+                           outboundConsignments.filter(c => c.partnerId === selectedDealer.id).map(c => (
+                             <div key={c.id} className="p-4 bg-white border border-[#ECEDEF] rounded-[20px] flex items-center justify-between hover:border-[#D40073] transition-all group">
+                               <div className="flex items-center gap-4">
+                                 <div className="w-10 h-10 rounded-[12px] bg-[#F3F4F6] flex items-center justify-center text-[#D40073]">
+                                   <Icon icon="solar:box-minimalistic-bold" className="text-[20px]" />
+                                 </div>
+                                 <div>
+                                   <p className="text-[14px] font-black text-[#111111]">{c.name}</p>
+                                   <p className="text-[12px] font-medium text-[#8B93A7] mt-0.5">{c.date} · {c.items.length} items</p>
+                                 </div>
+                               </div>
+                               <div className="text-right">
+                                 <p className="text-[15px] font-black text-[#111111]">{formatMoney(c.totalValue)}</p>
+                                 <span className={`inline-flex px-2 py-0.5 rounded-[6px] mt-1 text-[10px] font-bold uppercase tracking-wider ${
+                                   c.status === 'Settled' ? 'bg-[#ECFDF3] text-[#16A34A]' : 
+                                   c.status === 'On Shelf' ? 'bg-[#EFF6FF] text-[#2563EB]' :
+                                   'bg-[#FFF7ED] text-[#D97706]'
+                                 }`}>{c.status}</span>
+                               </div>
+                             </div>
+                           ))
+                         ) : (
+                           <div className="py-12 flex flex-col items-center justify-center text-center bg-[#F7F7F8] rounded-[24px] border border-dashed border-[#ECEDEF]">
+                             <div className="w-14 h-14 rounded-full bg-white border border-[#ECEDEF] flex items-center justify-center text-[#D1D5DB] mb-3">
+                               <Icon icon="solar:box-minimalistic-broken" className="text-[28px]" />
+                             </div>
+                             <p className="text-[14px] font-bold text-[#111111]">No Consignments Found</p>
+                             <p className="text-[12px] text-[#8B93A7] mt-1 max-w-[200px] mx-auto">This dealer currently has no active stock movements.</p>
+                           </div>
+                         )}
+                       </div>
+                     </motion.div>
+
               </div>
 
               {/* Drawer Footer (Global Add Order) */}
               <div className="p-5 border-t border-[#ECEDEF] bg-[#F7F7F8] shrink-0">
                 <button 
-                  onClick={() => setIsNewOrderModalOpen(true)}
+                  onClick={() => openCreateOrder(selectedDealer.id)}
                   className="w-full h-[46px] flex items-center justify-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white font-bold text-[14px] rounded-[12px] transition-all"
-                  style={{ boxShadow: '0 4px 14px rgba(212,0,115,0.25)' }}
                 >
                   <Icon icon="solar:cart-plus-bold" className="text-[18px]" />
                   Process New Order
@@ -652,119 +699,6 @@ export default function DealerManagement() {
         )}
       </AnimatePresence>
 
-
-      {/* ── Premium "New Order" Modal for Dealer ── */}
-      <Dialog.Root open={isNewOrderModalOpen} onOpenChange={setIsNewOrderModalOpen}>
-        <AnimatePresence>
-          {isNewOrderModalOpen && selectedDealer && (
-            <Dialog.Portal forceMount>
-              <Dialog.Overlay asChild>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/55 backdrop-blur-[6px] z-[60]" />
-              </Dialog.Overlay>
-              <Dialog.Content asChild>
-                <motion.div
-                  initial={{ opacity: 0, y: 24, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 24, scale: 0.97 }}
-                  transition={{ type: 'spring', duration: 0.45, bounce: 0.16 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[640px] z-[70] focus:outline-none flex flex-col max-h-[92vh] rounded-[24px] overflow-hidden bg-white shadow-2xl border border-[rgba(255,255,255,0.1)]"
-                >
-                  {/* Header */}
-                  <div className="relative px-8 pt-8 pb-6 bg-[#111111] shrink-0 text-white overflow-hidden">
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-[#D40073] opacity-20 rounded-full blur-[60px]" />
-                    <div className="relative flex justify-between items-start">
-                      <div className="flex gap-4 items-center">
-                         <div className="w-12 h-12 rounded-[12px] bg-[rgba(255,255,255,0.1)] flex items-center justify-center border border-[rgba(255,255,255,0.1)] text-[#D40073]">
-                           <Icon icon="solar:cart-large-4-bold" className="text-[24px]" />
-                         </div>
-                         <div>
-                           <h2 className="text-[22px] font-bold tracking-tight leading-none">New Dealer Order</h2>
-                           <p className="text-[13px] text-[rgba(255,255,255,0.6)] font-medium mt-1">Placing order for {selectedDealer.name}</p>
-                         </div>
-                      </div>
-                      <Dialog.Close asChild>
-                        <button className="w-8 h-8 flex items-center justify-center rounded-full text-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.1)] transition-colors">
-                          <Icon icon="solar:close-square-linear" className="text-[22px]" />
-                        </button>
-                      </Dialog.Close>
-                    </div>
-                  </div>
-
-                  {/* Body */}
-                  <div className="flex-1 overflow-y-auto bg-[#F7F7F8] p-6 space-y-4">
-                     
-                     <div className="bg-white rounded-[16px] border border-[#ECEDEF] p-5">
-                       <h3 className="text-[14px] font-bold text-[#111111] flex items-center gap-2 mb-4">
-                         <Icon icon="solar:box-linear" className="text-[#D40073]" /> Order Items
-                       </h3>
-                       <div className="space-y-3">
-                         {itemRows.map(key => (
-                           <div key={key} className="flex items-stretch gap-2 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[10px] p-2">
-                              <select className="flex-1 bg-transparent text-[13px] font-medium text-[#111111] focus:outline-none appearance-none ml-2 cursor-pointer">
-                                {CATALOG.map((c, i) => <option key={i} value={i}>{c.label} - GHS {c.price}</option>)}
-                              </select>
-                              <div className="w-[1px] bg-[#E4E7EC] my-2" />
-                              <div className="flex items-center gap-2 px-2 shrink-0">
-                                <button className="w-7 h-7 rounded-[6px] bg-white border border-[#E4E7EC] flex items-center justify-center font-bold text-[#525866] hover:bg-[#F3F4F6]">−</button>
-                                <span className="w-6 text-center text-[13px] font-bold">1</span>
-                                <button className="w-7 h-7 rounded-[6px] bg-white border border-[#E4E7EC] flex items-center justify-center font-bold text-[#525866] hover:bg-[#F3F4F6]">+</button>
-                              </div>
-                              <button onClick={() => itemRows.length > 1 && removeRow(key)} className="w-9 shrink-0 flex items-center justify-center text-[#EF4444] hover:bg-[#FEF2F2] rounded-[8px] transition-colors">
-                                <Icon icon="solar:trash-bin-trash-linear" className="text-[18px]" />
-                              </button>
-                           </div>
-                         ))}
-                         <button onClick={addRow} className="w-full h-10 border-2 border-dashed border-[#E4E7EC] rounded-[10px] text-[#8B93A7] font-bold text-[13px] hover:border-[#D40073] hover:text-[#D40073] hover:bg-[rgba(212,0,115,0.02)] transition-colors flex items-center justify-center gap-2">
-                           <Icon icon="solar:add-circle-linear" className="text-[16px]" /> Add product line
-                         </button>
-                       </div>
-                     </div>
-
-                     <div className="bg-white rounded-[16px] border border-[#ECEDEF] p-5">
-                       <h3 className="text-[14px] font-bold text-[#111111] flex items-center gap-2 mb-4">
-                         <Icon icon="solar:card-linear" className="text-[#2563EB]" /> Payment terms
-                       </h3>
-                       <div className="grid grid-cols-2 gap-3">
-                         <div className="relative">
-                           <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1.5 block">Payment Method</label>
-                           <select className="w-full h-[42px] px-3 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[8px] text-[13px] font-medium focus:outline-none focus:border-[#2563EB] appearance-none">
-                             <option>Cash / E-Cash</option>
-                             <option>Net 15 (Credit)</option>
-                             <option>Consignment</option>
-                           </select>
-                           <Icon icon="solar:alt-arrow-down-linear" className="absolute right-3 top-[32px] text-[#8B93A7] pointer-events-none" />
-                         </div>
-                         <div className="relative">
-                           <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1.5 block">Fulfillment</label>
-                           <select className="w-full h-[42px] px-3 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[8px] text-[13px] font-medium focus:outline-none focus:border-[#2563EB] appearance-none">
-                             <option>Direct Dispatch</option>
-                             <option>In-Store Pickup</option>
-                           </select>
-                           <Icon icon="solar:alt-arrow-down-linear" className="absolute right-3 top-[32px] text-[#8B93A7] pointer-events-none" />
-                         </div>
-                       </div>
-                     </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="px-6 py-5 bg-white border-t border-[#ECEDEF] flex justify-between items-center shrink-0">
-                    <div>
-                      <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Order Total</p>
-                      <p className="text-[24px] font-bold text-[#111111] leading-none mt-1">GHS 2,500 <span className="text-[14px] text-[#8B93A7] font-medium">.00</span></p>
-                    </div>
-                    <div className="flex gap-3">
-                      <button onClick={() => setIsNewOrderModalOpen(false)} className="h-[44px] px-5 bg-[#F3F4F6] hover:bg-[#E4E7EC] rounded-[10px] text-[#111111] font-bold text-[14px] transition-colors">
-                        Cancel
-                      </button>
-                      <button className="h-[44px] px-6 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] font-bold text-[14px] flex items-center justify-center gap-2 transition-all shadow-md">
-                        <Icon icon="solar:check-circle-bold" className="text-[18px]" /> Complete Order
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              </Dialog.Content>
-            </Dialog.Portal>
-          )}
-        </AnimatePresence>
-      </Dialog.Root>
 
       {/* ── Order Details Modal ── */}
       <Dialog.Root open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
@@ -777,7 +711,7 @@ export default function DealerManagement() {
               <Dialog.Content asChild>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[90] bg-white rounded-[24px] overflow-hidden shadow-2xl border border-[#ECEDEF] font-sans"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[90] bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 rounded-[24px] overflow-hidden font-sans"
                 >
                   <div className="p-6 border-b border-[#ECEDEF] flex justify-between items-center bg-[#F7F7F8]">
                     <div>
@@ -859,12 +793,12 @@ export default function DealerManagement() {
               <Dialog.Content asChild>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.98, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 15 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1024px] z-[70] bg-white rounded-[28px] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.25)] border border-[#ECEDEF] font-sans flex flex-col max-h-[90vh]"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1024px] z-[70] bg-white rounded-[28px] overflow-hidden border border-[#ECEDEF] font-sans flex flex-col max-h-[90vh]"
                 >
                   {/* Header */}
                   <div className="p-8 border-b border-[#ECEDEF] flex justify-between items-center bg-[#F7F7F8]">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-[14px] bg-[#111111] flex items-center justify-center text-white shadow-lg">
+                      <div className="w-12 h-12 rounded-[14px] bg-[#111111] flex items-center justify-center text-white">
                         <Icon icon="solar:clipboard-list-bold-duotone" className="text-[24px]" />
                       </div>
                       <div>
@@ -882,7 +816,7 @@ export default function DealerManagement() {
                   </div>
 
                   {/* Filter Bar */}
-                  <div className="px-8 py-5 border-b border-[#ECEDEF] flex flex-wrap items-center justify-between gap-4 bg-white sticky top-0 z-10">
+                  <div className="px-8 py-5 border-b border-[#ECEDEF] dark:border-white/5 flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-[#151B2B] sticky top-0 z-10">
                     <div className="flex items-center gap-3 flex-1 min-w-[300px]">
                       <div className="relative flex-1 group">
                         <Icon icon="solar:magnifer-linear" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors" />
@@ -891,14 +825,14 @@ export default function DealerManagement() {
                           placeholder="Search order ID or items..."
                           value={orderSearch}
                           onChange={(e) => setOrderSearch(e.target.value)}
-                          className="w-full h-11 pl-11 pr-4 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[12px] text-[14px] font-medium focus:outline-none focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] focus:border-[#D40073] transition-all"
+                          className="w-full h-11 pl-11 pr-4 bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 rounded-[12px] text-[13px] font-black text-[#111111] dark:text-white placeholder:text-[#8B93A7] focus:outline-none focus:border-[#D40073] transition-all shadow-sm"
                         />
                       </div>
                       <div className="relative">
                         <select 
                           value={statusFilter}
                           onChange={(e) => setStatusFilter(e.target.value)}
-                          className="h-11 pl-4 pr-10 bg-[#F7F7F8] border border-[#E4E7EC] rounded-[12px] text-[14px] font-bold text-[#111111] cursor-pointer appearance-none hover:bg-[#F3F4F6] transition-colors min-w-[140px]"
+                          className="h-11 pl-4 pr-10 bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 rounded-[12px] text-[13px] font-black text-[#111111] dark:text-white cursor-pointer appearance-none hover:bg-[#F3F4F6] dark:hover:bg-white/10 transition-colors min-w-[140px] shadow-sm"
                         >
                           <option>All Status</option>
                           <option>Delivered</option>
@@ -909,63 +843,62 @@ export default function DealerManagement() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="h-11 px-4 rounded-[12px] bg-white border border-[#E4E7EC] text-[13px] font-bold text-[#525866] hover:bg-[#F7F7F8] flex items-center gap-2 transition-all">
+                      <button className="h-11 px-5 rounded-[12px] bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 text-[13px] font-black text-[#525866] dark:text-[#8B93A7] hover:border-[#D40073] flex items-center gap-2 transition-all shadow-sm uppercase tracking-wider">
                         <Icon icon="solar:calendar-linear" className="text-[18px]" />
-                        Date Range
+                        TIME RANGE
                       </button>
-                      <button className="h-11 px-6 bg-[#111111] text-white rounded-[12px] text-[13px] font-bold hover:bg-[#333333] transition-all shadow-md shadow-black/10">
-                        Export List
+                      <button className="h-11 px-6 bg-[#111111] dark:bg-white text-white dark:text-[#111111] rounded-[12px] text-[13px] font-black hover:bg-[#D40073] hover:text-white transition-all shadow-sm uppercase tracking-widest">
+                        EXPORT LIST
                       </button>
                     </div>
                   </div>
 
                   {/* Table Body */}
-                  <div className="flex-1 overflow-y-auto min-h-0 bg-white">
-                    <table className="w-full text-left border-separate border-spacing-0">
+                  <div className="flex-1 overflow-y-auto min-h-0 bg-white dark:bg-[#151B2B]">
+                    <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-[#F7F7F8]/50 border-b border-[#ECEDEF] sticky top-0 z-20">
-                          <th className="py-4 px-8 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF]">Order Detail</th>
-                          <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF]">Fulfillment</th>
-                          <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF]">Payment</th>
-                          <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF]">Amount</th>
-                          <th className="py-4 px-8 text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.05em] border-b border-[#ECEDEF] text-right">Actions</th>
+                        <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5 sticky top-0 z-20">
+                          <th className="py-4 px-8 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Order Details</th>
+                          <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Fulfillment</th>
+                          <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest text-center">Status</th>
+                          <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Amount</th>
+                          <th className="py-4 px-8 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#ECEDEF]">
                         {[...MOCK_DEALER_ORDERS, ...MOCK_DEALER_ORDERS, ...MOCK_DEALER_ORDERS].map((o, i) => (
-                          <tr key={o.id + i} className="group hover:bg-[#FBFBFC] transition-colors">
+                          <tr key={o.id + i} className="group hover:bg-[#FBFBFC] dark:hover:bg-white/5 transition-all">
                             <td className="py-5 px-8">
                               <div className="flex flex-col">
-                                <span className="text-[15px] font-bold text-[#111111] group-hover:text-[#D40073] transition-colors">{o.id}</span>
-                                <span className="text-[13px] text-[#8B93A7] font-medium mt-0.5">{o.date} • {o.items} units</span>
+                                <span className="text-[14px] font-black text-[#111111] dark:text-white group-hover:text-[#D40073] transition-colors">{o.id}</span>
+                                <span className="text-[11px] font-bold text-[#8B93A7] uppercase mt-1 tracking-wider">{o.date} • {o.items} UNITS</span>
                               </div>
                             </td>
                             <td className="py-5 px-6">
                                <div className="flex flex-col gap-1.5">
-                                 <div className="flex items-center gap-1.5">
+                                 <div className="flex items-center gap-1.5 text-[13px] font-black text-[#111111] dark:text-white uppercase tracking-tight">
                                    <div className={`w-2 h-2 rounded-full ${o.status === 'Delivered' ? 'bg-[#16A34A]' : 'bg-[#D97706]'}`} />
-                                   <span className="text-[13px] font-bold text-[#111111]">{o.status}</span>
+                                   {o.status}
                                  </div>
-                                 <span className="text-[11px] font-medium text-[#8B93A7]">{o.fulfillment}</span>
+                                 <span className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">{o.fulfillment}</span>
                                </div>
                             </td>
-                            <td className="py-5 px-6">
-                              <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[12px] font-bold ${
-                                o.payment === 'Paid' ? 'bg-[#ECFDF3] text-[#16A34A]' : 'bg-[#EFF6FF] text-[#2563EB]'
+                            <td className="py-5 px-6 text-center">
+                              <span className={`inline-flex px-2.5 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-wider border shadow-sm ${
+                                o.payment === 'Paid' ? 'bg-[#ECFDF3] dark:bg-[#064E3B]/30 text-[#16A34A] border-[#16A34A]/10' : 'bg-[#EFF6FF] dark:bg-[#1E3A8A]/30 text-[#2563EB] border-[#2563EB]/10'
                               }`}>
                                 {o.payment}
                               </span>
                             </td>
                             <td className="py-5 px-6">
-                               <span className="text-[16px] font-bold text-[#111111] tracking-tight">{formatMoney(o.total)}</span>
+                               <span className="text-[16px] font-black text-[#111111] dark:text-white tracking-tight">{formatMoney(o.total)}</span>
                             </td>
                             <td className="py-5 px-8 text-right">
                                <button 
                                  onClick={() => setSelectedOrder(o)}
-                                 className="h-10 px-4 rounded-[10px] bg-white border border-[#E4E7EC] text-[13px] font-bold text-[#111111] hover:border-[#D40073] hover:text-[#D40073] hover:bg-[rgba(212,0,115,0.02)] transition-all flex items-center gap-2 ml-auto"
+                                 className="h-10 px-4 rounded-[10px] bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 text-[12px] font-black text-[#111111] dark:text-white hover:border-[#D40073] hover:text-[#D40073] hover:bg-[#D40073]/5 transition-all shadow-sm uppercase tracking-wider"
                                >
-                                 <Icon icon="solar:eye-linear" className="text-[18px]" />
-                                 View Details
+                                 Details
                                </button>
                             </td>
                           </tr>
@@ -975,10 +908,10 @@ export default function DealerManagement() {
                   </div>
 
                   {/* Footer */}
-                  <div className="px-8 py-5 border-t border-[#ECEDEF] bg-[#F7F7F8] flex items-center justify-between shrink-0">
-                    <p className="text-[13px] text-[#525866] font-medium">Showing <span className="text-[#111111] font-bold">12</span> of 12 orders found</p>
+                  <div className="px-8 py-5 border-t border-[#ECEDEF] dark:border-white/5 bg-[#F9FAFB] dark:bg-white/5 flex items-center justify-between shrink-0">
+                    <p className="text-[13px] text-[#8B93A7] font-black uppercase tracking-wider">Total <span className="text-[#111111] dark:text-white">12 Orders</span> found</p>
                     <Dialog.Close asChild>
-                      <button className="h-11 px-8 bg-[#111111] text-white font-bold rounded-[14px] text-[14px] hover:bg-black transition-all">Close History</button>
+                      <button className="h-11 px-8 bg-[#111111] dark:bg-white text-white dark:text-[#111111] font-black rounded-[14px] text-[13px] hover:bg-[#D40073] hover:text-white transition-all shadow-sm uppercase tracking-widest">CLOSE HISTORY</button>
                     </Dialog.Close>
                   </div>
                 </motion.div>
@@ -999,7 +932,7 @@ export default function DealerManagement() {
               <Dialog.Content asChild>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[160] bg-white rounded-[28px] overflow-hidden shadow-2xl border border-[#ECEDEF] font-sans"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[160] bg-white rounded-[28px] overflow-hidden border border-[#ECEDEF] font-sans"
                 >
                   <div className="p-6 border-b border-[#ECEDEF] bg-[#F7F7F8] flex justify-between items-center">
                     <div className="flex items-center gap-3">
@@ -1047,7 +980,7 @@ export default function DealerManagement() {
                     <Dialog.Close asChild>
                       <button className="flex-1 h-11 bg-white border border-[#ECEDEF] text-[#111111] font-bold rounded-[12px] text-[13px]">Cancel</button>
                     </Dialog.Close>
-                    <button className="flex-1 h-11 bg-[#DC2626] text-white font-bold rounded-[12px] text-[13px] shadow-lg shadow-red-500/20">Process & Credit</button>
+                    <button className="flex-1 h-11 bg-[#DC2626] text-white font-bold rounded-[12px] text-[13px]">Process & Credit</button>
                   </div>
                 </motion.div>
               </Dialog.Content>
@@ -1067,7 +1000,7 @@ export default function DealerManagement() {
               <Dialog.Content asChild>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[160] bg-white rounded-[28px] overflow-hidden shadow-2xl border border-[#ECEDEF] font-sans"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[500px] z-[160] bg-white rounded-[28px] overflow-hidden border border-[#ECEDEF] font-sans"
                 >
                   <div className="p-6 border-b border-[#ECEDEF] bg-[#F7F7F8] flex justify-between items-center">
                     <div className="flex items-center gap-3">
@@ -1113,7 +1046,7 @@ export default function DealerManagement() {
                     <Dialog.Close asChild>
                       <button className="flex-1 h-11 bg-white border border-[#ECEDEF] text-[#111111] font-bold rounded-[12px] text-[13px]">Cancel</button>
                     </Dialog.Close>
-                    <button className="flex-1 h-11 bg-[#111111] text-white font-bold rounded-[12px] text-[13px] shadow-lg shadow-black/10">Confirm Dispatch</button>
+                    <button className="flex-1 h-11 bg-[#111111] text-white font-bold rounded-[12px] text-[13px]">Confirm Dispatch</button>
                   </div>
                 </motion.div>
               </Dialog.Content>

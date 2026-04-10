@@ -104,9 +104,9 @@ export function OrderWorkflowProvider({ children }: { children: ReactNode }) {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] w-[400px] bg-white rounded-[24px] border border-[#ECEDEF] shadow-[0_32px_80px_rgba(0,0,0,0.15)] overflow-hidden p-6 flex flex-col items-center text-center pointer-events-auto"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] w-[400px] bg-white rounded-[24px] border border-[#ECEDEF] overflow-hidden p-6 flex flex-col items-center text-center pointer-events-auto"
           >
-            <div className="w-16 h-16 rounded-full bg-[#16A34A] text-white flex items-center justify-center mb-4 shadow-xl shadow-[#16A34A]/20">
+            <div className="w-16 h-16 rounded-full bg-[#16A34A] text-white flex items-center justify-center mb-4">
               <Check size={32} className="stroke-[3]" />
             </div>
             

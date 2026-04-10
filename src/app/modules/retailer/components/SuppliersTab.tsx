@@ -84,7 +84,7 @@ export function SuppliersTab() {
         
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          className="h-11 px-6 bg-[#111111] hover:bg-black text-white rounded-[12px] text-[14px] font-bold flex items-center gap-2 transition-all active:scale-95 shadow-none"
+          className="h-11 px-6 bg-[#111111] hover:bg-black text-white rounded-[12px] text-[14px] font-bold flex items-center gap-2 transition-all active:scale-95"
         >
           <Icon icon="solar:user-plus-bold" className="text-[18px]" />
           Add Supplier
@@ -150,7 +150,7 @@ export function SuppliersTab() {
 
       {/* Add Supplier Modal — Shadowless Refined Design */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden rounded-[32px] border border-[#ECEDEF] bg-white/95 backdrop-blur-2xl shadow-none">
+        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden rounded-[32px] border border-[#ECEDEF] bg-white/95 backdrop-blur-2xl">
           <motion.div 
             initial={{ opacity: 0, y: 10 }} 
             animate={{ opacity: 1, y: 0 }}
@@ -171,7 +171,7 @@ export function SuppliersTab() {
                   value={newSupplier.name}
                   onChange={e => setNewSupplier({...newSupplier, name: e.target.value})}
                   placeholder="e.g. West Coast Wood"
-                  className="h-12 rounded-[16px] font-bold border-[#ECEDEF] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 shadow-none transition-all"
+                  className="h-12 rounded-[16px] font-bold border-[#ECEDEF] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 transition-all"
                 />
               </div>
 
@@ -182,7 +182,7 @@ export function SuppliersTab() {
                     value={newSupplier.contactPerson}
                     onChange={e => setNewSupplier({...newSupplier, contactPerson: e.target.value})}
                     placeholder="Full name"
-                    className="h-12 rounded-[16px] font-bold border-[#ECEDEF] shadow-none"
+                    className="h-12 rounded-[16px] font-bold border-[#ECEDEF]"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -206,7 +206,7 @@ export function SuppliersTab() {
                     value={newSupplier.phone}
                     onChange={e => setNewSupplier({...newSupplier, phone: e.target.value})}
                     placeholder="+233..."
-                    className="h-12 rounded-[16px] font-bold border-[#ECEDEF] shadow-none"
+                    className="h-12 rounded-[16px] font-bold border-[#ECEDEF]"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -215,7 +215,7 @@ export function SuppliersTab() {
                     value={newSupplier.email}
                     onChange={e => setNewSupplier({...newSupplier, email: e.target.value})}
                     placeholder="email@company.com"
-                    className="h-12 rounded-[16px] font-bold border-[#ECEDEF] shadow-none"
+                    className="h-12 rounded-[16px] font-bold border-[#ECEDEF]"
                   />
                 </div>
               </div>
@@ -226,7 +226,7 @@ export function SuppliersTab() {
                   rows={2}
                   value={newSupplier.address}
                   onChange={e => setNewSupplier({...newSupplier, address: e.target.value})}
-                  className="w-full rounded-[16px] border border-[#ECEDEF] bg-white p-4 text-[14px] font-medium focus:outline-none focus:border-[#D40073] transition-all resize-none shadow-none"
+                  className="w-full rounded-[16px] border border-[#ECEDEF] bg-white p-4 text-[14px] font-medium focus:outline-none focus:border-[#D40073] transition-all resize-none"
                   placeholder="Street name, City, Region..."
                 />
               </div>
@@ -254,7 +254,7 @@ export function SuppliersTab() {
 
       {/* Supplier Details Modal */}
       <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-        <DialogContent className="sm:max-w-[750px] p-0 overflow-hidden rounded-[40px] border border-[#ECEDEF] bg-white shadow-none">
+        <DialogContent className="sm:max-w-[750px] p-0 overflow-hidden rounded-[40px] border border-[#ECEDEF] bg-white">
           {selectedSupplier && (
             <div className="flex flex-col md:flex-row h-full">
               {/* Profile Background Side */}
@@ -264,7 +264,7 @@ export function SuppliersTab() {
                 </div>
                 
                 <div className="relative z-10">
-                  <div className="w-20 h-20 rounded-[28px] bg-white border-4 border-white/20 overflow-hidden mb-6 shadow-2xl">
+                  <div className="w-20 h-20 rounded-[28px] bg-white border-4 border-white/20 overflow-hidden mb-6">
                     <img src={selectedSupplier.logo} alt={selectedSupplier.name} className="w-full h-full object-cover" />
                   </div>
                   <h2 className="text-[28px] font-black leading-tight tracking-tight mb-2">{selectedSupplier.name}</h2>

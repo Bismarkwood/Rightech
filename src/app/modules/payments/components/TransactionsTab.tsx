@@ -43,22 +43,22 @@ export function TransactionsTab() {
   return (
     <div className="space-y-6">
       {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-[20px] border border-[#ECEDEF]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-[#151B2B] p-4 rounded-[22px] border border-[#ECEDEF] dark:border-white/10 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B93A7]" size={16} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7]" size={16} />
             <input 
               type="text" 
               placeholder="Search party or Reference..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-10 pl-10 pr-4 bg-[#F3F4F6] border-transparent rounded-[12px] text-[14px] focus:bg-white focus:border-[#D40073] outline-none transition-all w-[260px]"
+              className="h-10 pl-10 pr-4 bg-[#F3F4F6] dark:bg-white/5 border border-transparent dark:border-white/10 rounded-[12px] text-[14px] text-[#111111] dark:text-white dark:placeholder:text-[#8B93A7] focus:bg-white dark:focus:bg-white/10 focus:border-[#D40073] outline-none transition-all w-[260px]"
             />
           </div>
           <select 
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="h-10 px-4 bg-[#F3F4F6] border-transparent rounded-[12px] text-[14px] font-bold text-[#111111] focus:bg-white outline-none cursor-pointer"
+            className="h-10 px-4 bg-[#F3F4F6] dark:bg-white/5 border border-transparent dark:border-white/10 rounded-[12px] text-[14px] font-bold text-[#111111] dark:text-[#8B93A7] focus:bg-white dark:focus:bg-white/10 outline-none cursor-pointer"
           >
             <option>All Types</option>
             <option>Order Payment</option>
@@ -68,19 +68,19 @@ export function TransactionsTab() {
           </select>
         </div>
 
-        <button className="h-10 px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[12px] text-[13px] font-bold text-[#111111] hover:bg-[#F3F4F6] transition-colors">
+        <button className="h-10 px-4 flex items-center gap-2 bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 rounded-[12px] text-[13px] font-bold text-[#111111] dark:text-white hover:bg-[#F3F4F6] dark:hover:bg-white/10 transition-colors">
           <Download size={16} />
           Export CSV
         </button>
       </div>
 
       {/* Ledger Table Container */}
-      <div className="bg-white rounded-[24px] border border-[#ECEDEF] overflow-hidden flex flex-col h-[600px]">
+      <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 overflow-hidden flex flex-col h-[600px] shadow-sm">
         {/* Sticky Header */}
         <table className="w-full text-left border-separate border-spacing-0">
           <thead>
-            <tr className="bg-[#FAFBFC] border-b border-[#F1F3F5]">
-              <th className="px-8 py-4 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider w-[20%]">Transaction ID</th>
+            <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5">
+              <th className="px-8 py-4 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider w-[20%]">Trans ID</th>
               <th className="px-6 py-4 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider w-[30%]">Party / Type</th>
               <th className="px-6 py-4 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider w-[20%]">Method</th>
               <th className="px-6 py-4 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider text-right w-[15%]">Amount</th>
@@ -101,28 +101,28 @@ export function TransactionsTab() {
               <div
                 key={tx.id}
                 onClick={() => setSelectedTransactionId(tx.id)}
-                className="absolute left-0 right-0 border-b border-[#F1F3F5] hover:bg-[#FAFBFC] transition-colors cursor-pointer flex items-center"
+                className="absolute left-0 right-0 border-b border-[#ECEDEF] dark:border-white/5 hover:bg-[#F7F7F8] dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center group"
                 style={{ 
                   height: `${ROW_HEIGHT}px`, 
                   transform: `translateY(${tx.virtualIndex * ROW_HEIGHT}px)` 
                 }}
               >
                 <div className="px-8 w-[20%]">
-                  <div className="text-[14px] font-bold text-[#111111]">{tx.id}</div>
-                  <div className="text-[12px] font-medium text-[#8B93A7] mt-1">
+                  <div className="text-[14px] font-bold text-[#111111] dark:text-white">{tx.id}</div>
+                  <div className="text-[12px] font-bold text-[#D40073] mt-1">
                     {new Date(tx.timestamp).toLocaleDateString()}
                   </div>
                 </div>
                 <div className="px-6 w-[30%]">
-                  <div className="text-[14px] font-bold text-[#111111] truncate">{tx.party}</div>
-                  <div className="text-[12px] font-medium text-[#525866] mt-1 flex items-center gap-1">
+                  <div className="text-[14px] font-bold text-[#111111] dark:text-white truncate">{tx.party}</div>
+                  <div className="text-[12px] font-bold text-[#525866] dark:text-[#8B93A7] mt-1 flex items-center gap-1">
                     <span className={`w-1.5 h-1.5 rounded-full ${tx.direction === 'in' ? 'bg-[#16A34A]' : tx.direction === 'out' ? 'bg-[#EF4444]' : 'bg-[#2563EB]'}`} />
                     {tx.type}
                   </div>
                 </div>
                 <div className="px-6 w-[20%]">
-                  <div className="text-[14px] font-bold text-[#111111]">{tx.method}</div>
-                  <div className="text-[12px] font-medium text-[#8B93A7] mt-1 truncate">{tx.reference || 'No ref'}</div>
+                  <div className="text-[14px] font-bold text-[#111111] dark:text-white">{tx.method}</div>
+                  <div className="text-[12px] font-medium text-[#8B93A7] dark:text-[#8B93A7] mt-1 truncate">{tx.reference || 'No ref'}</div>
                 </div>
                 <div className="px-6 w-[15%] text-right">
                   <div className={`text-[15px] font-black ${tx.direction === 'in' ? 'text-[#16A34A]' : tx.direction === 'out' ? 'text-[#EF4444]' : 'text-[#2563EB]'}`}>
@@ -132,10 +132,10 @@ export function TransactionsTab() {
                 </div>
                 <div className="px-6 w-[15%]">
                   <div className="flex justify-center">
-                    <span className={`px-3 py-1 rounded-full text-[12px] font-bold ${
-                      tx.status === 'Confirmed' ? 'bg-[#16A34A]/10 text-[#16A34A]' :
-                      tx.status === 'Pending' ? 'bg-[#D97706]/10 text-[#D97706]' :
-                      'bg-[#EF4444]/10 text-[#EF4444]'
+                    <span className={`px-2.5 py-1 rounded-[6px] text-[12px] font-bold ${
+                      tx.status === 'Confirmed' ? 'bg-[#ECFDF3] dark:bg-[#064E3B]/30 text-[#16A34A]' :
+                      tx.status === 'Pending' ? 'bg-[#FFF7ED] dark:bg-[#78350F]/30 text-[#D97706]' :
+                      'bg-[#FEF2F2] dark:bg-[#7F1D1D]/30 text-[#DC2626]'
                     }`}>
                       {tx.status}
                     </span>
@@ -147,11 +147,11 @@ export function TransactionsTab() {
 
           {filtered.length === 0 && (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
-              <div className="w-16 h-16 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#8B93A7] mb-4">
+              <div className="w-16 h-16 rounded-full bg-[#F3F4F6] dark:bg-white/5 flex items-center justify-center text-[#8B93A7] mb-4">
                 <Icon icon="solar:bill-list-broken" className="text-[32px]" />
               </div>
-              <h3 className="text-[18px] font-bold text-[#111111]">No transactions found</h3>
-              <p className="text-[14px] text-[#525866] mt-1">Try adjusting your filters or search term.</p>
+              <h3 className="text-[18px] font-bold text-[#111111] dark:text-white">No transactions found</h3>
+              <p className="text-[14px] text-[#525866] dark:text-[#8B93A7] mt-1">Try adjusting your filters or search term.</p>
             </div>
           )}
         </div>

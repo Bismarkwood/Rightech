@@ -24,7 +24,7 @@ function NewOrderSection({
   icon: string; label: string; color: string; bgColor: string; children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-[16px] border border-[#ECEDEF] overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+    <div className="bg-white rounded-[16px] border border-[#ECEDEF] overflow-hidden">
       <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F3F4F6]">
         <div
           className="w-8 h-8 rounded-[9px] flex items-center justify-center shrink-0 text-[16px]"
@@ -372,7 +372,7 @@ export function NewOrderModal() {
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                   {MOCK_AGENTS.map((agent) => (
                                     <button key={agent.name} type="button" onClick={() => setSelectedAgent(agent)} className={`p-3 rounded-[16px] border-2 transition-all flex items-center gap-3 text-left ${selectedAgent.name === agent.name ? 'border-[#D40073] bg-[#D40073]/5 ring-4 ring-[#D40073]/10' : 'border-[#ECEDEF] bg-white hover:border-[#D40073]/30'}`}>
-                                      <img src={agent.avatar} alt={agent.name} className="w-10 h-10 rounded-full border border-white shadow-sm" />
+                                      <img src={agent.avatar} alt={agent.name} className="w-10 h-10 rounded-full border border-white" />
                                       <div className="min-w-0">
                                         <div className="text-[13px] font-bold text-[#111111] truncate">{agent.name}</div>
                                         <div className="text-[10px] font-medium text-[#8B93A7] truncate">{agent.vehicle.split(' — ')[1]}</div>

@@ -4,21 +4,20 @@ import { usePayments } from '../context/PaymentContext';
 import { ArrowUpRight, ArrowDownLeft, Landmark, TrendingUp, TrendingDown } from 'lucide-react';
 
 const KPICard = ({ title, value, label, trend, icon: IconComp, gradient }: any) => (
-  <div className="bg-white rounded-[14px] border border-[#ECEDEF] p-5 flex items-center gap-4 hover:border-[#D40073]/30 transition-colors">
-    <div className={`w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0 text-white ${gradient}`}>
-      <IconComp size={18} strokeWidth={2} />
+  <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 p-6 flex items-center gap-5 hover:border-[#D40073]/30 transition-all shadow-sm group">
+    <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 text-white shadow-lg shadow-black/5 group-hover:scale-110 transition-transform ${gradient}`}>
+      <IconComp size={20} strokeWidth={2.5} />
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-[12px] font-medium text-[#8B93A7] mb-0.5">{title}</p>
-      <p className="text-[20px] font-bold text-[#111111] tracking-tight leading-none">GHS {value}</p>
-    </div>
-    <div className={`flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-[11px] font-semibold shrink-0 ${
-      trend === 'up' ? 'bg-[#ECFDF3] text-[#16A34A]' :
-      trend === 'down' ? 'bg-[#FEF2F2] text-[#EF4444]' :
-      'bg-[#F3F4F6] text-[#525866]'
-    }`}>
-      {trend === 'up' ? <TrendingUp size={11} /> : trend === 'down' ? <TrendingDown size={11} /> : null}
-      {label}
+      <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mb-1.5">{title}</p>
+      <div className="flex items-baseline gap-2">
+        <p className="text-[24px] font-black text-[#111111] dark:text-white tracking-tight leading-none overflow-hidden text-ellipsis">GHS {value}</p>
+        <span className={`text-[12px] font-black shrink-0 ${
+          trend === 'up' ? 'text-[#16A34A]' : trend === 'down' ? 'text-[#EF4444]' : 'text-[#8B93A7]'
+        }`}>
+          {trend === 'up' ? '↑' : trend === 'down' ? '↓' : ''}{label}
+        </span>
+      </div>
     </div>
   </div>
 );
@@ -33,14 +32,14 @@ export function OverviewTab() {
     <div className="space-y-6 pb-8 max-w-[1400px] mx-auto">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-[18px] font-bold text-[#111111] tracking-tight">Financial Overview</h2>
-          <p className="text-[13px] text-[#525866] mt-0.5">Real-time settlement data across the RightTech network.</p>
+          <h2 className="text-[20px] font-black text-[#111111] dark:text-white tracking-tight">Financial Overview</h2>
+          <p className="text-[13px] font-bold text-[#8B93A7] uppercase tracking-wider">Settlement Intelligence</p>
         </div>
-        <div className="flex items-center gap-1 bg-[#F3F4F6] p-1 rounded-[10px]">
+        <div className="flex items-center gap-1 bg-white dark:bg-white/5 p-1 rounded-[12px] border border-[#ECEDEF] dark:border-white/10 shadow-sm">
           {['Month', 'Quarter', 'Year'].map((t, i) => (
-            <button key={t} className={`px-4 h-8 rounded-[8px] text-[13px] font-medium transition-colors ${i === 0 ? 'bg-white text-[#111111] shadow-sm' : 'text-[#525866] hover:text-[#111111]'}`}>
+            <button key={t} className={`px-5 h-8 rounded-[9px] text-[13px] font-black transition-all ${i === 0 ? 'bg-white dark:bg-white/10 text-[#111111] dark:text-white shadow-sm' : 'text-[#8B93A7] hover:text-[#111111] dark:hover:text-[#D40073]'}`}>
               {t}
             </button>
           ))}
@@ -55,66 +54,62 @@ export function OverviewTab() {
       </div>
 
       {/* Recent Transactions Table */}
-      <div className="bg-white rounded-[14px] border border-[#ECEDEF] overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#ECEDEF]">
-          <h3 className="text-[14px] font-semibold text-[#111111]">Recent Ledger Entries</h3>
-          <button className="flex items-center gap-1.5 text-[13px] font-medium text-[#525866] hover:text-[#111111] transition-colors">
+      <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 overflow-hidden shadow-sm">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#ECEDEF] dark:border-white/5 bg-[#F9FAFB] dark:bg-white/5">
+          <h3 className="text-[16px] font-black text-[#111111] dark:text-white uppercase tracking-tight">Recent Ledger Entries</h3>
+          <button className="flex items-center gap-2 text-[12px] font-black text-[#D40073] hover:text-[#B80063] transition-all uppercase tracking-widest">
             Full History
-            <Icon icon="solar:arrow-right-linear" className="text-[15px]" />
+            <Icon icon="solar:arrow-right-linear" className="text-[16px]" strokeWidth={3} />
           </button>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-[#ECEDEF] bg-[#FAFBFC]">
-                <th className="py-3 px-5 text-[11px] font-semibold text-[#8B93A7] uppercase tracking-wider">Type</th>
-                <th className="py-3 px-5 text-[11px] font-semibold text-[#8B93A7] uppercase tracking-wider">Party</th>
-                <th className="py-3 px-5 text-[11px] font-semibold text-[#8B93A7] uppercase tracking-wider">Reference</th>
-                <th className="py-3 px-5 text-[11px] font-semibold text-[#8B93A7] uppercase tracking-wider">Method</th>
-                <th className="py-3 px-5 text-[11px] font-semibold text-[#8B93A7] uppercase tracking-wider">Time</th>
-                <th className="py-3 px-5 text-[11px] font-semibold text-[#8B93A7] uppercase tracking-wider">Status</th>
-                <th className="py-3 px-5 text-[11px] font-semibold text-[#8B93A7] uppercase tracking-wider text-right">Amount</th>
+              <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5">
+                <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Type / Info</th>
+                <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Party</th>
+                <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Reference</th>
+                <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Method</th>
+                <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Time</th>
+                <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Status</th>
+                <th className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider text-right">Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#ECEDEF]">
+            <tbody className="divide-y divide-[#ECEDEF] dark:divide-white/5">
               {recentTransactions.map((tx) => (
-                <tr key={tx.id} className="hover:bg-[#FAFBFC] transition-colors cursor-pointer group">
-                  {/* Type badge */}
-                  <td className="py-3 px-5">
-                    <div className="flex items-center gap-2.5">
-                      <span className={`inline-flex w-6 h-6 rounded-[6px] items-center justify-center text-[10px] font-bold shrink-0 ${
-                        tx.direction === 'in' ? 'bg-[#ECFDF3] text-[#16A34A]' :
-                        tx.direction === 'out' ? 'bg-[#FEF2F2] text-[#EF4444]' :
-                        'bg-[#EFF6FF] text-[#2563EB]'
+                <tr key={tx.id} className="hover:bg-[#F7F7F8] dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-[8px] flex items-center justify-center text-[12px] font-black shrink-0 ${
+                        tx.direction === 'in' ? 'bg-[#ECFDF3] dark:bg-[#064E3B]/20 text-[#16A34A]' :
+                        tx.direction === 'out' ? 'bg-[#FEF2F2] dark:bg-[#7F1D1D]/20 text-[#EF4444]' :
+                        'bg-[#EFF6FF] dark:bg-[#1E3A8A]/20 text-[#2563EB]'
                       }`}>
                         {tx.direction === 'in' ? '↓' : tx.direction === 'out' ? '↑' : '○'}
-                      </span>
-                      <span className="text-[13px] font-medium text-[#111111] group-hover:text-[#D40073] transition-colors">{tx.type}</span>
+                      </div>
+                      <span className="text-[14px] font-black text-[#111111] dark:text-white group-hover:text-[#D40073] transition-colors whitespace-nowrap">{tx.type}</span>
                     </div>
                   </td>
-                  {/* Party */}
-                  <td className="py-3 px-5 text-[13px] text-[#525866]">{tx.party}</td>
-                  {/* Reference */}
-                  <td className="py-3 px-5 text-[12px] font-mono text-[#8B93A7]">{tx.reference || 'REF-N/A'}</td>
-                  {/* Method */}
-                  <td className="py-3 px-5 text-[13px] text-[#525866]">{tx.method}</td>
-                  {/* Time */}
-                  <td className="py-3 px-5 text-[12px] text-[#8B93A7] whitespace-nowrap">
+                  <td className="py-4 px-6 text-[14px] font-bold text-[#525866] dark:text-[#E4E7EC] truncate max-w-[150px]">{tx.party}</td>
+                  <td className="py-4 px-6 tracking-widest">
+                    <code className="text-[11px] font-black text-[#8B93A7] bg-[#F9FAFB] dark:bg-white/5 px-2 py-1 rounded-[6px] border border-[#ECEDEF] dark:border-white/10 uppercase">{tx.reference || 'N/A'}</code>
+                  </td>
+                  <td className="py-4 px-6 text-[13px] font-bold text-[#525866] dark:text-[#8B93A7] uppercase tracking-wider">{tx.method}</td>
+                  <td className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider whitespace-nowrap">
                     {new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </td>
-                  {/* Status */}
-                  <td className="py-3 px-5">
-                    <span className={`px-2.5 py-0.5 rounded-[5px] text-[11px] font-semibold ${
-                      tx.status === 'Confirmed' ? 'bg-[#ECFDF3] text-[#16A34A]' :
-                      tx.status === 'Pending' ? 'bg-[#FFF7ED] text-[#D97706]' :
-                      'bg-[#FEF2F2] text-[#EF4444]'
+                  <td className="py-4 px-6">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-wider border shadow-sm ${
+                      tx.status === 'Confirmed' ? 'bg-[#ECFDF3] dark:bg-[#064E3B]/30 text-[#16A34A] border-[#16A34A]/10' :
+                      tx.status === 'Pending' ? 'bg-[#FFF7ED] dark:bg-[#78350F]/30 text-[#D97706] border-[#D97706]/10' :
+                      'bg-[#FEF2F2] dark:bg-[#7F1D1D]/30 text-[#EF4444] border-[#EF4444]/10'
                     }`}>
                       {tx.status}
                     </span>
                   </td>
                   {/* Amount */}
-                  <td className={`py-3 px-5 text-right text-[13px] font-semibold ${
+                  <td className={`py-4 px-6 text-right text-[15px] font-black tracking-tight ${
                     tx.direction === 'in' ? 'text-[#16A34A]' :
                     tx.direction === 'out' ? 'text-[#EF4444]' :
                     'text-[#2563EB]'

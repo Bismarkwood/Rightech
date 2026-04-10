@@ -17,7 +17,7 @@ L.Icon.Default.mergeOptions({
 const createCustomIcon = (color: string) => {
   return L.divIcon({
     className: 'custom-leaflet-icon',
-    html: `<div style="background-color: white; border: 2px solid ${color}; width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>`,
+    html: `<div style="background-color: white; border: 2px solid ${color}; width: 16px; height: 16px; border-radius: 50%;"></div>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });
@@ -29,7 +29,7 @@ const dropoffIcon = createCustomIcon('#D40073');
 const agentHtml = `
   <div style="position: relative; display: flex; align-items: center; justify-content: center;">
     <div style="position: absolute; inset: 0; background-color: #D40073; border-radius: 50%; opacity: 0.3; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; transform: scale(2.5);"></div>
-    <div style="width: 32px; height: 32px; background-color: white; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; border: 2px solid #D40073;">
+    <div style="width: 32px; height: 32px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #D40073;">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#D40073" stroke="#D40073" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
     </div>
   </div>
@@ -130,24 +130,24 @@ export function LiveMapModal({ isOpen, onClose, delivery }: LiveMapModalProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-[1000px] h-[80vh] bg-white rounded-[24px] shadow-2xl overflow-hidden flex flex-col relative"
+            className="w-full max-w-[1000px] h-[80vh] bg-[#0B0F1A] rounded-[24px] overflow-hidden flex flex-col relative border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)]"
           >
             {/* Header */}
-            <div className="h-[72px] px-6 border-b border-[#ECEDEF] flex items-center justify-between shrink-0 bg-white z-10">
+            <div className="h-[72px] px-6 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#0B0F1A] z-10">
               <div>
-                <h2 className="text-[18px] font-bold text-[#111111]">Live Tracking</h2>
-                <p className="text-[13px] text-[#525866]">Order {delivery?.id || '#DL-4918'}</p>
+                <h2 className="text-[18px] font-bold text-white">Live Tracking</h2>
+                <p className="text-[13px] text-[#8B93A7]">Order {delivery?.id || '#DL-4918'}</p>
               </div>
               <button 
                 onClick={onClose}
-                className="w-10 h-10 rounded-full bg-[#F3F4F6] hover:bg-[#E4E7EC] flex items-center justify-center transition-colors text-[#525866]"
+                className="w-10 h-10 rounded-full bg-white/5 hover:bg-[#D40073] flex items-center justify-center transition-colors text-white/60 border border-white/5"
               >
                 <X size={20} />
               </button>
             </div>
 
             {/* Map Area */}
-            <div className="flex-1 relative bg-[#E4E7EC] overflow-hidden">
+            <div className="flex-1 relative bg-[#0B0F1A] overflow-hidden">
               <MapContainer 
                 center={[5.6000, -0.1700]} 
                 zoom={13} 
@@ -155,9 +155,9 @@ export function LiveMapModal({ isOpen, onClose, delivery }: LiveMapModalProps) {
                 zoomControl={false}
                 attributionControl={false}
               >
-                {/* Light minimal map style */}
+                {/* Dark CartoDB style */}
                 <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
                 
                 {/* Route Path Base */}
@@ -186,15 +186,15 @@ export function LiveMapModal({ isOpen, onClose, delivery }: LiveMapModalProps) {
               </MapContainer>
 
               {/* Delivery Info Overlay Panel */}
-              <div className="absolute bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-[380px] bg-white rounded-[20px] p-6 border border-[#ECEDEF] z-[1000]">
+              <div className="absolute bottom-6 left-6 right-6 bg-[#151B2B]/90 backdrop-blur-xl rounded-[20px] p-6 border border-white/10 z-[1000] shadow-2xl">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#D40073]/10 text-[#D40073] flex items-center justify-center relative">
+                    <div className="w-12 h-12 rounded-full bg-[#D40073]/20 text-[#D40073] flex items-center justify-center relative">
                       <div className="absolute inset-0 rounded-full border border-[#D40073]/30 animate-ping" />
                       <Navigation size={20} className="transform rotate-45" />
                     </div>
                     <div>
-                      <p className="text-[16px] font-bold text-[#111111]">In Transit</p>
+                      <p className="text-[16px] font-bold text-white">In Transit</p>
                       <p className="text-[13px] font-medium text-[#16A34A] flex items-center gap-1">
                         <Clock size={12} />
                         {remainingMins} mins away
@@ -202,45 +202,45 @@ export function LiveMapModal({ isOpen, onClose, delivery }: LiveMapModalProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-[24px] font-bold text-[#111111]">3.2<span className="text-[14px] text-[#8B93A7] font-medium">km</span></p>
+                    <p className="text-[24px] font-bold text-white">3.2<span className="text-[14px] text-[#8B93A7] font-medium">km</span></p>
                   </div>
                 </div>
 
                 <div className="space-y-4 mb-6 relative">
-                  <div className="absolute left-[11px] top-4 bottom-4 w-0.5 bg-[#F3F4F6]" />
+                  <div className="absolute left-[11px] top-4 bottom-4 w-0.5 bg-white/5" />
                   <div className="flex items-start gap-4 relative z-10">
-                    <div className="w-6 h-6 rounded-full bg-white border-2 border-[#ECEDEF] flex items-center justify-center shrink-0 mt-0.5">
-                      <div className="w-2 h-2 rounded-full bg-[#111111]" />
+                    <div className="w-6 h-6 rounded-full bg-[#0B0F1A] border-2 border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-2 h-2 rounded-full bg-white/40" />
                     </div>
                     <div>
                       <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mb-0.5">Origin</p>
-                      <p className="text-[14px] font-medium text-[#111111] truncate max-w-[250px]">{delivery?.pickup || 'Accra Central Warehouse'}</p>
+                      <p className="text-[14px] font-medium text-white/90 truncate max-w-[250px]">{delivery?.pickup || 'Accra Central Warehouse'}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4 relative z-10">
-                    <div className="w-6 h-6 rounded-full bg-white border-2 border-[#D40073] flex items-center justify-center shrink-0 mt-0.5 shadow-[0_0_0_2px_white]">
+                    <div className="w-6 h-6 rounded-full bg-[#0B0F1A] border-2 border-[#D40073] flex items-center justify-center shrink-0 mt-0.5">
                       <div className="w-2 h-2 rounded-full bg-[#D40073]" />
                     </div>
                     <div>
                       <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider mb-0.5">Destination</p>
-                      <p className="text-[14px] font-medium text-[#111111] truncate max-w-[250px]">{delivery?.dropoff || 'Osu, Oxford St'}</p>
+                      <p className="text-[14px] font-medium text-white truncate max-w-[250px]">{delivery?.dropoff || 'Osu, Oxford St'}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-5 border-t border-[#ECEDEF]">
+                <div className="pt-5 border-t border-white/5">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#525866]">
+                      <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[#8B93A7]">
                         <User size={18} />
                       </div>
                       <div>
-                        <p className="text-[14px] font-bold text-[#111111]">{delivery?.customer || 'John Mensah'}</p>
-                        <p className="text-[12px] text-[#525866]">Customer</p>
+                        <p className="text-[14px] font-bold text-white">{delivery?.customer || 'John Mensah'}</p>
+                        <p className="text-[12px] text-[#8B93A7]">Customer</p>
                       </div>
                     </div>
                   </div>
-                  <button className="w-full h-[44px] flex items-center justify-center gap-2 bg-[#111111] hover:bg-[#333333] text-white font-semibold text-[14px] rounded-[12px] transition-colors">
+                  <button className="w-full h-[44px] flex items-center justify-center gap-2 bg-white text-[#111111] hover:bg-[#D40073] hover:text-white font-bold text-[14px] rounded-[12px] transition-all active:scale-95 shadow-lg shadow-black/20">
                     <Phone size={16} />
                     Call {delivery?.customer?.split(' ')[0] || 'Customer'}
                   </button>

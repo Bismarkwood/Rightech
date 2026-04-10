@@ -16,7 +16,7 @@ const KPICard = ({ title, value, icon, gradient, trend, trendUp }: any) => (
     <div className={`absolute -top-10 -right-10 w-24 h-24 rounded-full opacity-[0.03] group-hover:opacity-[0.06] transition-opacity ${gradient}`} />
 
     <div className="flex items-start justify-between mb-4 relative z-10">
-      <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center text-white shadow-lg shadow-black/5 ${gradient}`}>
+      <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center text-white ${gradient}`}>
         <Icon icon={icon} className="text-[22px]" />
       </div>
       {trend && (
@@ -129,19 +129,19 @@ export function OverviewTab({ onNavigate }: { onNavigate: (tab: string) => void 
               <div className="p-2 bg-[#F7F7F8] border border-[#ECEDEF] rounded-[10px] flex gap-2">
                 <button
                   onClick={() => setTimePeriod('daily')}
-                  className={`px-3 py-1 text-[11px] font-bold rounded-[6px] transition-colors ${timePeriod === 'daily' ? 'bg-white text-[#111111] shadow-sm' : 'text-[#8B93A7] hover:text-[#111111]'}`}
+                  className={`px-3 py-1 text-[11px] font-bold rounded-[6px] transition-colors ${timePeriod === 'daily' ? 'bg-white text-[#111111]' : 'text-[#8B93A7] hover:text-[#111111]'}`}
                 >
                   Daily
                 </button>
                 <button
                   onClick={() => setTimePeriod('weekly')}
-                  className={`px-3 py-1 text-[11px] font-bold rounded-[6px] transition-colors ${timePeriod === 'weekly' ? 'bg-white text-[#111111] shadow-sm' : 'text-[#8B93A7] hover:text-[#111111]'}`}
+                  className={`px-3 py-1 text-[11px] font-bold rounded-[6px] transition-colors ${timePeriod === 'weekly' ? 'bg-white text-[#111111]' : 'text-[#8B93A7] hover:text-[#111111]'}`}
                 >
                   Weekly
                 </button>
                 <button
                   onClick={() => setTimePeriod('monthly')}
-                  className={`px-3 py-1 text-[11px] font-bold rounded-[6px] transition-colors ${timePeriod === 'monthly' ? 'bg-white text-[#111111] shadow-sm' : 'text-[#8B93A7] hover:text-[#111111]'}`}
+                  className={`px-3 py-1 text-[11px] font-bold rounded-[6px] transition-colors ${timePeriod === 'monthly' ? 'bg-white text-[#111111]' : 'text-[#8B93A7] hover:text-[#111111]'}`}
                 >
                   Monthly
                 </button>
@@ -215,7 +215,7 @@ export function OverviewTab({ onNavigate }: { onNavigate: (tab: string) => void 
 
         {/* Right Sidebar: Quick Actions & Delivery Glances */}
         <div className="lg:col-span-1 space-y-6">
-          <Card className="p-6 bg-[#111111] text-white border-0 shadow-xl shadow-black/10">
+          <Card className="p-6 bg-[#111111] text-white border-0">
             <h3 className="text-[18px] font-bold mb-1 tracking-tight">Supply Health</h3>
             <p className="text-[13px] text-white/50 mb-6 font-medium leading-[1.4]">You've reached 94% of your fulfillment target this week.</p>
 
@@ -235,7 +235,7 @@ export function OverviewTab({ onNavigate }: { onNavigate: (tab: string) => void 
                   <span>100%</span>
                 </div>
                 <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                  <motion.div initial={{ width: 0 }} animate={{ width: '100%' }} className="h-full bg-[#D40073] rounded-full shadow-[0_0_10px_rgba(212,0,115,0.5)]" />
+                  <motion.div initial={{ width: 0 }} animate={{ width: '100%' }} className="h-full bg-[#D40073] rounded-full" />
                 </div>
               </div>
             </div>
@@ -252,7 +252,7 @@ export function OverviewTab({ onNavigate }: { onNavigate: (tab: string) => void 
               <button
                 key={i}
                 onClick={() => onNavigate(action.tab)}
-                className="p-4 bg-white border border-[#ECEDEF] rounded-[20px] flex items-center justify-between hover:border-[#D40073]/40 hover:shadow-lg hover:shadow-black/[0.02] transition-all group"
+                className="p-4 bg-white border border-[#ECEDEF] rounded-[20px] flex items-center justify-between hover:border-[#D40073]/40 transition-all group"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-[12px] flex items-center justify-center text-white" style={{ backgroundColor: action.color }}>

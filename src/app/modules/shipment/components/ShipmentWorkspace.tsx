@@ -18,8 +18,29 @@ export function ShipmentWorkspace() {
   
   return (
     <div className="flex flex-col h-full bg-[#F7F7F8]">
-      {/* Tab Navigation */}
-      <div className="bg-white border-b border-[#ECEDEF] px-8 pt-4 shrink-0">
+      {/* ── Page Header ── */}
+      <div className="bg-white border-b border-[#ECEDEF] px-8 pt-6 shrink-0">
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-[11px] bg-[#111111] text-white flex items-center justify-center">
+                <Icon icon="solar:routing-2-bold-duotone" className="text-[18px]" />
+              </div>
+              <h1 className="text-[24px] font-black text-[#111111] tracking-tight">Shipment Management</h1>
+            </div>
+            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5 ml-0.5">
+              Track active freight, manage carriers, and view shipping history.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 mb-1">
+            <button className="h-10 px-4 bg-white border border-[#E4E7EC] text-[#111111] text-[13px] font-bold rounded-[10px] flex items-center gap-2 hover:bg-[#F3F4F6] transition-colors">
+              <Icon icon="solar:download-square-linear" className="text-[17px]" />
+              Export
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Nav */}
         <div className="flex items-center gap-8 overflow-x-auto no-scrollbar">
           {TABS.map((tab) => (
             <button

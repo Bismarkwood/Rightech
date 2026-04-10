@@ -200,7 +200,7 @@ export function RetailerOrderDetailsDrawer() {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 24, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-                className="fixed right-0 top-0 h-[100dvh] w-full max-w-[520px] bg-white z-50 shadow-2xl border-l border-[#ECEDEF] flex flex-col focus:outline-none"
+                className="fixed right-0 top-0 h-[100dvh] w-full max-w-[520px] bg-white z-50 border-l border-[#ECEDEF] flex flex-col focus:outline-none"
               >
                 {/* Header */}
                 <div className="p-5 border-b border-[#ECEDEF] bg-white shrink-0">
@@ -499,7 +499,7 @@ export function RetailerOrderDetailsDrawer() {
                               <span className="px-2 py-0.5 bg-[#D40073] text-white text-[10px] font-bold rounded-full">ACTIVE</span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <img src={order.agent.avatar} alt={order.agent.name} className="w-12 h-12 rounded-[12px] border-2 border-white shadow-sm" />
+                              <img src={order.agent.avatar} alt={order.agent.name} className="w-12 h-12 rounded-[12px] border-2 border-white" />
                               <div className="min-w-0">
                                 <div className="text-[14px] font-bold text-[#111111]">{order.agent.name}</div>
                                 <div className="text-[12px] font-medium text-[#8B93A7] flex items-center gap-1">
@@ -507,7 +507,7 @@ export function RetailerOrderDetailsDrawer() {
                                   {order.agent.vehicle}
                                 </div>
                               </div>
-                              <button className="ml-auto w-9 h-9 rounded-full bg-white border border-[#ECEDEF] text-[#D40073] flex items-center justify-center hover:bg-[#D40073] hover:text-white transition-all shadow-sm">
+                              <button className="ml-auto w-9 h-9 rounded-full bg-white border border-[#ECEDEF] text-[#D40073] flex items-center justify-center hover:bg-[#D40073] hover:text-white transition-all">
                                 <Icon icon="solar:phone-bold" />
                               </button>
                             </div>
@@ -532,7 +532,7 @@ export function RetailerOrderDetailsDrawer() {
                           <motion.div 
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mt-4 p-5 rounded-[20px] bg-gradient-to-br from-[#111111] to-[#333333] text-white border border-[#222] shadow-xl"
+                            className="mt-4 p-5 rounded-[20px] bg-gradient-to-br from-[#111111] to-[#333333] text-white border border-[#222]"
                           >
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center gap-2">
@@ -565,7 +565,7 @@ export function RetailerOrderDetailsDrawer() {
                             <button
                               type="button"
                               onClick={() => setIsMapOpen(true)}
-                              className="w-full h-11 bg-white text-[#111111] rounded-[14px] font-bold text-[13px] flex items-center justify-center gap-2 hover:bg-[#F3F4F6] transition-all active:scale-[0.98] shadow-lg"
+                              className="w-full h-11 bg-white text-[#111111] rounded-[14px] font-bold text-[13px] flex items-center justify-center gap-2 hover:bg-[#F3F4F6] transition-all active:scale-[0.98]"
                             >
                               <Icon icon="solar:map-point-wave-bold" className="text-[18px] text-[#D40073]" />
                               View Map Live Tracking
@@ -607,7 +607,7 @@ export function RetailerOrderDetailsDrawer() {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[800px] h-[600px] bg-white rounded-[24px] overflow-hidden z-[70] shadow-2xl flex flex-col"
+                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[800px] h-[600px] bg-white rounded-[24px] overflow-hidden z-[70] flex flex-col"
                           >
                             <div className="p-4 border-b border-[#ECEDEF] flex items-center justify-between bg-white shrink-0">
                               <div className="flex items-center gap-3">
@@ -647,10 +647,10 @@ export function RetailerOrderDetailsDrawer() {
                                 initial={{ scale: 0 }} animate={{ scale: 1 }}
                                 className="absolute left-[70%] top-[30%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2"
                               >
-                                <div className="px-3 py-1.5 bg-[#111111] text-white text-[11px] font-bold rounded-full shadow-lg whitespace-nowrap">
+                                <div className="px-3 py-1.5 bg-[#111111] text-white text-[11px] font-bold rounded-full whitespace-nowrap">
                                   Destination
                                 </div>
-                                <div className="w-8 h-8 bg-[#111111] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
+                                <div className="w-8 h-8 bg-[#111111] rounded-full border-4 border-white flex items-center justify-center">
                                   <Icon icon="solar:home-2-bold" className="text-white text-[16px]" />
                                 </div>
                                 <div className="w-4 h-4 rounded-full bg-[#111111]/20 animate-ping absolute -bottom-1" />
@@ -665,7 +665,7 @@ export function RetailerOrderDetailsDrawer() {
                                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                                 className="absolute flex flex-col items-center gap-2"
                               >
-                                <div className="px-3 py-2 bg-white rounded-[12px] shadow-[0_8px_20px_rgba(0,0,0,0.15)] border border-[#ECEDEF] flex items-center gap-2 whitespace-nowrap">
+                                <div className="px-3 py-2 bg-white rounded-[12px] border border-[#ECEDEF] flex items-center gap-2 whitespace-nowrap">
                                   <div className="w-6 h-6 rounded-full overflow-hidden border border-[#ECEDEF]">
                                     <img src={MOCK_AGENT.avatar} alt="" className="w-full h-full object-cover" />
                                   </div>
@@ -674,14 +674,14 @@ export function RetailerOrderDetailsDrawer() {
                                     <span className="text-[9px] font-medium text-[#2563EB] mt-0.5">3.2 km away • 8 mins</span>
                                   </div>
                                 </div>
-                                <div className="w-10 h-10 bg-[#D40073] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
+                                <div className="w-10 h-10 bg-[#D40073] rounded-full border-4 border-white flex items-center justify-center">
                                   <Icon icon="solar:routing-2-bold" className="text-white text-[20px] animate-pulse" />
                                 </div>
                                 <div className="w-6 h-6 rounded-full bg-[#D40073]/30 animate-ping absolute -bottom-1" />
                               </motion.div>
 
                               {/* Tracking Overlay Card */}
-                              <div className="absolute left-6 bottom-6 right-6 p-5 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-[20px] border border-[#ECEDEF] flex items-center justify-between gap-6 overflow-hidden">
+                              <div className="absolute left-6 bottom-6 right-6 p-5 bg-white border border-[#ECEDEF] rounded-[20px] flex items-center justify-between gap-6 overflow-hidden">
                                 <div className="absolute top-0 left-0 w-2 h-full bg-[#D40073]" />
                                 <div className="flex items-center gap-4">
                                   <div className="w-12 h-12 rounded-[14px] overflow-hidden border-2 border-[#ECEDEF]">

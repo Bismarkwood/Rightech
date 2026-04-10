@@ -1,3 +1,35 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+/* Leaflet Dark Theme Overrides */
+.leaflet-container {
+  background: #0B0F1A !important;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: #151B2B !important;
+  color: white !important;
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5) !important;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #8B93A7 !important;
+  padding: 8px 8px 0 0 !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: white !important;
+}
+
+.agent-popup-custom .leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+}

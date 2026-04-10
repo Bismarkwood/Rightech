@@ -24,7 +24,7 @@ export function CreateShipmentModal({ isOpen, onClose }: CreateShipmentModalProp
     originPort: '',
     eta: '',
     incoterm: 'FOB',
-    destinationWarehouse: 'Accra Main Warehouse'
+    destinationAddress: 'Accra Main Warehouse'
   });
 
   const activeConsignments = inboundConsignments.filter(c => c.status === 'On Shelf' || c.status === 'In Transit');
@@ -52,7 +52,7 @@ export function CreateShipmentModal({ isOpen, onClose }: CreateShipmentModalProp
       carrierId: formData.carrierId || 'car-001',
       trackingNumber: formData.trackingNumber,
       originPort: formData.originPort,
-      destinationWarehouse: formData.destinationWarehouse,
+      destinationAddress: formData.destinationAddress,
       incoterm: formData.incoterm,
       timeline: [
         { stage: 'Order placed', date: new Date().toISOString().split('T')[0], description: 'Consignment linked', completed: true },
@@ -73,7 +73,7 @@ export function CreateShipmentModal({ isOpen, onClose }: CreateShipmentModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={(v) => !v && resetAndClose()}>
-      <DialogContent className="max-w-[580px] p-0 bg-white rounded-[32px] border-none shadow-2xl overflow-hidden">
+      <DialogContent className="max-w-[580px] p-0 bg-white rounded-[32px] border-none overflow-hidden">
         
         {/* Header */}
         <div className="px-8 pt-8 pb-6 border-b border-[#F1F3F5] flex items-center justify-between bg-[#FAFBFC]">
@@ -128,7 +128,7 @@ export function CreateShipmentModal({ isOpen, onClose }: CreateShipmentModalProp
                           key={m}
                           onClick={() => setFormData({...formData, freightMethod: m as any})}
                           className={`flex-1 h-12 rounded-[14px] text-[13px] font-black flex items-center justify-center gap-2 border transition-all ${
-                            formData.freightMethod === m ? 'bg-[#D40073] text-white border-transparent shadow-lg shadow-[#D40073]/20' : 'bg-[#F9FAFB] text-[#8B93A7] border-[#ECEDEF] hover:border-[#D40073]/40'
+                            formData.freightMethod === m ? 'bg-[#D40073] text-white border-transparent' : 'bg-[#F9FAFB] text-[#8B93A7] border-[#ECEDEF] hover:border-[#D40073]/40'
                           }`}
                         >
                           {m === 'Sea' && <Ship size={16} />}
@@ -212,7 +212,7 @@ export function CreateShipmentModal({ isOpen, onClose }: CreateShipmentModalProp
 
                  <div className="flex gap-4">
                   <button onClick={() => setStep(2)} className="flex-1 h-14 bg-[#F3F4F6] text-[#525866] rounded-[18px] font-black">Back</button>
-                  <button onClick={handleSubmit} className="flex-[2] h-14 bg-[#D40073] text-white rounded-[18px] font-black text-[16px] shadow-lg shadow-[#D40073]/20">Create Shipment & Notify</button>
+                  <button onClick={handleSubmit} className="flex-[2] h-14 bg-[#D40073] text-white rounded-[18px] font-black text-[16px]">Create Shipment & Notify</button>
                 </div>
               </motion.div>
             )}
@@ -222,7 +222,7 @@ export function CreateShipmentModal({ isOpen, onClose }: CreateShipmentModalProp
                 key="step4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                 className="text-center py-8"
               >
-                <div className="w-20 h-20 bg-[#16A34A] rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-[#16A34A]/20">
+                <div className="w-20 h-20 bg-[#16A34A] rounded-full flex items-center justify-center mx-auto mb-6 text-white">
                   <CheckCircle2 size={40} />
                 </div>
                 <h3 className="text-[24px] font-black text-[#111111] mb-2">Shipment Created</h3>

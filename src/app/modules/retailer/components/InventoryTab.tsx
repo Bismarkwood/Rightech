@@ -128,9 +128,9 @@ export function InventoryTab() {
   };
 
   return (
-    <div className="bg-white rounded-[16px] border border-[#ECEDEF] flex flex-col min-h-[600px]">
+    <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 flex flex-col min-h-[600px] overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="p-4 border-b border-[#ECEDEF] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-4 border-b border-[#ECEDEF] dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative group w-full sm:w-[320px]">
           <Icon icon="solar:magnifer-linear" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors text-[18px]" />
           <input 
@@ -138,12 +138,12 @@ export function InventoryTab() {
             placeholder="Search inventory..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-10 pl-10 pr-4 bg-[#F7F7F8] border border-transparent rounded-[8px] text-[13px] text-[#111111] placeholder:text-[#8B93A7] focus:outline-none focus:bg-white focus:border-[#D40073] focus:ring-[3px] focus:ring-[rgba(212,0,115,0.1)] transition-all font-medium"
+            className="w-full h-10 pl-10 pr-4 bg-[#F7F7F8] dark:bg-white/5 border border-transparent dark:border-white/10 rounded-[12px] text-[13px] text-[#111111] dark:text-white placeholder:text-[#8B93A7] focus:outline-none focus:bg-white dark:focus:bg-white/10 focus:border-[#D40073] focus:ring-[3px] focus:ring-[#D40073]/5 transition-all font-medium"
           />
         </div>
         <button 
           onClick={openCreateModal}
-          className="h-[40px] px-4 flex items-center gap-2 bg-[#111111] hover:bg-[#D40073] text-white rounded-[10px] text-[13px] font-semibold transition-all active:scale-95"
+          className="h-[40px] px-4 flex items-center gap-2 bg-[#111111] dark:bg-[#D40073] hover:bg-[#D40073] dark:hover:bg-[#D40073]/90 text-white rounded-[10px] text-[13px] font-bold transition-all active:scale-95 border border-transparent dark:border-white/10"
         >
           <Icon icon="solar:add-circle-bold" className="text-[18px]" />
           Add Item
@@ -154,78 +154,76 @@ export function InventoryTab() {
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#F7F7F8] border-b border-[#ECEDEF]">
-              <th className="py-3 px-5 text-[12px] font-bold text-[#525866] uppercase tracking-wider">Item Details</th>
-              <th className="py-3 px-5 text-[12px] font-bold text-[#525866] uppercase tracking-wider">Category</th>
-              <th className="py-3 px-5 text-[12px] font-bold text-[#525866] uppercase tracking-wider">Stock Level</th>
-              <th className="py-3 px-5 text-[12px] font-bold text-[#525866] uppercase tracking-wider">Price</th>
-              <th className="py-3 px-5 text-[12px] font-bold text-[#525866] uppercase tracking-wider">Status</th>
-              <th className="py-3 px-5 text-[12px] font-bold text-[#525866] uppercase tracking-wider text-right">Actions</th>
+            <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5">
+              <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Inventory Details</th>
+              <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Category</th>
+              <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Stock Assessment</th>
+              <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Unit Price</th>
+              <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Status</th>
+              <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="text-[13px]">
+          <tbody className="divide-y divide-[#ECEDEF] dark:divide-white/5">
             {filteredInventory.map((item) => (
               <tr 
                 key={item.id} 
                 onClick={() => openViewModal(item)}
-                className="border-b border-[#ECEDEF] last:border-0 hover:bg-[#FBFBFC] transition-colors cursor-pointer group"
+                className="hover:bg-[#FBFBFC] dark:hover:bg-white/10 transition-all border-b border-[#ECEDEF] dark:border-white/5 cursor-pointer group"
               >
-                <td className="py-4 px-5">
+                <td className="py-4 px-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-[8px] overflow-hidden bg-[#F3F4F6] flex-shrink-0 border border-[#ECEDEF]">
+                    <div className="w-10 h-10 rounded-[10px] overflow-hidden bg-[#F3F4F6] dark:bg-white/5 flex-shrink-0 border border-[#ECEDEF] dark:border-white/10">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#8B93A7]">
+                        <div className="w-full h-full flex items-center justify-center text-[#8B93A7] dark:text-[#8B93A7]">
                           <Icon icon="solar:box-linear" className="text-[20px]" />
                         </div>
                       )}
                     </div>
                     <div>
-                      <div className="font-bold text-[#111111] line-clamp-1">{item.name}</div>
-                      <div className="text-[12px] text-[#8B93A7] font-medium">{item.id}</div>
+                      <div className="font-black text-[14px] text-[#111111] dark:text-white uppercase tracking-tight group-hover:text-[#D40073] transition-colors">{item.name}</div>
+                      <div className="text-[11px] text-[#8B93A7] font-bold uppercase tracking-widest mt-0.5">{item.id}</div>
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-5 font-semibold text-[#525866]">{item.category}</td>
-                <td className="py-4 px-5">
+                <td className="py-4 px-6 font-black text-[12px] text-[#525866] dark:text-[#8B93A7] uppercase tracking-widest">{item.category}</td>
+                <td className="py-4 px-6">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-[#111111]">{item.stock}</span>
-                    <span className="text-[12px] text-[#8B93A7]">/ {item.minStock} min</span>
+                    <span className="font-black text-[#111111] dark:text-white">{item.stock}</span>
+                    <span className="text-[11px] font-bold text-[#8B93A7] dark:text-[#8B93A7]">/ {item.minStock} MIN</span>
                   </div>
                   {/* Progress bar for stock visually */}
-                  <div className="w-full max-w-[100px] h-1.5 bg-[#ECEDEF] rounded-full mt-1.5 overflow-hidden">
+                  <div className="w-full max-w-[100px] h-1.5 bg-[#ECEDEF] dark:bg-white/10 rounded-full mt-1.5 overflow-hidden">
                     <div 
                       className={`h-full rounded-full ${item.stock === 0 ? 'bg-[#EF4444]' : item.stock <= item.minStock ? 'bg-[#F59E0B]' : 'bg-[#10B981]'}`}
                       style={{ width: `${Math.min(100, (item.stock / (item.minStock * 3)) * 100)}%` }}
                     />
                   </div>
                 </td>
-                <td className="py-4 px-5 font-bold text-[#111111]">{item.price}</td>
-                <td className="py-4 px-5">
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[12px] font-bold ${
-                    item.status === 'In Stock' ? 'bg-[#ECFDF3] text-[#16A34A]' :
-                    item.status === 'Low Stock' ? 'bg-[#FFF7ED] text-[#D97706]' :
-                    'bg-[#FEF2F2] text-[#DC2626]'
+                <td className="py-4 px-6 font-black text-[15px] text-[#111111] dark:text-white tracking-tighter italic">{item.price}</td>
+                <td className="py-4 px-6">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-wider border shadow-sm ${
+                    item.status === 'In Stock' ? 'bg-[#ECFDF3] dark:bg-[#064E3B]/30 text-[#16A34A] border-[#16A34A]/10' :
+                    item.status === 'Low Stock' ? 'bg-[#FFF7ED] dark:bg-[#78350F]/30 text-[#D97706] border-[#D97706]/10' :
+                    'bg-[#FEF2F2] dark:bg-[#7F1D1D]/30 text-[#DC2626] border-[#DC2626]/10'
                   }`}>
-                    {item.status === 'In Stock' && <Icon icon="solar:check-circle-bold" />}
-                    {item.status === 'Low Stock' && <Icon icon="solar:danger-triangle-bold" />}
-                    {item.status === 'Out of Stock' && <Icon icon="solar:close-circle-bold" />}
+                    <Icon icon={item.status === 'In Stock' ? 'solar:check-circle-bold' : item.status === 'Low Stock' ? 'solar:danger-triangle-bold' : 'solar:close-circle-bold'} />
                     {item.status}
                   </span>
                 </td>
-                <td className="py-4 px-5 text-right">
-                  <div className="flex items-center justify-end gap-2">
+                <td className="py-4 px-6 text-right">
+                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
                     <button 
                       onClick={() => openViewModal(item)}
-                      className="w-8 h-8 flex items-center justify-center text-[#8B93A7] hover:text-[#111111] hover:bg-[#F3F4F6] rounded-[8px] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center text-[#8B93A7] hover:text-[#111111] dark:hover:text-white hover:bg-[#F3F4F6] dark:hover:bg-white/10 rounded-[8px] border border-transparent hover:border-[#ECEDEF] dark:hover:border-white/10 transition-colors"
                       title="View Details"
                     >
                       <Icon icon="solar:eye-linear" className="text-[18px]" />
                     </button>
                     <button 
                       onClick={(e) => openDeleteModal(item.id, e)}
-                      className="w-8 h-8 flex items-center justify-center text-[#8B93A7] hover:text-[#EF4444] hover:bg-[#FEF2F2] rounded-[8px] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center text-[#8B93A7] hover:text-[#EF4444] hover:bg-[#FEF2F2] dark:hover:bg-[#EF4444]/10 rounded-[8px] border border-transparent hover:border-[#ECEDEF] dark:hover:border-white/10 transition-colors"
                       title="Delete Item"
                     >
                       <Icon icon="solar:trash-bin-trash-linear" className="text-[18px]" />

@@ -5,8 +5,11 @@ import { useConsignment } from '../context/ConsignmentContext';
 import { useRetailer } from '../../retailer/components/RetailerContext';
 import { useProducts } from '../../products/context/ProductContext';
 import { MOCK_AGENTS } from '../../../core/data/agentData';
+import { usePayments } from '../../payments/context/PaymentContext';
+import { useCredit } from '../../credit/context/CreditContext';
 import { toast } from 'sonner';
-import { ConsignmentItem, ConsignmentProduct } from '../../../core/data/consignmentData';
+import { ConsignmentItem, ConsignmentProduct, ConsignmentStatus } from '../../../core/data/consignmentData';
+import { Transaction } from '../../../core/data/mockPayments';
 
 export function NewConsignmentModal() {
   const { isNewConsignmentModalOpen, setNewConsignmentModalOpen, addInboundConsignment, addOutboundConsignment } = useConsignment();
@@ -22,6 +25,10 @@ export function NewConsignmentModal() {
   const [consignmentName, setConsignmentName] = useState('');
   const [partnerId, setPartnerId] = useState('');
   const [items, setItems] = useState<ConsignmentProduct[]>([]);
+  const [paymentType, setPaymentType] = useState<'Cash' | 'Credit'>('Cash');
+  
+  const { addTransaction } = usePayments();
+  const { recordCreditOrder } = useCredit();
   
   // Current Item Form
   const [selectedProductId, setSelectedProductId] = useState('');
@@ -122,18 +129,47 @@ export function NewConsignmentModal() {
       ? suppliers.find(s => s.id === partnerId) 
       : MOCK_DEALERS.find(d => d.id === partnerId);
 
+    const consignmentId = `${type === 'Inbound' ? 'SCON' : 'DCON'}-${Math.floor(Math.random() * 1000)}`;
+    const totalValue = calculateTotal();
+
+    let finalStatus: ConsignmentStatus = deliveryMethod === 'Delivery' ? 'In Transit' : 'On Shelf';
+    
+    if (paymentType === 'Cash') {
+      finalStatus = 'Settled';
+      
+      const newTx: Transaction = {
+        id: `RT-PAY-${Math.floor(Math.random() * 10000)}`,
+        type: type === 'Inbound' ? 'Supplier Payout' : 'Consignment Payment',
+        direction: type === 'Inbound' ? 'out' : 'in',
+        party: partner?.name || 'Unknown',
+        partyId: partnerId,
+        partyType: type === 'Inbound' ? 'Supplier' : 'Dealer',
+        amount: totalValue,
+        method: 'Cash',
+        status: 'Confirmed',
+        recordedBy: 'Admin (Auto-wire)',
+        timestamp: new Date().toISOString(),
+        linkedId: consignmentId,
+        notes: `Automated settlement for consignment: ${consignmentName}`
+      };
+      addTransaction(newTx);
+    } else if (paymentType === 'Credit' && type === 'Outbound') {
+      // Wire to Credit Module for Dealer
+      recordCreditOrder(partnerId, consignmentId, totalValue);
+    }
+
     const newConsignment: ConsignmentItem = {
-      id: `${type === 'Inbound' ? 'SCON' : 'DCON'}-${Math.floor(Math.random() * 1000)}`,
+      id: consignmentId,
       name: consignmentName,
       partnerId,
       partnerName: partner?.name || 'Unknown',
       date: new Date().toISOString().split('T')[0],
-      status: deliveryMethod === 'Delivery' ? 'In Transit' : 'On Shelf',
+      status: finalStatus,
       type,
       location,
       agentId: deliveryMethod === 'Delivery' ? agentId : undefined,
       items: items,
-      totalValue: calculateTotal()
+      totalValue: totalValue
     };
 
     if (type === 'Inbound') addInboundConsignment(newConsignment);
@@ -159,19 +195,19 @@ export function NewConsignmentModal() {
           initial={{ opacity: 0, scale: 0.95, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 30 }}
-          className="relative w-full max-w-[900px] bg-white border border-white/50 rounded-[32px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[95vh]"
+          className="relative w-full max-w-[900px] bg-white border border-white/50 rounded-[32px] overflow-hidden flex flex-col max-h-[95vh]"
         >
           {/* Header */}
           <div className="px-10 py-8 border-b border-black/5 flex items-center justify-between bg-white/60 sticky top-0 z-10 backdrop-blur-md">
             <div>
-              <h2 className="text-[26px] font-black text-[#111111] tracking-tight">Initialize Movement</h2>
+              <h2 className="text-[26px] font-black text-[#111111] tracking-tight">New Consignment</h2>
               <p className="text-[14px] text-[#525866] font-medium mt-1">Scale your stock operations with multi-item consignments</p>
             </div>
             <button
               onClick={() => setNewConsignmentModalOpen(false)}
               className="w-12 h-12 rounded-full hover:bg-black/5 flex items-center justify-center transition-all text-[#525866] border border-black/5"
             >
-              <Icon icon="solar:close-square-bold" className="text-[28px]" />
+              <Icon icon="solar:close-square-bold" width={28} height={28} />
             </button>
           </div>
 
@@ -196,20 +232,20 @@ export function NewConsignmentModal() {
                     type="button"
                     onClick={() => setType('Inbound')}
                     className={`flex-1 h-11 rounded-[14px] text-[13px] font-bold transition-all flex items-center justify-center gap-2 ${
-                      type === 'Inbound' ? 'bg-white text-[#D40073] shadow-md border border-[#D40073]/10' : 'text-[#8B93A7] hover:text-[#111111]'
+                      type === 'Inbound' ? 'bg-white text-[#D40073] border border-[#D40073]/10' : 'text-[#8B93A7] hover:text-[#111111]'
                     }`}
                   >
-                    <Icon icon="solar:import-bold" className="text-[18px]" />
+                    <Icon icon="solar:import-bold" width={18} height={18} />
                     Inbound
                   </button>
                   <button
                     type="button"
                     onClick={() => setType('Outbound')}
                     className={`flex-1 h-11 rounded-[14px] text-[13px] font-bold transition-all flex items-center justify-center gap-2 ${
-                      type === 'Outbound' ? 'bg-white text-[#D40073] shadow-md border border-[#D40073]/10' : 'text-[#8B93A7] hover:text-[#111111]'
+                      type === 'Outbound' ? 'bg-white text-[#D40073] border border-[#D40073]/10' : 'text-[#8B93A7] hover:text-[#111111]'
                     }`}
                   >
-                    <Icon icon="solar:export-bold" className="text-[18px]" />
+                    <Icon icon="solar:export-bold" width={18} height={18} />
                     Outbound
                   </button>
                 </div>
@@ -217,10 +253,10 @@ export function NewConsignmentModal() {
 
               <div className="space-y-4">
                 <label className="text-[12px] font-black text-[#111111] uppercase tracking-[0.1em] ml-1">
-                  {type === 'Inbound' ? 'Supplier Source' : 'Delivery Dealer'}
+                  {type === 'Inbound' ? 'Select Supply Partner' : 'Select Destination Dealer'}
                 </label>
                 <div className="relative group">
-                  <Icon icon={type === 'Inbound' ? 'solar:shop-2-bold' : 'solar:users-group-two-rounded-bold'} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#D40073] text-[20px]" />
+                  <Icon icon={type === 'Inbound' ? 'solar:shop-2-bold' : 'solar:users-group-two-rounded-bold'} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#D40073]" width={20} height={20} />
                   <select
                     value={partnerId}
                     onChange={(e) => setPartnerId(e.target.value)}
@@ -232,7 +268,7 @@ export function NewConsignmentModal() {
                       : MOCK_DEALERS.map(d => <option key={d.id} value={d.id}>{d.name}</option>)
                     }
                   </select>
-                  <Icon icon="solar:alt-arrow-down-bold" className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8B93A7] pointer-events-none" />
+                  <Icon icon="solar:alt-arrow-down-bold" className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8B93A7] pointer-events-none" width={16} height={16} />
                 </div>
               </div>
             </div>
@@ -249,7 +285,7 @@ export function NewConsignmentModal() {
                   <div className="col-span-2 space-y-2">
                     <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Search Product Catalogue</label>
                     <div className="relative">
-                      <Icon icon="solar:minimalistic-magnifer-bold" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#D40073]" />
+                      <Icon icon="solar:minimalistic-magnifer-bold" className="absolute left-3 top-1/2 -translate-y-1/2 text-[#D40073]" width={18} height={18} />
                       <select
                         value={selectedProductId}
                         onChange={(e) => handleProductSelect(e.target.value)}
@@ -263,7 +299,7 @@ export function NewConsignmentModal() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Movement Qty</label>
+                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Consignment Qty</label>
                     <input
                       type="number"
                       value={currentQty}
@@ -275,9 +311,9 @@ export function NewConsignmentModal() {
                     <button
                       type="button"
                       onClick={addItem}
-                      className="w-full h-12 bg-[#111111] hover:bg-[#D40073] text-white rounded-[14px] flex items-center justify-center transition-all shadow-lg font-bold gap-2"
+                      className="w-full h-12 bg-[#111111] hover:bg-[#D40073] text-white rounded-[14px] flex items-center justify-center transition-all font-bold gap-2"
                     >
-                      <Icon icon="solar:add-circle-bold" className="text-[20px]" />
+                      <Icon icon="solar:add-circle-bold" width={20} height={20} />
                       Add Item
                     </button>
                   </div>
@@ -285,7 +321,7 @@ export function NewConsignmentModal() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Movement Unit Price (GHS)</label>
+                    <label className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider ml-1">Consignment Unit Price (GHS)</label>
                     <input
                       type="number"
                       value={currentPrice}
@@ -322,7 +358,7 @@ export function NewConsignmentModal() {
                             onClick={() => removeItem(item.id)}
                             className="p-2 text-[#DC2626] opacity-0 group-hover:opacity-100 transition-all hover:bg-[#FEF2F2] rounded-full"
                           >
-                            <Icon icon="solar:trash-bin-trash-bold" className="text-[18px]" />
+                            <Icon icon="solar:trash-bin-trash-bold" width={18} height={18} />
                           </button>
                         </div>
                       </div>
@@ -344,7 +380,7 @@ export function NewConsignmentModal() {
                       deliveryMethod === 'Pickup' ? 'border-[#D40073] bg-[#D40073]/5 text-[#D40073]' : 'border-[#ECEDEF] bg-white text-[#525866] grayscale hover:grayscale-0'
                     }`}
                   >
-                    <Icon icon="solar:box-bold" className="text-[28px]" />
+                    <Icon icon="solar:box-bold" width={28} height={28} />
                     <span className="text-[12px] font-black uppercase tracking-wider">Self Collection</span>
                   </button>
                   <button
@@ -354,7 +390,7 @@ export function NewConsignmentModal() {
                       deliveryMethod === 'Delivery' ? 'border-[#D40073] bg-[#D40073]/5 text-[#D40073]' : 'border-[#ECEDEF] bg-white text-[#525866] grayscale hover:grayscale-0'
                     }`}
                   >
-                    <Icon icon="solar:delivery-bold" className="text-[28px]" />
+                    <Icon icon="solar:delivery-bold" width={28} height={28} />
                     <span className="text-[12px] font-black uppercase tracking-wider">Transit Delivery</span>
                   </button>
                 </div>
@@ -363,7 +399,7 @@ export function NewConsignmentModal() {
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                     <label className="text-[12px] font-black text-[#111111] uppercase tracking-[0.1em] ml-1">Destination Address (Accra)</label>
                     <div className="relative">
-                      <Icon icon="solar:map-point-bold" className="absolute left-4 top-1/2 -translate-y-1/2 text-[#D40073] text-[22px]" />
+                      <Icon icon="solar:map-point-bold" className="absolute left-4 top-1/2 -translate-y-1/2 text-[#D40073]" width={22} height={22} />
                       <input
                         type="text"
                         value={location}
@@ -381,7 +417,7 @@ export function NewConsignmentModal() {
                         {locationSuggestions.length > 0 && location.length > 2 && (
                           <motion.div 
                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                            className="absolute bottom-full mb-2 left-0 right-0 bg-white border border-[#ECEDEF] rounded-[20px] shadow-2xl overflow-hidden z-20"
+                            className="absolute bottom-full mb-2 left-0 right-0 bg-white border border-[#ECEDEF] rounded-[20px] overflow-hidden z-20"
                           >
                             {locationSuggestions.map((s, idx) => (
                               <button
@@ -411,7 +447,7 @@ export function NewConsignmentModal() {
                         type="button"
                         onClick={() => setAgentId(agent.id)}
                         className={`w-full flex items-center justify-between p-4 rounded-[18px] border-2 transition-all ${
-                          agentId === agent.id ? 'border-[#111111] bg-[#111111] text-white shadow-lg' : 'border-transparent bg-white hover:border-[#D40073]/20'
+                          agentId === agent.id ? 'border-[#111111] bg-[#111111] text-white' : 'border-transparent bg-white hover:border-[#D40073]/20'
                         }`}
                       >
                         <div className="flex items-center gap-4">
@@ -429,37 +465,94 @@ export function NewConsignmentModal() {
                   </div>
                 ) : (
                   <div className="h-40 border-2 border-dashed border-[#ECEDEF] rounded-[24px] flex flex-col items-center justify-center text-[#8B93A7] gap-2 px-10 text-center">
-                    <Icon icon="solar:delivery-linear" className="text-[32px] opacity-20" />
+                    <Icon icon="solar:delivery-linear" width={32} height={32} className="opacity-20" />
                     <p className="text-[13px] font-medium">Agent assignment is only available for Transit Delivery</p>
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Settlement Selection */}
+            <div className="pt-6 border-t border-black/5 space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                   <h3 className="text-[18px] font-black text-[#111111]">Settlement Terms</h3>
+                   <p className="text-[12px] text-[#8B93A7] font-bold uppercase tracking-wider mt-0.5">Define payment reconciliation</p>
+                </div>
+                <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest ${
+                  paymentType === 'Cash' ? 'bg-[#16A34A] text-white' : 'bg-[#D97706] text-white'
+                }`}>
+                  Selection: {paymentType === 'Cash' ? 'Immediate Settlement' : 'On Credit'}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setPaymentType('Cash')}
+                  className={`relative p-6 rounded-[28px] border-2 text-left transition-all group ${
+                    paymentType === 'Cash' ? 'border-[#16A34A] bg-[#16A34A]/5' : 'border-[#ECEDEF] bg-white hover:border-[#16A34A]/20'
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center mb-4 transition-all ${
+                    paymentType === 'Cash' ? 'bg-[#16A34A] text-white' : 'bg-[#F3F4F6] text-[#8B93A7]'
+                  }`}>
+                    <Icon icon="solar:banknote-bold" width={24} height={24} />
+                  </div>
+                  <h4 className="text-[15px] font-black text-[#111111]">Immediate Settlement</h4>
+                  <p className="text-[12px] text-[#525866] font-medium mt-1">Record a cash transaction in the Finance Hub instantly.</p>
+                  {paymentType === 'Cash' && (
+                    <div className="absolute top-6 right-6 w-6 h-6 rounded-full bg-[#16A34A] flex items-center justify-center text-white">
+                      <Icon icon="solar:check-circle-bold" width={16} height={16} />
+                    </div>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentType('Credit')}
+                  className={`relative p-6 rounded-[28px] border-2 text-left transition-all group ${
+                    paymentType === 'Credit' ? 'border-[#D97706] bg-[#D97706]/5' : 'border-[#ECEDEF] bg-white hover:border-[#D97706]/20'
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center mb-4 transition-all ${
+                    paymentType === 'Credit' ? 'bg-[#D97706] text-white' : 'bg-[#F3F4F6] text-[#8B93A7]'
+                  }`}>
+                    <Icon icon="solar:credit-card-bold" width={24} height={24} />
+                  </div>
+                  <h4 className="text-[15px] font-black text-[#111111]">Acquire on Credit</h4>
+                  <p className="text-[12px] text-[#525866] font-medium mt-1">Add to the partner's credit balance for delayed payment.</p>
+                  {paymentType === 'Credit' && (
+                    <div className="absolute top-6 right-6 w-6 h-6 rounded-full bg-[#D97706] flex items-center justify-center text-white">
+                      <Icon icon="solar:check-circle-bold" width={16} height={16} />
+                    </div>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Action Footer */}
-          <div className="px-10 py-8 border-t border-black/5 bg-white/60 backdrop-blur-md flex items-center justify-between sticky bottom-0 z-10">
-            <div className="hidden sm:block">
-              <p className="text-[12px] font-black text-[#8B93A7] uppercase tracking-wider">Total Inventory Value</p>
-              <p className="text-[28px] font-black text-[#111111] tracking-tighter">GHS {calculateTotal().toLocaleString()}</p>
+          <div className="px-10 py-8 border-t border-black/5 bg-[#F9FAFB] flex items-center justify-between sticky bottom-0">
+            <div className="flex items-center gap-8">
+              <div>
+                <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest">Total Forecast</p>
+                <p className="text-[24px] font-black text-[#111111]">GHS {calculateTotal().toLocaleString()}</p>
+              </div>
+              <div className="w-px h-10 bg-black/5 hidden md:block" />
+              <div className="hidden md:block">
+                <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest">Item Count</p>
+                <p className="text-[18px] font-black text-[#111111]">{items.length} Products</p>
+              </div>
             </div>
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => setNewConsignmentModalOpen(false)}
-                className="flex-1 sm:flex-none h-14 px-8 border border-[#ECEDEF] rounded-[20px] text-[14px] font-black text-[#111111] hover:bg-black/5 transition-all"
-              >
-                Discard
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="flex-1 sm:flex-none h-14 px-10 bg-[#D40073] hover:bg-[#B80063] text-white font-black text-[15px] rounded-[20px] transition-all shadow-xl shadow-[#D40073]/20 flex items-center justify-center gap-3"
-              >
-                Record Movement
-                <Icon icon="solar:round-arrow-right-bold" className="text-[22px]" />
-              </button>
-            </div>
+            
+            <button
+              onClick={handleSubmit}
+              className="h-14 px-10 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[20px] text-[15px] font-black uppercase tracking-widest flex items-center gap-3 transition-all active:scale-95 shadow-lg shadow-[#D40073]/20"
+            >
+              Finish
+              <Icon icon="solar:check-read-linear" width={20} height={20} />
+            </button>
           </div>
         </motion.div>
       </div>

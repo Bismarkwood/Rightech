@@ -66,34 +66,41 @@ export default function StorefrontManagement() {
 
   return (
     <div className="flex flex-col h-full bg-[#FAFBFC]">
-      {/* Header */}
-      <div className="bg-white border-b border-[#ECEDEF] px-8 py-6 shrink-0 z-10 sticky top-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold text-[#111111] tracking-tight">Storefront</h1>
-          <p className="text-[14px] text-[#525866] mt-1">Design your live shop window and select inventory to display.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setActiveView(activeView === 'listings' ? 'settings' : 'listings')}
-            className={`h-11 px-5 rounded-[12px] text-[14px] font-bold transition-all flex items-center gap-2 border ${
-              activeView === 'settings' 
-                ? 'bg-[#111111] text-white border-[#111111]' 
-                : 'bg-white text-[#525866] border-[#ECEDEF] hover:bg-[#F7F7F8] hover:text-[#111111]'
-            }`}
-          >
-            <Icon icon="solar:settings-bold" className="text-[18px]" />
-            Settings
-          </button>
-          
-          {activeView === 'listings' && (
+      {/* ── Page Header ── */}
+      <div className="bg-white border-b border-[#ECEDEF] px-8 pt-6 shrink-0 z-10 sticky top-0">
+        <div className="flex items-end justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-[11px] bg-[#111111] text-white flex items-center justify-center">
+                <Icon icon="solar:shop-bold-duotone" className="text-[18px]" />
+              </div>
+              <h1 className="text-[24px] font-black text-[#111111] tracking-tight">Storefront</h1>
+            </div>
+            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5 ml-0.5">Design your live shop window and select inventory to display.</p>
+          </div>
+          <div className="flex items-center gap-3 mb-1">
             <button 
-              onClick={handleAddProduct}
-              className="h-11 px-5 rounded-[12px] bg-[#D40073] text-white font-bold transition-colors hover:bg-[#B80063] shadow-md shadow-[#D40073]/20 flex items-center gap-2"
+              onClick={() => setActiveView(activeView === 'listings' ? 'settings' : 'listings')}
+              className={`h-10 px-4 rounded-[10px] text-[13px] font-bold transition-all flex items-center gap-2 border ${
+                activeView === 'settings' 
+                  ? 'bg-[#111111] text-white border-[#111111]' 
+                  : 'bg-white text-[#111111] border-[#E4E7EC] hover:bg-[#F3F4F6]'
+              }`}
             >
-              <Plus size={18} />
-              Add Product
+              <Icon icon="solar:settings-bold" className="text-[17px]" />
+              Settings
             </button>
-          )}
+            
+            {activeView === 'listings' && (
+              <button 
+                onClick={handleAddProduct}
+                className="h-10 px-5 rounded-[10px] bg-[#D40073] text-white text-[13px] font-bold transition-colors hover:bg-[#B80063] flex items-center gap-2"
+              >
+                <Plus size={15} />
+                Add Product
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -125,7 +132,7 @@ export default function StorefrontManagement() {
                   placeholder="Search live listings..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-12 pl-12 pr-4 bg-white rounded-[14px] text-[14px] font-medium border border-[#ECEDEF] focus:bg-[#F7F7F8] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/10 transition-all outline-none shadow-sm"
+                  className="w-full h-12 pl-12 pr-4 bg-white rounded-[14px] text-[14px] font-medium border border-[#ECEDEF] focus:bg-[#F7F7F8] focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/10 transition-all outline-none"
                 />
               </div>
 
@@ -180,7 +187,7 @@ export default function StorefrontManagement() {
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                               <button
                                 onClick={() => handleEditProduct(listing.inventoryId)}
-                                className="bg-white text-[#111111] px-4 py-2 rounded-full text-[12px] font-bold shadow-xl hover:scale-105 active:scale-95 transition-transform flex items-center gap-1.5"
+                                className="bg-white text-[#111111] px-4 py-2 rounded-full text-[12px] font-bold hover:scale-105 active:scale-95 transition-transform flex items-center gap-1.5"
                               >
                                 <Icon icon="solar:pen-bold" className="text-[14px]" />
                                 Edit Card
@@ -202,14 +209,14 @@ export default function StorefrontManagement() {
                     })
                   ) : (
                     <motion.div className="col-span-full py-24 flex flex-col items-center justify-center text-center">
-                      <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm border border-[#ECEDEF] mb-6">
+                      <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center border border-[#ECEDEF] mb-6">
                         <LayoutGrid size={32} className="text-[#8B93A7]" />
                       </div>
                       <h3 className="text-[20px] font-bold text-[#111111] mb-2 tracking-tight">No published products</h3>
                       <p className="text-[#8B93A7] text-[14px] max-w-[300px]">Your storefront is empty or matches no search results.</p>
                       <button
                         onClick={handleAddProduct}
-                        className="mt-6 h-11 px-6 rounded-[12px] bg-[#111111] text-white font-bold transition-colors hover:bg-[#D40073] shadow-md flex items-center gap-2"
+                        className="mt-6 h-11 px-6 rounded-[12px] bg-[#111111] text-white font-bold transition-colors hover:bg-[#D40073] flex items-center gap-2"
                       >
                         <Plus size={18} />
                         Add First Product

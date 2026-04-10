@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Outlet, Navigate } from "react-router";
 import Auth from './modules/auth/pages/Auth';
 import DashboardLayout from './core/components/DashboardLayout';
+import { ProtectedRoute } from './core/components/ProtectedRoute';
 const DashboardHome = lazy(() => import('./modules/retailer/pages/DashboardHome'));
 const BusinessManagement = lazy(() => import('./modules/business/pages/BusinessManagement'));
 const DealerManagement = lazy(() => import('./modules/dealer/pages/DealerManagement'));
@@ -16,6 +17,7 @@ const CreditManagement = lazy(() => import('./modules/credit/pages/CreditManagem
 const Finance = lazy(() => import('./modules/finance/pages/Finance'));
 const ProductManagement = lazy(() => import('./modules/products/pages/ProductManagement'));
 const PublicTrackingPage = lazy(() => import('./modules/public/pages/TrackingPage'));
+const TeamManagement = lazy(() => import('./modules/team/pages/TeamManagement'));
 
 // Premium Loading Fallback
 const ModuleLoader = () => (
@@ -45,18 +47,19 @@ export const router = createBrowserRouter([
     Component: DashboardLayout,
     children: [
       { index: true, element: <Suspense fallback={<ModuleLoader />}><DashboardHome /></Suspense> },
-      { path: "business", element: <Suspense fallback={<ModuleLoader />}><BusinessManagement /></Suspense> },
-      { path: "storefront", element: <Suspense fallback={<ModuleLoader />}><StorefrontManagement /></Suspense> },
-      { path: "payments", element: <Suspense fallback={<ModuleLoader />}><PaymentManagement /></Suspense> },
-      { path: 'shipments', element: <Suspense fallback={<ModuleLoader />}><Shipments /></Suspense> },
-      { path: 'credit', element: <Suspense fallback={<ModuleLoader />}><CreditManagement /></Suspense> },
-      { path: 'finance', element: <Suspense fallback={<ModuleLoader />}><Finance /></Suspense> },
-      { path: 'products', element: <Suspense fallback={<ModuleLoader />}><ProductManagement /></Suspense> },
-      { path: "retailer", element: <Suspense fallback={<ModuleLoader />}><RetailerManagement /></Suspense> },
-      { path: "dealer", element: <Suspense fallback={<ModuleLoader />}><DealerManagement /></Suspense> },
-      { path: "delivery", element: <Suspense fallback={<ModuleLoader />}><DeliveryManagement /></Suspense> },
-      { path: "supply", element: <Suspense fallback={<ModuleLoader />}><SupplyManagement /></Suspense> },
-      { path: "consignment", element: <Suspense fallback={<ModuleLoader />}><ConsignmentManagement /></Suspense> }
+      { path: "business", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="business"><BusinessManagement /></ProtectedRoute></Suspense> },
+      { path: "storefront", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="storefront"><StorefrontManagement /></ProtectedRoute></Suspense> },
+      { path: "payments", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="payments"><PaymentManagement /></ProtectedRoute></Suspense> },
+      { path: 'shipments', element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="shipments"><Shipments /></ProtectedRoute></Suspense> },
+      { path: 'credit', element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="credit"><CreditManagement /></ProtectedRoute></Suspense> },
+      { path: 'finance', element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="finance"><Finance /></ProtectedRoute></Suspense> },
+      { path: 'products', element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="products"><ProductManagement /></ProtectedRoute></Suspense> },
+      { path: "retailer", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="retailer"><RetailerManagement /></ProtectedRoute></Suspense> },
+      { path: "dealer", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="dealer"><DealerManagement /></ProtectedRoute></Suspense> },
+      { path: "delivery", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="delivery"><DeliveryManagement /></ProtectedRoute></Suspense> },
+      { path: "supply", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="supply"><SupplyManagement /></ProtectedRoute></Suspense> },
+      { path: "consignment", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="consignment"><ConsignmentManagement /></ProtectedRoute></Suspense> },
+      { path: "team", element: <Suspense fallback={<ModuleLoader />}><ProtectedRoute permission="team"><TeamManagement /></ProtectedRoute></Suspense> }
     ]
   }
 ]);

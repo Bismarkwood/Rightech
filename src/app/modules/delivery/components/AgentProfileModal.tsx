@@ -79,7 +79,7 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-[640px] bg-white/95 backdrop-blur-2xl rounded-[32px] shadow-2xl border border-white/20 overflow-hidden flex flex-col relative my-auto"
+            className="w-full max-w-[640px] bg-white/95 backdrop-blur-2xl rounded-[32px] border border-white/20 overflow-hidden flex flex-col relative my-auto"
           >
             {/* Elegant Header with Abstract Shape */}
             <div className="relative h-[200px] shrink-0 overflow-hidden bg-gradient-to-br from-[#111111] to-[#333333]">
@@ -90,24 +90,24 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                 <div className="flex items-end justify-between">
                   <div className="flex items-center gap-6">
                     <div className="relative">
-                      <div className="w-[100px] h-[100px] rounded-[24px] bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center overflow-hidden shadow-xl">
+                      <div className="w-[100px] h-[100px] rounded-[24px] bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center overflow-hidden">
                         {agent.avatar ? (
                           <img src={agent.avatar} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <User size={48} className="text-white/40" />
                         )}
                       </div>
-                      <div className="absolute -bottom-2 -right-2 bg-white text-[#111111] px-2 py-1 rounded-[10px] flex items-center gap-1.5 border-2 border-[#111111] shadow-lg">
+                      <div className="absolute -bottom-2 -right-2 bg-white text-[#111111] px-2 py-1 rounded-[10px] flex items-center gap-1.5 border-2 border-[#111111]">
                         <Star size={12} className="text-[#D40073]" fill="currentColor" />
                         <span className="text-[12px] font-black">{agent.rating}</span>
                       </div>
                     </div>
                     <div className="mb-2">
                        <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 bg-[#D40073] text-white text-[9px] font-black rounded-full uppercase tracking-widest border border-white/20 shadow-lg">
+                        <span className="px-2 py-0.5 bg-[#D40073] text-white text-[9px] font-black rounded-full uppercase tracking-widest border border-white/20">
                           {agent.id}
                         </span>
-                        <div className={`w-2 h-2 rounded-full ${agent.status === 'active' ? 'bg-[#16A34A] shadow-[0_0_8px_#16A34A]' : 'bg-[#8B93A7]'}`} />
+                        <div className={`w-2 h-2 rounded-full ${agent.status === 'active' ? 'bg-[#16A34A]' : 'bg-[#8B93A7]'}`} />
                        </div>
                        <h2 className="text-[28px] font-black text-white tracking-tight leading-tight">{agent.name}</h2>
                        <p className="text-white/60 text-[14px] font-medium flex items-center gap-2 mt-1">
@@ -127,7 +127,7 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                     {!isEditing && (
                       <button 
                         onClick={() => setIsEditing(true)}
-                        className="h-10 px-4 rounded-[14px] bg-white text-[#111111] hover:shadow-xl hover:scale-[1.02] flex items-center gap-2 text-[13px] font-bold transition-all shadow-lg"
+                        className="h-10 px-4 rounded-[14px] bg-white text-[#111111] hover:scale-[1.02] flex items-center gap-2 text-[13px] font-bold transition-all"
                       >
                         <Edit2 size={16} className="text-[#D40073]" /> Edit
                       </button>
@@ -165,7 +165,7 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                               onClick={() => setEditData({...editData, vehicleType: type.id})}
                               className={`flex-1 h-12 rounded-[14px] border transition-all flex items-center justify-center ${
                                 editData.vehicleType === type.id 
-                                  ? 'bg-[#111111] border-[#111111] text-white shadow-lg' 
+                                  ? 'bg-[#111111] border-[#111111] text-white' 
                                   : 'bg-white border-[#E4E7EC] text-[#8B93A7] hover:border-[#D40073]/40'
                               }`}
                             >
@@ -189,22 +189,22 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                   <>
                     {/* Stats Summary */}
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-[#FAFBFC] border border-[#ECEDEF] rounded-[20px] p-5 flex flex-col items-center text-center transition-all hover:border-[#D40073]/20 hover:shadow-lg">
-                        <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
+                      <div className="bg-[#FAFBFC] border border-[#ECEDEF] rounded-[20px] p-5 flex flex-col items-center text-center transition-all hover:border-[#D40073]/20">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-3">
                           <Package size={20} className="text-[#D40073]" />
                         </div>
                         <p className="text-[24px] font-black text-[#111111]">{agent.deliveries}</p>
                         <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-widest">Deliveries</p>
                       </div>
-                      <div className="bg-[#FAFBFC] border border-[#ECEDEF] rounded-[20px] p-5 flex flex-col items-center text-center transition-all hover:border-[#D40073]/20 hover:shadow-lg">
-                        <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
+                      <div className="bg-[#FAFBFC] border border-[#ECEDEF] rounded-[20px] p-5 flex flex-col items-center text-center transition-all hover:border-[#D40073]/20">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-3">
                           <Icon icon="solar:route-bold-duotone" className="text-[#D40073] text-[20px]" />
                         </div>
                         <p className="text-[24px] font-black text-[#111111]">1.2k</p>
                         <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-widest">KM Traveled</p>
                       </div>
-                      <div className="bg-[#FAFBFC] border border-[#ECEDEF] rounded-[20px] p-5 flex flex-col items-center text-center transition-all hover:border-[#D40073]/20 hover:shadow-lg">
-                        <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-3">
+                      <div className="bg-[#FAFBFC] border border-[#ECEDEF] rounded-[20px] p-5 flex flex-col items-center text-center transition-all hover:border-[#D40073]/20">
+                        <div className="w-10 h-10 rounded-full bg-white border border-[#ECEDEF] flex items-center justify-center mb-3">
                           <Calendar size={20} className="text-[#D40073]" />
                         </div>
                         <p className="text-[18px] font-black text-[#111111] leading-[24px] mt-1.5">OCT '23</p>
@@ -222,7 +222,7 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                         Vehicle Assignment
                       </h3>
                       <div className="flex items-center gap-4">
-                         <div className="w-[52px] h-[52px] rounded-[16px] bg-[#111111] text-white flex items-center justify-center shadow-lg">
+                         <div className="w-[52px] h-[52px] rounded-[16px] bg-[#111111] text-white flex items-center justify-center">
                             {editData.vehicleType === 'bike' ? <Bike size={24} /> : editData.vehicleType === 'van' ? <Car size={24} /> : <Truck size={24} />}
                          </div>
                          <div className="flex-1">
@@ -246,7 +246,7 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                       </div>
                       <div className="space-y-3">
                         {MOCK_HISTORY.map((h) => (
-                          <div key={h.id} className="p-4 bg-white border border-[#ECEDEF] rounded-[20px] flex items-center gap-4 transition-all hover:border-[#111111]/10 hover:shadow-md group cursor-pointer">
+                          <div key={h.id} className="p-4 bg-white border border-[#ECEDEF] rounded-[20px] flex items-center gap-4 transition-all hover:border-[#111111]/10 group cursor-pointer">
                             <div className="w-11 h-11 rounded-full bg-[#F7F7F8] flex items-center justify-center text-[#111111] group-hover:bg-[#111111] group-hover:text-white transition-all scale-90 group-hover:scale-100">
                               <CheckCircle2 size={18} />
                             </div>
@@ -283,7 +283,7 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                     </button>
                     <button 
                       onClick={handleSave}
-                      className="flex-2 flex-[2] h-14 rounded-[20px] bg-[#111111] text-white font-bold text-[15px] hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
+                      className="flex-2 flex-[2] h-14 rounded-[20px] bg-[#111111] text-white font-bold text-[15px] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                     >
                       <Save size={20} />
                       Commit Changes
@@ -306,7 +306,7 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                    </div>
                    <div className="flex gap-3">
                      <button onClick={() => setIsDeleting(false)} className="flex-1 h-12 rounded-[16px] bg-white border border-[#ECEDEF] text-[#525866] font-bold text-[13px] hover:bg-[#F3F4F6] transition-all">Cancel</button>
-                     <button onClick={() => onDelete(agent.id)} className="flex-1 h-12 rounded-[16px] bg-[#DC2626] text-white font-bold text-[13px] hover:bg-[#B91C1C] transition-all shadow-lg shadow-[#DC2626]/20">Confirm Offboard</button>
+                     <button onClick={() => onDelete(agent.id)} className="flex-1 h-12 rounded-[16px] bg-[#DC2626] text-white font-bold text-[13px] hover:bg-[#B91C1C] transition-all">Confirm Offboard</button>
                    </div>
                  </motion.div>
                ) : (
@@ -320,7 +320,7 @@ export function AgentProfileModal({ isOpen, onClose, agent, onDelete, onUpdate }
                     </button>
                     <button 
                       onClick={onClose}
-                      className="flex-1 h-14 rounded-[20px] bg-[#111111] text-white font-bold text-[15px] hover:shadow-xl transition-all shadow-lg"
+                      className="flex-1 h-14 rounded-[20px] bg-[#111111] text-white font-bold text-[15px] transition-all"
                     >
                       Done Viewing
                     </button>

@@ -61,36 +61,44 @@ export function RetailerWorkspace() {
       {/* ── Main Content ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-        {/* ── Header ── */}
-        <div className="bg-white border-b border-[#ECEDEF] px-8 py-5 shrink-0 flex items-center justify-between">
-          <div>
-            <h1 className="text-[22px] font-black text-[#111111] tracking-tight">Order Management</h1>
-            <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5">{orders.length} total orders</p>
+        {/* ── Page Header ── */}
+        <div className="bg-white border-b border-[#ECEDEF] px-8 pt-6 shrink-0">
+          <div className="flex items-end justify-between mb-4">
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-9 h-9 rounded-[11px] bg-[#111111] text-white flex items-center justify-center">
+                  <Icon icon="solar:shop-2-bold-duotone" className="text-[18px]" />
+                </div>
+                <h1 className="text-[24px] font-black text-[#111111] tracking-tight">Order Management</h1>
+              </div>
+              <p className="text-[13px] font-medium text-[#8B93A7] mt-0.5 ml-0.5">{orders.length} total retailer orders</p>
+            </div>
+            <button
+              onClick={() => openCreateOrder()}
+              className="h-10 px-5 bg-[#D40073] hover:bg-[#B80064] text-white text-[13px] font-bold rounded-[10px] flex items-center gap-2 transition-colors mb-1"
+            >
+              <Plus size={15} strokeWidth={2.5} />
+              New Order
+            </button>
           </div>
-          <button
-            onClick={() => openCreateOrder()}
-            className="h-11 px-6 bg-[#D40073] hover:bg-[#B80063] text-white text-[14px] font-bold rounded-[12px] flex items-center gap-2 transition-colors shadow-lg shadow-[#D40073]/20"
-          >
-            <Plus size={16} strokeWidth={2.5} />
-            New Order
-          </button>
         </div>
 
         {/* ── KPI Row ── */}
-        <div className="grid grid-cols-4 gap-4 px-8 py-5 shrink-0">
+        <div className="grid grid-cols-4 gap-5 px-8 py-6 shrink-0">
           {[
-            { label: 'Total Revenue', value: `GHS ${totalRevenue.toLocaleString()}`, icon: 'solar:dollar-minimalistic-bold-duotone', color: '#D40073', bg: 'rgba(212,0,115,0.06)' },
-            { label: 'Pending', value: String(pending), icon: 'solar:clock-square-bold-duotone', color: '#D97706', bg: 'rgba(217,119,6,0.06)' },
-            { label: 'In Transit', value: String(inTransit), icon: 'solar:routing-2-bold-duotone', color: '#2563EB', bg: 'rgba(37,99,235,0.06)' },
-            { label: 'Completed', value: String(completed), icon: 'solar:check-square-bold-duotone', color: '#16A34A', bg: 'rgba(22,163,74,0.06)' },
+            { label: 'Total Revenue', value: `GHS ${totalRevenue.toLocaleString()}`, icon: 'solar:dollar-minimalistic-bold-duotone', color: '#D40073', bg: '#FDEDF5', border: '#FADDEE' },
+            { label: 'Pending Dispatch', value: String(pending), icon: 'solar:clock-square-bold-duotone', color: '#D97706', bg: '#FFFBEB', border: '#FEF3C7' },
+            { label: 'Active In Transit', value: String(inTransit), icon: 'solar:routing-2-bold-duotone', color: '#2563EB', bg: '#EFF6FF', border: '#DBEAFE' },
+            { label: 'Completed Deliveries', value: String(completed), icon: 'solar:check-square-bold-duotone', color: '#16A34A', bg: '#ECFDF5', border: '#D1FAE5' },
           ].map(kpi => (
-            <div key={kpi.label} className="bg-white border border-[#ECEDEF] rounded-[20px] p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0" style={{ background: kpi.bg }}>
+            <div key={kpi.label} className="group relative bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 rounded-[22px] p-6 flex items-center gap-5 transition-all hover:translate-y-[-2px] hover:shadow-md overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-black/5 dark:from-white/5 to-transparent rounded-bl-[40px] transition-transform group-hover:scale-110" />
+              <div className="w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 border transition-all group-hover:scale-110" style={{ background: kpi.bg, borderColor: kpi.border }}>
                 <Icon icon={kpi.icon} className="text-[24px]" style={{ color: kpi.color }} />
               </div>
-              <div>
-                <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">{kpi.label}</p>
-                <p className="text-[20px] font-black text-[#111111] tracking-tight mt-0.5">{kpi.value}</p>
+              <div className="relative z-10">
+                <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest group-hover:text-[#111111] dark:group-hover:text-white transition-colors">{kpi.label}</p>
+                <p className="text-[24px] font-black text-[#111111] dark:text-white tracking-tighter mt-0.5">{kpi.value}</p>
               </div>
             </div>
           ))}
@@ -100,13 +108,13 @@ export function RetailerWorkspace() {
         <div className="px-8 pb-4 shrink-0 flex items-center gap-4 flex-wrap">
           {/* Search */}
           <div className="relative group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors" size={16} />
+            <Icon icon="solar:magnifer-linear" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B93A7] group-focus-within:text-[#D40073] transition-colors text-[18px]" size={16} />
             <input
               type="text"
-              placeholder="Search orders or customers..."
+              placeholder="Search by order ID, customer name or phone..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="h-10 pl-10 pr-4 bg-white border border-[#E4E7EC] rounded-[12px] text-[13px] font-medium focus:outline-none focus:border-[#D40073] focus:ring-[3px] focus:ring-[rgba(212,0,115,0.08)] transition-all w-[280px]"
+              className="h-10 pl-11 pr-4 bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 rounded-[12px] text-[13px] font-black text-[#111111] dark:text-white placeholder:text-[#8B93A7] focus:outline-none focus:border-[#D40073] transition-all w-[320px] shadow-sm"
             />
           </div>
 
@@ -116,10 +124,10 @@ export function RetailerWorkspace() {
               <button
                 key={f}
                 onClick={() => setActiveFilter(f)}
-                className={`whitespace-nowrap h-9 px-4 rounded-[10px] text-[13px] font-bold transition-all ${
+                className={`whitespace-nowrap h-10 px-5 rounded-[12px] text-[13px] font-black uppercase tracking-wider transition-all shadow-sm ${
                   activeFilter === f
-                    ? 'bg-[#111111] text-white shadow-sm'
-                    : 'bg-white border border-[#E4E7EC] text-[#525866] hover:border-[#D40073] hover:text-[#D40073]'
+                    ? 'bg-[#111111] dark:bg-white text-white dark:text-[#111111]'
+                    : 'bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 text-[#525866] dark:text-[#8B93A7] hover:border-[#D40073] hover:text-[#D40073]'
                 }`}
               >
                 {f}
@@ -133,15 +141,15 @@ export function RetailerWorkspace() {
           <div className="h-full bg-white border border-[#ECEDEF] rounded-[24px] overflow-hidden flex flex-col">
             <div className="overflow-y-auto flex-1">
               <table className="w-full text-left border-collapse">
-                <thead className="sticky top-0 z-10">
-                  <tr className="bg-[#F7F7F8] border-b border-[#ECEDEF]">
-                    <th className="py-3.5 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Order</th>
-                    <th className="py-3.5 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Customer</th>
-                    <th className="py-3.5 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Amount</th>
-                    <th className="py-3.5 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Payment</th>
-                    <th className="py-3.5 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Delivery</th>
-                    <th className="py-3.5 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Date</th>
-                    <th className="py-3.5 px-6"></th>
+                <thead>
+                  <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5 sticky top-0 z-10">
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Order ID</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Retailer Customer</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Face Value</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Financing</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Logistics</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Timestamp</th>
+                    <th className="py-4 px-6"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F1F3F5]">
@@ -163,28 +171,36 @@ export function RetailerWorkspace() {
                       <tr
                         key={order.id}
                         onClick={() => setSelectedOrderId(isSelected ? null : order.id)}
-                        className={`cursor-pointer transition-colors group ${isSelected ? 'bg-[rgba(212,0,115,0.03)]' : 'hover:bg-[#FBFBFC]'}`}
+                        className={`cursor-pointer transition-all group ${isSelected ? 'bg-[#FBFBFC] dark:bg-white/10' : 'hover:bg-[#FBFBFC] dark:hover:bg-white/5'} border-b border-[#ECEDEF] dark:border-white/5`}
                       >
                         <td className="py-4 px-6">
-                          <span className={`font-bold text-[14px] ${isSelected ? 'text-[#D40073]' : 'text-[#111111] group-hover:text-[#D40073]'} transition-colors`}>{order.id}</span>
+                          <span className={`font-black text-[14px] uppercase tracking-tight ${isSelected ? 'text-[#D40073]' : 'text-[#111111] dark:text-white group-hover:text-[#D40073]'} transition-colors`}>{order.id}</span>
                         </td>
-                        <td className="py-4 px-6 font-semibold text-[14px] text-[#111111]">{order.customer}</td>
-                        <td className="py-4 px-6 font-bold text-[14px] text-[#111111]">{order.amount}</td>
+                        <td className="py-4 px-6 font-black text-[14px] text-[#111111] dark:text-white group-hover:text-[#D40073] transition-colors uppercase tracking-tight">{order.customer}</td>
+                        <td className="py-4 px-6 font-black text-[16px] text-[#111111] dark:text-white tracking-tighter italic">{order.amount}</td>
                         <td className="py-4 px-6">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-[6px] text-[12px] font-bold" style={{ background: payStyle.bg, color: payStyle.color }}>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-wider border shadow-sm ${
+                            order.payStatus === 'Paid' ? 'bg-[#ECFDF5] dark:bg-[#064E3B]/30 text-[#16A34A] border-[#16A34A]/10' :
+                            order.payStatus === 'Credit' ? 'bg-[#EFF6FF] dark:bg-[#1E3A8A]/30 text-[#2563EB] border-[#2563EB]/10' :
+                            'bg-[#FFF7ED] dark:bg-[#78350F]/30 text-[#D97706] border-[#D97706]/10'
+                          }`}>
                             {order.payStatus}
                           </span>
                         </td>
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 font-semibold text-[13px] text-[#525866]">
-                            <Icon icon={delIcon.icon} className="text-[16px]" style={{ color: delIcon.color }} />
+                          <div className={`flex items-center gap-2 font-black text-[11px] uppercase tracking-widest ${
+                            order.delStatus === 'Delivered' ? 'text-[#16A34A]' :
+                            order.delStatus === 'In Transit' ? 'text-[#2563EB]' :
+                            order.delStatus === 'Ready' ? 'text-[#D40073]' : 'text-[#8B93A7]'
+                          }`}>
+                            <Icon icon={delIcon.icon} className="text-[18px]" />
                             {order.delStatus}
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-[13px] font-medium text-[#8B93A7]">{order.date}</td>
+                        <td className="py-4 px-6 text-[12px] font-bold text-[#8B93A7] uppercase tracking-widest">{order.date}</td>
                         <td className="py-4 px-6 text-right">
-                          <div className={`w-8 h-8 inline-flex items-center justify-center rounded-full transition-all ${isSelected ? 'bg-[#D40073] text-white' : 'text-[#8B93A7] group-hover:bg-[#F3F4F6] group-hover:text-[#111111]'}`}>
-                            <ArrowUpRight size={16} strokeWidth={2.5} />
+                          <div className={`w-9 h-9 inline-flex items-center justify-center rounded-[10px] transition-all border shadow-sm ${isSelected ? 'bg-[#D40073] border-[#D40073] text-white' : 'bg-white dark:bg-white/5 border-[#ECEDEF] dark:border-white/10 text-[#8B93A7] group-hover:text-[#D40073] group-hover:bg-white dark:group-hover:bg-white/10'}`}>
+                            <Icon icon="solar:arrow-right-up-bold" className="text-[20px]" />
                           </div>
                         </td>
                       </tr>
@@ -220,7 +236,7 @@ export function RetailerWorkspace() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-              className="fixed right-0 top-0 bottom-0 w-[480px] bg-white z-50 flex flex-col shadow-2xl"
+              className="fixed right-0 top-0 bottom-0 w-[480px] bg-white z-50 flex flex-col"
             >
               {/* Drawer Header */}
               <div className="p-7 border-b border-[#ECEDEF] flex items-center justify-between shrink-0 bg-[#F7F7F8]">
@@ -326,7 +342,7 @@ export function RetailerWorkspace() {
                 >
                   Update Status
                 </button>
-                <button className="flex-1 h-12 bg-[#D40073] text-white font-bold rounded-[14px] text-[14px] hover:bg-[#B80063] transition-all shadow-lg shadow-[#D40073]/20">
+                <button className="flex-1 h-12 bg-[#D40073] text-white font-bold rounded-[14px] text-[14px] hover:bg-[#B80063] transition-all">
                   Print Invoice
                 </button>
               </div>

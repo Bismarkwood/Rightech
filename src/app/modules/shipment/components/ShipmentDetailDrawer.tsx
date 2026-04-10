@@ -26,7 +26,7 @@ L.Icon.Default.mergeOptions({
 // Custom Icon for Map
 const truckIcon = L.divIcon({
   className: 'custom-leaflet-icon',
-  html: `<div style="background-color: white; border: 2px solid #D40073; width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 0 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D40073" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></div>`,
+  html: `<div style="background-color: white; border: 2px solid #D40073; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D40073" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></div>`,
   iconSize: [24, 24],
   iconAnchor: [12, 12],
 });
@@ -105,7 +105,7 @@ export function ShipmentDetailDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-[540px] bg-[#F8F9FA] z-[110] flex flex-col shadow-[-20px_0_60px_rgba(0,0,0,0.15)] overflow-hidden"
+            className="fixed top-0 right-0 h-full w-[540px] bg-[#F8F9FA] z-[110] flex flex-col overflow-hidden"
           >
             {/* Colorful Header Section */}
             <div className={`relative px-8 pt-10 pb-12 overflow-hidden shrink-0 ${statusConfig.bg}`}>
@@ -162,7 +162,7 @@ export function ShipmentDetailDrawer() {
                   <AddressCard address={shipment.destinationAddress} />
                 </div>
 
-                <div className="bg-white p-5 rounded-[24px] border border-[#ECEDEF] shadow-sm group hover:border-[#D40073]/30 transition-all">
+                <div className="bg-white p-5 rounded-[24px] border border-[#ECEDEF] group hover:border-[#D40073]/30 transition-all">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-[12px] bg-[#2563EB]/5 flex items-center justify-center text-[#2563EB]">
                       <Icon icon="solar:shield-check-bold-duotone" className="text-[20px]" />
@@ -178,7 +178,7 @@ export function ShipmentDetailDrawer() {
               </div>
 
               {/* Journey Map Visual Placeholder -> Real Map */}
-              <div className="bg-white p-2 rounded-[28px] border border-[#ECEDEF] shadow-sm relative overflow-hidden group">
+              <div className="bg-white p-2 rounded-[28px] border border-[#ECEDEF] relative overflow-hidden group">
                 <div className="h-[200px] rounded-[22px] bg-[#F1F3F5] overflow-hidden relative z-0">
                   <MapContainer 
                     center={[5.6000, -0.1700]} 
@@ -187,7 +187,7 @@ export function ShipmentDetailDrawer() {
                     zoomControl={false}
                     attributionControl={false}
                   >
-                    <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+                    <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
                     <Marker position={[5.6000, -0.1700]} icon={truckIcon}>
                       <Popup className="text-[12px] font-bold">Current Location</Popup>
                     </Marker>
@@ -195,12 +195,12 @@ export function ShipmentDetailDrawer() {
                   
                   {/* Overlay for "Simulated Transit Monitor" effect */}
                   <div className="absolute top-4 left-4 right-4 z-[400] pointer-events-none">
-                    <div className="bg-white/90 backdrop-blur-md rounded-[16px] p-3 border border-white/50 shadow-sm flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-full bg-[#D40073]/10 flex items-center justify-center">
+                    <div className="bg-[#111111]/90 backdrop-blur-md rounded-[16px] p-3 border border-white/10 flex items-center gap-3">
+                       <div className="w-8 h-8 rounded-full bg-[#D40073]/20 flex items-center justify-center">
                           <Navigation size={14} className="text-[#D40073]" />
                        </div>
                        <div>
-                          <div className="text-[12px] font-black text-[#111111] leading-none mb-1">Simulated Transit Monitor</div>
+                          <div className="text-[12px] font-black text-white leading-none mb-1">Simulated Transit Monitor</div>
                           <div className="text-[10px] font-medium text-[#8B93A7] leading-none">Real-time GPS tracking is active for this shipment</div>
                        </div>
                     </div>
@@ -224,7 +224,7 @@ export function ShipmentDetailDrawer() {
                   <div className="absolute left-[13px] top-2 bottom-2 w-px bg-gradient-to-b from-[#16A34A] via-[#ECEDEF] to-[#ECEDEF]" />
                   {shipment.timeline.map((item, idx) => (
                     <div key={idx} className="relative pl-10 group">
-                      <div className={`absolute left-0 top-1 w-[26px] h-[26px] rounded-full border-2 border-[#F8F9FA] shadow-sm z-10 flex items-center justify-center transition-all ${
+                      <div className={`absolute left-0 top-1 w-[26px] h-[26px] rounded-full border-2 border-[#F8F9FA] z-10 flex items-center justify-center transition-all ${
                         item.completed ? 'bg-[#16A34A] text-white scale-110' : 
                         idx === shipment.timeline.findIndex(t => !t.completed) ? 'bg-[#D40073] text-white ring-4 ring-[#D40073]/10 scale-125' :
                         'bg-white border-[#ECEDEF] text-[#8B93A7]'
@@ -244,7 +244,7 @@ export function ShipmentDetailDrawer() {
               </section>
 
               {/* Cargo Breakdown Card */}
-              <section className="bg-white rounded-[28px] border border-[#ECEDEF] shadow-sm overflow-hidden transition-transform hover:translate-y-[-2px]">
+              <section className="bg-white rounded-[28px] border border-[#ECEDEF] overflow-hidden transition-transform hover:translate-y-[-2px]">
                  <div className="px-6 py-5 border-b border-[#F1F3F5] bg-[#FAFBFC] flex items-center justify-between">
                     <h3 className="text-[13px] font-black text-[#111111] uppercase tracking-wider flex items-center gap-2">
                        <Package size={18} className="text-[#D40073]" />
@@ -326,10 +326,10 @@ export function ShipmentDetailDrawer() {
             </div>
 
             {/* Premium Footer Actions */}
-            <div className="p-8 border-t border-[#F1F3F5] bg-white flex items-center gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] selection-none shrink-0">
+            <div className="p-8 border-t border-[#F1F3F5] bg-white flex items-center gap-4 selection-none shrink-0">
                <button 
                   onClick={() => setIsUpdateModalOpen(true)}
-                  className="flex-1 h-14 bg-[#111111] text-white rounded-[22px] font-black text-[15px] flex items-center justify-center gap-2 hover:bg-black transition-all shadow-xl shadow-black/20 hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex-1 h-14 bg-[#111111] text-white rounded-[22px] font-black text-[15px] flex items-center justify-center gap-2 hover:bg-black transition-all hover:scale-[1.02] active:scale-[0.98]"
                >
                   <Icon icon="solar:pen-new-square-bold-duotone" className="text-[20px]" />
                   Update Progress
@@ -361,7 +361,7 @@ export function ShipmentDetailDrawer() {
                   initial={{ opacity: 0, scale: 0.95, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[700px] h-[80vh] flex flex-col bg-white rounded-[32px] shadow-2xl z-[210] overflow-hidden"
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[700px] h-[80vh] flex flex-col bg-white rounded-[32px] z-[210] overflow-hidden"
                 >
                   <div className="px-8 py-6 border-b border-[#F1F3F5] flex items-center justify-between shrink-0 bg-[#FAFBFC]">
                     <div className="flex items-center gap-4">
@@ -375,7 +375,7 @@ export function ShipmentDetailDrawer() {
                     </div>
                     <button
                       onClick={() => setIsManifestOpen(false)}
-                      className="w-10 h-10 rounded-full bg-white border border-[#ECEDEF] flex items-center justify-center text-[#525866] hover:bg-[#F3F4F6] transition-all shadow-sm"
+                      className="w-10 h-10 rounded-full bg-white border border-[#ECEDEF] flex items-center justify-center text-[#525866] hover:bg-[#F3F4F6] transition-all"
                     >
                       <X size={20} />
                     </button>
@@ -414,7 +414,7 @@ export function ShipmentDetailDrawer() {
                     <div className="text-[13px] font-medium text-[#8B93A7]">
                       Total Items: <span className="font-black text-[#111111]">{shipment.itemCount}</span>
                     </div>
-                    <button className="px-6 h-12 bg-[#111111] hover:bg-black text-white rounded-[16px] font-black text-[14px] transition-all shadow-md flex items-center gap-2">
+                    <button className="px-6 h-12 bg-[#111111] hover:bg-black text-white rounded-[16px] font-black text-[14px] transition-all flex items-center gap-2">
                        <FileText size={16} />
                        Download PDF
                     </button>

@@ -85,7 +85,7 @@ export function ShipmentOverviewTab() {
       </div>
 
       {/* Pipeline Board */}
-      <section className="bg-white rounded-[24px] border border-[#ECEDEF] overflow-hidden flex shadow-none">
+      <section className="bg-white rounded-[24px] border border-[#ECEDEF] overflow-hidden flex">
         {stages.map((stage) => (
           <PipelineStage 
             key={stage.label} 

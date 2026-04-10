@@ -18,9 +18,12 @@ interface SupplierContextType {
   suppliers: Supplier[];
   addSupplier: (supplier: Omit<Supplier, 'id' | 'totalConsignments' | 'rating'>) => void;
   updateSupplierStatus: (id: string, status: VettingStatus) => void;
+  updateSupplier: (id: string, data: Partial<Supplier>) => void;
   getSupplier: (id: string) => Supplier | undefined;
   isAddSupplierModalOpen: boolean;
   setAddSupplierModalOpen: (open: boolean) => void;
+  editingSupplier: Supplier | null;
+  setEditingSupplier: (supplier: Supplier | null) => void;
 }
 
 const SupplierContext = createContext<SupplierContextType | undefined>(undefined);
@@ -64,6 +67,7 @@ export const MOCK_SUPPLIERS: Supplier[] = [
 export function SupplierProvider({ children }: { children: ReactNode }) {
   const [suppliers, setSuppliers] = useState<Supplier[]>(MOCK_SUPPLIERS);
   const [isAddSupplierModalOpen, setAddSupplierModalOpen] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
 
   const addSupplier = (supplierData: Omit<Supplier, 'id' | 'totalConsignments' | 'rating'>) => {
     const newSupplier: Supplier = {
@@ -73,6 +77,10 @@ export function SupplierProvider({ children }: { children: ReactNode }) {
       rating: 0
     };
     setSuppliers(prev => [newSupplier, ...prev]);
+  };
+
+  const updateSupplier = (id: string, data: Partial<Supplier>) => {
+    setSuppliers(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
   };
 
   const updateSupplierStatus = (id: string, status: VettingStatus) => {
@@ -86,9 +94,12 @@ export function SupplierProvider({ children }: { children: ReactNode }) {
       suppliers,
       addSupplier,
       updateSupplierStatus,
+      updateSupplier,
       getSupplier,
       isAddSupplierModalOpen,
-      setAddSupplierModalOpen
+      setAddSupplierModalOpen,
+      editingSupplier,
+      setEditingSupplier
     }}>
       {children}
     </SupplierContext.Provider>

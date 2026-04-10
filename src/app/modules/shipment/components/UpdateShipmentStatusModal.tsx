@@ -40,7 +40,7 @@ export function UpdateShipmentStatusModal({ isOpen, onClose, shipment }: UpdateS
 
   return (
     <Dialog open={isOpen} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-[440px] p-0 bg-white rounded-[28px] border-none shadow-2xl overflow-hidden">
+      <DialogContent className="max-w-[440px] p-0 bg-white rounded-[28px] border-none overflow-hidden">
         <div className="p-8">
           <AnimatePresence mode="wait">
             {!isSuccess ? (

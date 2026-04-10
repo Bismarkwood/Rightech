@@ -11,6 +11,7 @@ export interface DeliveryAgent {
   currentOrderId?: string;
   rating: number;
   deliveries: number;
+  location: { lat: number; lng: number };
 }
 
 export interface Delivery {
@@ -45,9 +46,9 @@ interface DeliveryContextType {
 const DeliveryContext = createContext<DeliveryContextType | undefined>(undefined);
 
 export const MOCK_AGENTS: DeliveryAgent[] = [
-  { id: 'AGT-001', name: 'Yaw Boateng', phone: '+233 24 111 2222', vehicleType: 'van', licensePlate: 'GW-4910-22', status: 'Available', rating: 4.8, deliveries: 1240 },
-  { id: 'AGT-002', name: 'Kofi Mensah', phone: '+233 55 444 3333', vehicleType: 'bike', licensePlate: 'M-GR-201-23', status: 'On Delivery', currentOrderId: 'ORD-1234', rating: 4.5, deliveries: 856 },
-  { id: 'AGT-003', name: 'Akua Addo', phone: '+233 20 987 6543', vehicleType: 'truck', licensePlate: 'GT-8812-19', status: 'Available', rating: 4.9, deliveries: 412 },
+  { id: 'AGT-001', name: 'Yaw Boateng', phone: '+233 24 111 2222', vehicleType: 'van', licensePlate: 'GW-4910-22', status: 'Available', rating: 4.8, deliveries: 1240, location: { lat: 5.6037, lng: -0.1870 } },
+  { id: 'AGT-002', name: 'Kofi Mensah', phone: '+233 55 444 3333', vehicleType: 'bike', licensePlate: 'M-GR-201-23', status: 'On Delivery', currentOrderId: 'ORD-1234', rating: 4.5, deliveries: 856, location: { lat: 5.6241, lng: -0.1735 } },
+  { id: 'AGT-003', name: 'Akua Addo', phone: '+233 20 987 6543', vehicleType: 'truck', licensePlate: 'GT-8812-19', status: 'Available', rating: 4.9, deliveries: 412, location: { lat: 5.5862, lng: -0.2104 } },
 ];
 
 export function DeliveryProvider({ children }: { children: ReactNode }) {

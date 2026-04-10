@@ -6,6 +6,7 @@ export interface GhanaAddress {
   instructions?: string;
   contactName?: string;
   contactPhone: string;
+  digitalAddress?: string;
 }
 
 export type GhanaRegion = {

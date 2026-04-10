@@ -15,14 +15,14 @@ export function OrderBrief({ order }: OrderBriefProps) {
       <div className="flex items-center gap-3 mb-8">
         <button 
           onClick={() => window.location.href = `tel:${order.agent?.phone || '0240000000'}`}
-          className="flex-1 h-14 bg-[#111111] text-white rounded-[22px] font-black text-[15px] flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-black/10"
+          className="flex-1 h-14 bg-[#111111] text-white rounded-[22px] font-black text-[15px] flex items-center justify-center gap-3 active:scale-95 transition-all"
         >
           <Icon icon="solar:phone-calling-bold" className="text-[20px]" />
           Call Rider
         </button>
         <button 
           onClick={() => window.open(`https://wa.me/233241234567?text=Hi, I have a question about my order ${order.id}`, '_blank')}
-          className="w-14 h-14 bg-white border border-[#ECEDEF] rounded-[22px] flex items-center justify-center text-[#16A34A] active:scale-95 transition-all shadow-sm"
+          className="w-14 h-14 bg-white border border-[#ECEDEF] rounded-[22px] flex items-center justify-center text-[#16A34A] active:scale-95 transition-all"
         >
           <Icon icon="logos:whatsapp-icon" className="text-[24px]" />
         </button>

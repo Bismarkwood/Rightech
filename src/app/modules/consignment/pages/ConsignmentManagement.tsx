@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useSearchParams } from 'react-router';
 import { Icon } from '@iconify/react';
 import { useConsignment } from '../context/ConsignmentContext';
+import { ConsignmentDetailsModal } from '../components/ConsignmentDetailsModal';
 import { NewConsignmentModal } from '../components/NewConsignmentModal';
 import { toast } from 'sonner';
 import { ConsignmentItem } from '../../../core/data/consignmentData';
@@ -10,9 +12,18 @@ const TABS = ['All Consignments', 'Supplier Intake', 'Dealer Outbound', 'Settlem
 
 export default function ConsignmentManagement() {
   const { inboundConsignments, outboundConsignments, setNewConsignmentModalOpen, deleteConsignment } = useConsignment();
-  const [activeTab, setActiveTab] = useState('All Consignments');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'All Consignments');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedConsignment, setSelectedConsignment] = useState<ConsignmentItem | null>(null);
+
+  React.useEffect(() => {
+    const q = searchParams.get('search');
+    const t = searchParams.get('tab');
+    if (q) setSearchQuery(q);
+    if (t) setActiveTab(t);
+  }, [searchParams]);
 
   const allConsignments = [...inboundConsignments, ...outboundConsignments].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -53,8 +64,8 @@ export default function ConsignmentManagement() {
     <div className="flex flex-col h-full w-full bg-[#F7F7F8] relative min-h-0 font-sans">
 
       {/* ── Page Header ── */}
-      <div className="bg-white border-b border-[#ECEDEF] px-8 pt-6 pb-5 shrink-0">
-        <div className="flex items-end justify-between">
+      <div className="bg-white border-b border-[#ECEDEF] px-8 pt-6 shrink-0">
+        <div className="flex items-end justify-between mb-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
               <div className="w-9 h-9 rounded-[11px] bg-[#111111] text-white flex items-center justify-center">
@@ -66,7 +77,7 @@ export default function ConsignmentManagement() {
               Manage inbound supply and outbound dealer stock. Track sell-through and settlements.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-1">
             <button className="h-10 px-4 flex items-center gap-2 bg-white border border-[#E4E7EC] rounded-[10px] text-[13px] font-bold text-[#111111] hover:bg-[#F3F4F6] transition-colors">
               <Icon icon="solar:download-square-linear" className="text-[18px]" />
               Export
@@ -76,7 +87,7 @@ export default function ConsignmentManagement() {
               className="h-10 px-5 flex items-center gap-2 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] text-[13px] font-bold transition-all"
             >
               <Icon icon="solar:add-circle-bold" className="text-[18px]" />
-              New Movement
+              Create New Consignment
             </button>
           </div>
         </div>
@@ -84,34 +95,52 @@ export default function ConsignmentManagement() {
       {/* Quick Insights */}
       <div className="px-6 md:px-8 pt-6 pb-2">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-5 rounded-[20px] bg-white border border-[#ECEDEF] flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[16px] bg-[#D40073]/10 flex items-center justify-center text-[#D40073]">
-              <Icon icon="solar:box-minimalistic-bold" className="text-[24px]" />
-            </div>
-            <div>
-              <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Active Inventory Value</p>
-              <p className="text-[22px] font-black text-[#111111]">GHS {totalValue.toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="p-5 rounded-[20px] bg-white border border-[#ECEDEF] flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[16px] bg-[#16A34A]/10 flex items-center justify-center text-[#16A34A]">
-              <Icon icon="solar:bill-list-bold" className="text-[24px]" />
-            </div>
-            <div>
-              <p className="text-[12px] font-bold text-[#8B93A7] uppercase tracking-wider">Pending Settlements</p>
-              <p className="text-[22px] font-black text-[#111111]">GHS {totalSold.toLocaleString()}</p>
+          {/* Stat 1 */}
+          <div className="group relative p-6 rounded-[22px] overflow-hidden bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 shadow-sm transition-all hover:translate-y-[-2px] hover:shadow-md">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#D40073]/5 to-transparent rounded-bl-full transition-all group-hover:scale-110" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-[14px] bg-[#FDEDF5] dark:bg-[#D40073]/10 border border-[#FADDEE] dark:border-[#D40073]/20 flex items-center justify-center text-[#D40073] group-hover:bg-[#D40073] group-hover:text-white transition-all">
+                <Icon icon="solar:box-minimalistic-bold" className="text-[24px]" />
+              </div>
+              <div>
+                <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest group-hover:text-[#D40073] transition-colors">Active Inventory Value</p>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <p className="text-[26px] font-black text-[#111111] dark:text-white tracking-tighter">GHS {totalValue.toLocaleString()}</p>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="p-5 rounded-[20px] bg-[#111111] text-white flex items-center gap-4">
-            <div className="w-12 h-12 rounded-[16px] bg-white/10 flex items-center justify-center text-white">
-              <Icon icon="solar:graph-up-bold" className="text-[24px]" />
+          {/* Stat 2 */}
+          <div className="group relative p-6 rounded-[22px] overflow-hidden bg-white dark:bg-[#151B2B] border border-[#ECEDEF] dark:border-white/10 shadow-sm transition-all hover:translate-y-[-2px] hover:shadow-md">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#16A34A]/5 to-transparent rounded-bl-full transition-all group-hover:scale-110" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-[14px] bg-[#ECFDF5] dark:bg-[#16A34A]/10 border border-[#D1FAE5] dark:border-[#16A34A]/20 flex items-center justify-center text-[#16A34A] group-hover:bg-[#16A34A] group-hover:text-white transition-all">
+                <Icon icon="solar:bill-list-bold" className="text-[24px]" />
+              </div>
+              <div>
+                <p className="text-[11px] font-black text-[#8B93A7] uppercase tracking-widest group-hover:text-[#16A34A] transition-colors">Pending Settlements</p>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <p className="text-[26px] font-black text-[#111111] dark:text-white tracking-tighter">GHS {totalSold.toLocaleString()}</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-[12px] font-bold opacity-60 uppercase tracking-wider">Avg. Sold-Through</p>
-              <p className="text-[22px] font-black">
-                {Math.round((allConsignments.reduce((acc: number, c: ConsignmentItem) => acc + c.items.reduce((sum: number, i: any) => sum + i.soldQty, 0), 0) / 
-                  (allConsignments.reduce((acc: number, c: ConsignmentItem) => acc + c.items.reduce((sum: number, i: any) => sum + i.suppliedQty, 0), 0) || 1)) * 100)}%
-              </p>
+          </div>
+          {/* Stat 3 */}
+          <div className="group relative p-6 rounded-[22px] overflow-hidden bg-[#111111] dark:bg-white border border-transparent shadow-sm transition-all hover:translate-y-[-2px]">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/10 to-transparent dark:from-black/5 rounded-bl-full transition-all" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-[14px] bg-white/10 dark:bg-black/5 flex items-center justify-center text-white dark:text-[#111111]">
+                <Icon icon="solar:graph-up-bold" className="text-[24px]" />
+              </div>
+              <div>
+                <p className="text-[11px] font-black text-white/60 dark:text-black/50 uppercase tracking-widest">Avg. Sold-Through</p>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <p className="text-[26px] font-black text-white dark:text-[#111111] tracking-tighter">
+                    {Math.round((allConsignments.reduce((acc: number, c: ConsignmentItem) => acc + c.items.reduce((sum: number, i: any) => sum + i.soldQty, 0), 0) / 
+                      (allConsignments.reduce((acc: number, c: ConsignmentItem) => acc + c.items.reduce((sum: number, i: any) => sum + i.suppliedQty, 0), 0) || 1)) * 100)}%
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -127,10 +156,10 @@ export default function ConsignmentManagement() {
                 <button
                   key={t}
                   onClick={() => setActiveTab(t)}
-                  className={`whitespace-nowrap h-9 px-4 rounded-[10px] text-[13px] font-bold transition-all ${
+                  className={`whitespace-nowrap h-10 px-5 rounded-[12px] text-[13px] font-black uppercase tracking-wider transition-all shadow-sm ${
                     activeTab === t 
-                      ? 'bg-[#111111] text-white shadow-md' 
-                      : 'bg-white border border-[#E4E7EC] text-[#525866] hover:border-[#D40073] hover:text-[#D40073]'
+                      ? 'bg-[#111111] dark:bg-white text-white dark:text-[#111111]' 
+                      : 'bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 text-[#525866] dark:text-[#8B93A7] hover:border-[#D40073] hover:text-[#D40073]'
                   }`}
                 >
                   {t}
@@ -145,25 +174,25 @@ export default function ConsignmentManagement() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search partner or batch..."
-                className="w-full sm:w-[280px] h-10 pl-11 pr-4 bg-white border border-[#ECEDEF] rounded-[12px] text-[13px] font-medium focus:outline-none focus:border-[#D40073] focus:ring-4 focus:ring-[#D40073]/5 transition-all"
+                className="w-full sm:w-[280px] h-10 pl-11 pr-4 bg-white dark:bg-white/5 border border-[#E4E7EC] dark:border-white/10 rounded-[12px] text-[13px] font-black text-[#111111] dark:text-white placeholder:text-[#8B93A7] focus:outline-none focus:border-[#D40073] transition-all shadow-sm"
               />
             </div>
           </div>
 
-          <div className="bg-white rounded-[24px] border border-[#ECEDEF] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+          <div className="bg-white dark:bg-[#151B2B] rounded-[22px] border border-[#ECEDEF] dark:border-white/10 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-separate border-spacing-0">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-[#F7F7F8] border-b border-[#ECEDEF]">
-                    <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Consignment Batch</th>
-                    <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Partner</th>
-                    <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Type</th>
-                    <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Inventory Hub</th>
-                    <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider text-right">Value</th>
-                    <th className="py-4 px-6 text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider text-center">Status</th>
+                  <tr className="bg-[#F9FAFB] dark:bg-white/5 border-b border-[#ECEDEF] dark:border-white/5 sticky top-0 z-10">
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Consignment Batch</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Partner Details</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Intake Type</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest">Inventory Health</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest text-right">Value</th>
+                    <th className="py-4 px-6 text-[12px] font-black text-[#8B93A7] uppercase tracking-widest text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#ECEDEF]">
+                <tbody className="divide-y divide-[#ECEDEF] dark:divide-white/5">
                   <AnimatePresence mode="popLayout">
                     {filteredItems.map((item) => {
                       const totalSupplied = item.items.reduce((sum: number, i: any) => sum + i.suppliedQty, 0);
@@ -179,29 +208,29 @@ export default function ConsignmentManagement() {
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           onClick={() => setSelectedConsignment(item)}
-                          className="hover:bg-[#FBFBFC] transition-colors group cursor-pointer"
+                          className="hover:bg-[#FBFBFC] dark:hover:bg-white/10 transition-all group cursor-pointer"
                         >
-                          <td className="py-5 px-6">
-                            <p className="text-[14px] font-bold text-[#111111] group-hover:text-[#D40073] transition-colors">{item.name}</p>
-                            <p className="text-[11px] font-bold text-[#8B93A7] tracking-wider uppercase mt-0.5">{item.id} • {item.items.length} items</p>
+                          <td className="py-4 px-6">
+                            <p className="text-[14px] font-black text-[#111111] dark:text-white group-hover:text-[#D40073] transition-colors">{item.name}</p>
+                            <p className="text-[11px] font-bold text-[#8B93A7] tracking-wider uppercase mt-1">{item.id} • {item.items.length} items</p>
                           </td>
-                          <td className="py-5 px-6">
-                            <p className="text-[14px] font-bold text-[#111111]">{item.partnerName}</p>
-                            <p className="text-[11px] font-medium text-[#8B93A7] mt-0.5">{item.date}</p>
+                          <td className="py-4 px-6">
+                            <p className="text-[14px] font-black text-[#111111] dark:text-white">{item.partnerName}</p>
+                            <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mt-1">{item.date}</p>
                           </td>
-                          <td className="py-5 px-6">
-                            <span className={`inline-flex px-2 py-0.5 rounded-[6px] text-[10px] font-black uppercase tracking-widest ${
-                              isSupplier ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#FFF7ED] text-[#EA580C]'
+                          <td className="py-4 px-6">
+                            <span className={`inline-flex px-2.5 py-1 rounded-[6px] text-[11px] font-black uppercase tracking-widest border shadow-sm ${
+                              isSupplier ? 'bg-[#EFF6FF] dark:bg-[#1E3A8A]/30 text-[#2563EB] border-[#2563EB]/10' : 'bg-[#FFF7ED] dark:bg-[#7C2D12]/30 text-[#EA580C] border-[#EA580C]/10'
                             }`}>
                               {isSupplier ? 'Intake' : 'Outbound'}
                             </span>
                           </td>
-                          <td className="py-5 px-6 min-w-[180px]">
+                          <td className="py-4 px-6 min-w-[180px]">
                             <div className="flex items-center justify-between text-[11px] font-bold mb-1.5">
                               <span className={soldPct > 80 ? 'text-[#DC2626]' : 'text-[#16A34A]'}>{totalSold} / {totalSupplied} sold</span>
-                              <span className="text-[#8B93A7]">{soldPct}%</span>
+                              <span className="text-[#8B93A7] dark:text-[#8B93A7]">{soldPct}%</span>
                             </div>
-                            <div className="h-1.5 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-[#F3F4F6] dark:bg-white/5 rounded-full overflow-hidden">
                               <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: `${soldPct}%` }}
@@ -212,16 +241,16 @@ export default function ConsignmentManagement() {
                               />
                             </div>
                           </td>
-                          <td className="py-5 px-6 text-right font-black text-[15px] text-[#111111]">
+                          <td className="py-4 px-6 text-right font-black text-[15px] text-[#111111] dark:text-white">
                             GHS {item.totalValue.toLocaleString()}
                           </td>
-                          <td className="py-5 px-6 text-center">
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold ${
-                              item.status === 'Settled' ? 'bg-[#ECFDF3] text-[#16A34A]' : 
-                              item.status === 'In Transit' ? 'bg-[#EEF2FF] text-[#4F46E5]' : 'bg-[#FFF7ED] text-[#EA580C]'
+                          <td className="py-4 px-6 text-center">
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] text-[11px] font-black uppercase tracking-wider border shadow-sm ${
+                              item.status === 'Settled' ? 'bg-[#ECFDF3] dark:bg-[#064E3B]/30 text-[#16A34A] border-[#16A34A]/10' : 
+                              item.status === 'In Transit' ? 'bg-[#EEF2FF] dark:bg-[#1E3A8A]/30 text-[#4F46E5] border-[#4F46E5]/10' : 'bg-[#FFF7ED] dark:bg-[#7C2D12]/30 text-[#EA580C] border-[#EA580C]/10'
                             }`}>
                               <Icon icon={item.status === 'Settled' ? 'solar:check-circle-bold' : item.status === 'In Transit' ? 'solar:delivery-bold' : 'solar:clock-circle-bold'} />
-                              {item.status.toUpperCase()}
+                              {item.status}
                             </span>
                           </td>
                         </motion.tr>
@@ -237,8 +266,8 @@ export default function ConsignmentManagement() {
                 <div className="w-16 h-16 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#8B93A7] mb-4">
                   <Icon icon="solar:box-minimalistic-broken" className="text-[32px]" />
                 </div>
-                <h3 className="text-[18px] font-bold text-[#111111]">No movements found</h3>
-                <p className="text-[14px] text-[#525866] mt-1">Try adjusting your filters or record a new stock movement.</p>
+                <h3 className="text-[18px] font-bold text-[#111111]">No consignments found</h3>
+                <p className="text-[14px] text-[#525866] mt-1">Try adjusting your filters or create a new consignment.</p>
               </div>
             )}
           </div>
@@ -252,117 +281,5 @@ export default function ConsignmentManagement() {
       />
       <NewConsignmentModal />
     </div>
-  );
-}
-function ConsignmentDetailsModal({ consignment, onClose, onDelete }: { consignment: ConsignmentItem | null, onClose: () => void, onDelete: (id: string) => void }) {
-  if (!consignment) return null;
-
-  return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="fixed inset-0 bg-black/40 backdrop-blur-xl"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-[700px] bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-        >
-          <div className="px-10 py-8 border-b border-black/5 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className={`w-14 h-14 rounded-[18px] flex items-center justify-center ${consignment.type === 'Inbound' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#FFF7ED] text-[#EA580C]'}`}>
-                <Icon icon={consignment.type === 'Inbound' ? 'solar:import-bold' : 'solar:export-bold'} className="text-[28px]" />
-              </div>
-              <div>
-                <h2 className="text-[22px] font-black text-[#111111]">{consignment.name}</h2>
-                <p className="text-[13px] text-[#8B93A7] font-bold uppercase tracking-wider">{consignment.id} • {consignment.date}</p>
-              </div>
-            </div>
-            <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-black/5 flex items-center justify-center border border-black/5">
-              <Icon icon="solar:close-square-bold" className="text-[24px]" />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-5 rounded-[24px] bg-[#F9FAFB] border border-[#ECEDEF]">
-                <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-2">Partner Details</p>
-                <p className="text-[15px] font-black text-[#111111]">{consignment.partnerName}</p>
-                <p className="text-[13px] font-medium text-[#525866] mt-0.5">{consignment.type === 'Inbound' ? 'Supply Partner' : 'Official Dealer'}</p>
-              </div>
-              <div className="p-5 rounded-[24px] bg-[#F9FAFB] border border-[#ECEDEF]">
-                <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider mb-2">Movement Status</p>
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold ${
-                    consignment.status === 'Settled' ? 'bg-[#ECFDF3] text-[#16A34A]' : 
-                    consignment.status === 'In Transit' ? 'bg-[#EEF2FF] text-[#4F46E5]' : 'bg-[#FFF7ED] text-[#EA580C]'
-                  }`}>
-                    {consignment.status.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-[16px] font-black text-[#111111] flex items-center gap-2">
-                <Icon icon="solar:box-bold" className="text-[#D40073]" />
-                Inventory List
-              </h3>
-              <div className="space-y-3">
-                {consignment.items.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-4 bg-white border border-[#ECEDEF] rounded-[20px]">
-                    <div className="flex items-center gap-4">
-                      <img src={item.image} alt="" className="w-12 h-12 rounded-[12px] object-cover" />
-                      <div>
-                        <p className="text-[14px] font-bold text-[#111111]">{item.productName}</p>
-                        <p className="text-[11px] font-medium text-[#8B93A7]">{item.sku} • {item.suppliedQty} units</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[14px] font-black text-[#111111]">GHS {item.unitPrice.toLocaleString()}</p>
-                      <p className="text-[11px] font-bold text-[#16A34A]">{item.soldQty} sold</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {consignment.location && (
-              <div className="p-6 rounded-[24px] bg-[#F9FAFB] border border-[#ECEDEF] space-y-2">
-                <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Destination / Pickup Point</p>
-                <div className="flex items-center gap-3">
-                  <Icon icon="solar:map-point-bold" className="text-[#D40073] text-[20px]" />
-                  <p className="text-[14px] font-bold text-[#111111]">{consignment.location}</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="px-10 py-8 border-t border-black/5 bg-white flex items-center justify-between">
-            <div>
-              <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-wider">Total Combined Value</p>
-              <p className="text-[24px] font-black text-[#111111]">GHS {consignment.totalValue.toLocaleString()}</p>
-            </div>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => onDelete(consignment.id)}
-                className="h-12 px-6 rounded-[16px] bg-red-50 text-red-600 font-bold text-[14px] hover:bg-red-100 transition-all flex items-center gap-2"
-              >
-                <Icon icon="solar:trash-bin-trash-bold" />
-                Discard Movement
-              </button>
-              <button 
-                className="h-12 px-8 rounded-[16px] bg-[#111111] text-white font-bold text-[14px] hover:bg-black transition-all"
-              >
-                Export PDF
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </AnimatePresence>
   );
 }

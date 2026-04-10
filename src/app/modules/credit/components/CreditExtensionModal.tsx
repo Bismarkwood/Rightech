@@ -37,7 +37,7 @@ export function CreditExtensionModal({ isOpen, onClose }: CreditExtensionModalPr
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="w-full max-w-[560px] bg-white rounded-[32px] shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]"
+          className="w-full max-w-[560px] bg-white rounded-[32px] relative z-10 overflow-hidden flex flex-col max-h-[90vh]"
         >
           <div className="p-8 border-b border-[#ECEDEF] flex items-center justify-between">
             <div>
@@ -164,7 +164,7 @@ export function CreditExtensionModal({ isOpen, onClose }: CreditExtensionModalPr
             </button>
             <button 
               disabled={!selectedDealer || !amount}
-              className="flex-1 h-14 bg-[#111111] text-white rounded-[18px] text-[15px] font-black hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xl shadow-black/10"
+              className="flex-1 h-14 bg-[#111111] text-white rounded-[18px] text-[15px] font-black hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               Approve Extension
             </button>

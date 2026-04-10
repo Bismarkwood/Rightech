@@ -233,7 +233,7 @@ const LegalModal = ({ isOpen, onClose, title, children, lastUpdated }: any) => (
           initial={{ opacity: 0, scale: 0.9, y: 20 }} 
           animate={{ opacity: 1, scale: 1, y: 0 }} 
           exit={{ opacity: 0, scale: 0.9, y: 20 }} 
-          className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-[32px] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] overflow-hidden flex flex-col border border-[#ECEDEF]"
+          className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-[32px] overflow-hidden flex flex-col border border-[#ECEDEF]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

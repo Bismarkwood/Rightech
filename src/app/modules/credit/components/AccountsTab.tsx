@@ -14,7 +14,7 @@ export function AccountsTab() {
         const barColor = utilization > 85 ? '#EF4444' : utilization > 60 ? '#D97706' : '#16A34A';
         
         return (
-          <div key={account.id} className="bg-white rounded-[32px] border border-[#ECEDEF] p-6 hover:shadow-xl hover:shadow-black/[0.02] transition-all">
+          <div key={account.id} className="bg-white rounded-[32px] border border-[#ECEDEF] p-6 transition-all">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h3 className="text-[18px] font-black text-[#111111]">{account.dealerName}</h3>
@@ -78,13 +78,13 @@ export function AccountsTab() {
                 onClick={() => toggleSuspension(account.id)}
                 className={`flex-1 h-11 rounded-[16px] text-[13px] font-black transition-all ${
                   account.isSuspended 
-                    ? 'bg-[#EF4444] text-white shadow-lg shadow-red-500/20' 
+                    ? 'bg-[#EF4444] text-white' 
                     : 'bg-[#F3F4F6] text-[#111111] hover:bg-[#E5E7EB]'
                 }`}
               >
                 {account.isSuspended ? 'Lift Suspension' : 'Suspend Credit'}
               </button>
-              <button className="px-4 h-11 bg-[#111111] text-white rounded-[16px] text-[13px] font-black hover:bg-black transition-all shadow-lg shadow-black/10">
+              <button className="px-4 h-11 bg-[#111111] text-white rounded-[16px] text-[13px] font-black hover:bg-black transition-all">
                 View History
               </button>
             </div>

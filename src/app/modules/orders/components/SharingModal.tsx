@@ -17,12 +17,12 @@ export function SharingModal({ isOpen, onClose, order }: SharingModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent 
-        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[100] w-[540px] bg-white rounded-[40px] border border-[#ECEDEF] shadow-[0_40px_100px_rgba(0,0,0,0.15)] overflow-hidden p-0 outline-none"
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[100] w-[540px] bg-white rounded-[44px] border-[1.5px] border-[#ECEDEF] overflow-hidden p-0 outline-none flex flex-col"
       >
         <div className="relative p-10 flex flex-col items-center">
           {/* Header */}
           <div className="flex flex-col items-center text-center mb-10 w-full relative">
-            <div className="w-16 h-16 rounded-[24px] bg-[#D40073]/5 flex items-center justify-center text-[#D40073] border border-[#D40073]/10 mb-6 shadow-sm">
+            <div className="w-16 h-16 rounded-[24px] bg-[#D40073]/5 flex items-center justify-center text-[#D40073] border border-[#D40073]/10 mb-6">
               <Share2 size={32} strokeWidth={2.5} />
             </div>
             <div>

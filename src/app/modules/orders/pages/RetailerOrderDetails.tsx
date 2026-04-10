@@ -47,7 +47,7 @@ export default function RetailerOrderDetails() {
   if (!order) {
     return (
       <div className="flex flex-1 items-center justify-center p-8 bg-[#F7F7F8]">
-        <div className="bg-white rounded-[20px] border border-[#ECEDEF] p-10 text-center max-w-sm w-full shadow-sm">
+        <div className="bg-white rounded-[20px] border border-[#ECEDEF] p-10 text-center max-w-sm w-full">
           <div className="w-14 h-14 bg-[#FEF2F2] rounded-full flex items-center justify-center mx-auto mb-4 text-[#EF4444]">
             <Icon icon="solar:danger-triangle-bold" className="text-[28px]" />
           </div>

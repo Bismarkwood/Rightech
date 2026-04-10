@@ -104,7 +104,7 @@ export function DealerWorkflowProvider({ children }: { children: ReactNode }) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
               transition={{ type: 'spring', duration: 0.4, bounce: 0.18 }}
-              className="relative w-full max-w-[520px] bg-white rounded-[24px] overflow-hidden shadow-2xl z-10 flex flex-col max-h-[92vh]"
+              className="relative w-full max-w-[520px] bg-white rounded-[24px] overflow-hidden z-10 flex flex-col max-h-[92vh]"
             >
               {/* Header */}
               <div className="relative px-7 pt-7 pb-6 bg-[#111111] text-white overflow-hidden shrink-0">
@@ -236,7 +236,7 @@ export function DealerWorkflowProvider({ children }: { children: ReactNode }) {
                 ) : (
                   <button
                     onClick={handleSubmit}
-                    className="h-[44px] px-6 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] text-[14px] font-bold flex items-center gap-2 transition-all shadow-md shadow-[#D40073]/20"
+                    className="h-[44px] px-6 bg-[#D40073] hover:bg-[#B80063] text-white rounded-[10px] text-[14px] font-bold flex items-center gap-2 transition-all"
                   >
                     <Check size={16} strokeWidth={2.5} />
                     Create Dealer
@@ -255,9 +255,9 @@ export function DealerWorkflowProvider({ children }: { children: ReactNode }) {
             initial={{ opacity: 0, y: -20, x: 20 }}
             animate={{ opacity: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-6 right-6 z-[300] w-[360px] bg-white rounded-[16px] border border-[#ECEDEF] shadow-2xl p-4 flex gap-4 pointer-events-auto"
+            className="fixed top-6 right-6 z-[300] w-[360px] bg-white rounded-[16px] border border-[#ECEDEF] p-4 flex gap-4 pointer-events-auto"
           >
-            <div className="w-10 h-10 rounded-full bg-[#16A34A] text-white flex items-center justify-center shrink-0 shadow-lg shadow-[#16A34A]/20">
+            <div className="w-10 h-10 rounded-full bg-[#16A34A] text-white flex items-center justify-center shrink-0">
               <Check size={20} className="stroke-[3]" />
             </div>
             <div className="flex-1 min-w-0 pt-0.5">

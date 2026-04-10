@@ -17,17 +17,17 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent 
-        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[100] w-[540px] bg-white rounded-[44px] border-[1.5px] border-[#ECEDEF] overflow-hidden p-0 outline-none flex flex-col shadow-none"
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-[100] w-[480px] bg-white rounded-[32px] border-[1.5px] border-[#ECEDEF] overflow-hidden p-0 outline-none flex flex-col"
       >
         {/* Header - Minimalist Ticket ID */}
-        <div className="bg-[#F8F9FA] px-10 py-6 border-b border-[#ECEDEF] flex items-center justify-between shrink-0">
+        <div className="bg-[#F8F9FA] px-7 py-4 border-b border-[#ECEDEF] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 rounded-[16px] bg-white border border-[#ECEDEF] flex items-center justify-center text-[#D40073]">
                <Icon icon="solar:ticket-bold-duotone" className="text-[22px]" />
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-[18px] font-black text-[#111111] leading-none tracking-tight">{order.id}</h2>
+                <h2 className="text-[16px] font-black text-[#111111] leading-none tracking-tight">{order.id}</h2>
                 <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-[0.2em] uppercase bg-[#16A34A] text-white">
                   Active
                 </span>
@@ -42,16 +42,16 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
         </div>
 
         {/* Ticket Body - Cohesive Vertical Flow */}
-        <div className="p-10 space-y-8 bg-white">
+        <div className="p-7 space-y-7 bg-white">
           
           {/* 1. Customer Context */}
           <div className="flex items-center gap-5 p-6 bg-[#F8F9FA] rounded-[32px] border border-[#ECEDEF]">
-             <div className="w-14 h-14 rounded-[20px] bg-white border border-[#ECEDEF] flex items-center justify-center text-[#111111] font-black text-[22px] shadow-sm shadow-black/5">
+             <div className="w-14 h-14 rounded-[20px] bg-white border border-[#ECEDEF] flex items-center justify-center text-[#111111] font-black text-[22px]">
                 {order.customer?.name?.charAt(0) || 'K'}
              </div>
              <div>
-                <h3 className="text-[18px] font-black text-[#111111] tracking-tight">{order.customer?.name || order.customer}</h3>
-                <p className="text-[11px] font-bold text-[#8B93A7] uppercase tracking-[0.1em]">Verified Business Account</p>
+                <h3 className="text-[16px] font-black text-[#111111] tracking-tight">{order.customer?.name || order.customer}</h3>
+                <p className="text-[9px] font-bold text-[#8B93A7] uppercase tracking-[0.1em]">Verified Business Account</p>
              </div>
           </div>
 
@@ -79,7 +79,7 @@ export function OrderDetailModal({ isOpen, onClose, order }: OrderDetailModalPro
                 </div>
                 <div className="text-right">
                    <p className="text-[10px] font-black text-[#8B93A7] uppercase tracking-widest mb-1">Outstanding</p>
-                   <p className="text-[28px] font-black text-[#D40073] tracking-tighter leading-none">GHS 850.00</p>
+                   <p className="text-[24px] font-black text-[#D40073] tracking-tighter leading-none">GHS {Number(order.totalAmount || 850).toLocaleString('.2f')}</p>
                 </div>
              </div>
           </div>

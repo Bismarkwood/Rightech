@@ -19,7 +19,7 @@ export function PaymentMethodsTab() {
       {categories.map((cat) => (
         <section key={cat.id}>
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-[14px] bg-white border border-[#ECEDEF] flex items-center justify-center text-[#111111] shadow-sm">
+            <div className="w-10 h-10 rounded-[14px] bg-white border border-[#ECEDEF] flex items-center justify-center text-[#111111]">
               <cat.icon size={20} />
             </div>
             <div>
@@ -33,7 +33,7 @@ export function PaymentMethodsTab() {
               <div 
                 key={method.id} 
                 className={`bg-white p-6 rounded-[24px] border transition-all duration-300 relative group ${
-                  method.status === 'Active' ? 'border-[#ECEDEF] hover:border-[#D40073]/30 shadow-sm' : 'border-[#ECEDEF] opacity-60 grayscale'
+                  method.status === 'Active' ? 'border-[#ECEDEF] hover:border-[#D40073]/30' : 'border-[#ECEDEF] opacity-60 grayscale'
                 }`}
               >
                 <div className="flex items-start justify-between mb-6">
@@ -46,7 +46,7 @@ export function PaymentMethodsTab() {
                       method.status === 'Active' ? 'bg-[#16A34A]' : 'bg-[#E4E7EC]'
                     }`}
                   >
-                    <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-300 ${
+                    <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-300 ${
                       method.status === 'Active' ? 'translate-x-6' : 'translate-x-0'
                     }`} />
                   </button>
